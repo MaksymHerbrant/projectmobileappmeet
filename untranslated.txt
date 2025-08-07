@@ -1,0 +1,29 @@
+{
+  "es": [
+    "swipe_end",
+    "change_email",
+    "delete_account_message",
+    "unknown",
+    "user_profile",
+    "not_interested",
+    "group_created",
+    "location_updated",
+    "hobbies_not_found",
+    "event_description",
+    "tags"
+  ],
+
+  "pt": [
+    "swipe_end",
+    "change_email",
+    "delete_account_message",
+    "unknown",
+    "user_profile",
+    "not_interested",
+    "group_created",
+    "location_updated",
+    "hobbies_not_found",
+    "event_description",
+    "tags"
+  ]
+}
