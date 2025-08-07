@@ -97,18 +97,7 @@ class _EventsScreenState extends State<EventsScreen> {
               ),
             ),
           ),
-          // Плаваюча кнопка для створення події
-          floatingActionButton: FloatingActionButton(
-            onPressed: () {
-              _showCreateEventDialog();
-            },
-            backgroundColor: Colors.purple,
-            child: const Icon(
-              Icons.add,
-              color: Colors.white,
-              size: 28,
-            ),
-          ),
+
           // Нижнє меню навігації
           bottomNavigationBar: _buildBottomNavigationBar(),
         );
@@ -116,58 +105,7 @@ class _EventsScreenState extends State<EventsScreen> {
     );
   }
 
-  void _showCreateEventDialog() {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: Text(AppLocalizations.of(context)!.create_event),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              TextField(
-                decoration: InputDecoration(
-                  labelText: AppLocalizations.of(context)!.event_title,
-                  border: OutlineInputBorder(),
-                ),
-              ),
-              SizedBox(height: 16),
-              TextField(
-                decoration: InputDecoration(
-                  labelText: AppLocalizations.of(context)!.event_location,
-                  border: OutlineInputBorder(),
-                ),
-              ),
-              SizedBox(height: 16),
-              TextField(
-                decoration: InputDecoration(
-                  labelText: AppLocalizations.of(context)!.event_description,
-                  border: OutlineInputBorder(),
-                ),
-                maxLines: 3,
-              ),
-            ],
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.of(context).pop(),
-              child: Text(AppLocalizations.of(context)!.cancel),
-            ),
-            ElevatedButton(
-              onPressed: () {
-                // Тут буде логіка створення події
-                Navigator.of(context).pop();
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text(AppLocalizations.of(context)!.event_created)),
-                );
-              },
-              child: Text(AppLocalizations.of(context)!.create),
-            ),
-          ],
-        );
-      },
-    );
-  }
+
 
   Widget _buildTopBar() {
     return Container(
