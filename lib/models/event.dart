@@ -26,4 +26,38 @@ class Event {
     this.meetingPoint,
     this.additionalInfo,
   });
+
+  factory Event.fromJson(Map<String, dynamic> json) {
+    return Event(
+      id: json['id'].toString(),
+      title: json['title'] ?? '',
+      location: json['location'] ?? '',
+      dateTime: DateTime.parse(json['dateTime'] ?? DateTime.now().toIso8601String()),
+      photos: List<String>.from(json['photos'] ?? []),
+      tags: List<String>.from(json['tags'] ?? []),
+      description: json['description'] ?? '',
+      participantsCount: json['participantsCount'] ?? 0,
+      isPrivate: json['isPrivate'] ?? false,
+      privateLocation: json['privateLocation'],
+      meetingPoint: json['meetingPoint'],
+      additionalInfo: json['additionalInfo'],
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'title': title,
+      'location': location,
+      'dateTime': dateTime.toIso8601String(),
+      'photos': photos,
+      'tags': tags,
+      'description': description,
+      'participantsCount': participantsCount,
+      'isPrivate': isPrivate,
+      'privateLocation': privateLocation,
+      'meetingPoint': meetingPoint,
+      'additionalInfo': additionalInfo,
+    };
+  }
 } 
