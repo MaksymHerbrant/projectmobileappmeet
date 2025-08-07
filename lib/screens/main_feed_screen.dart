@@ -282,28 +282,54 @@ class _MainFeedScreenState extends State<MainFeedScreen> {
         borderRadius: BorderRadius.circular(20),
         child: Stack(
           children: [
-            // Карусель фото з правильним обробником жестов
+                            // Карусель фото з покращеним UI та анімаціями
             Container(
               height: double.infinity,
-              margin: const EdgeInsets.only(bottom: 0), // Зменшили відступ знизу для більшого фото
+              margin: const EdgeInsets.only(bottom: 0),
               child: PageView.builder(
                 key: ValueKey('pageview_${user.id}'),
                 controller: _createControllerForUser(user.id),
-                physics: const PageScrollPhysics(), // Стандартне листання для фото
+                physics: const BouncingScrollPhysics(), // Плавне листання з відскоком
                 itemCount: user.photos.length,
                 itemBuilder: (context, photoIndex) {
-                  return Image.asset(
-                    user.photos[photoIndex],
-                    fit: BoxFit.cover,
-                    width: double.infinity,
-                    height: double.infinity,
-                    errorBuilder: (context, error, stackTrace) => Container(
-                      color: Colors.grey[300],
-                      child: const Center(
-                        child: Icon(
-                          Icons.broken_image,
-                          size: 50,
-                          color: Colors.grey,
+                  return AnimatedContainer(
+                    duration: const Duration(milliseconds: 300),
+                    curve: Curves.easeInOut,
+                    child: Image.asset(
+                      user.photos[photoIndex],
+                      fit: BoxFit.cover,
+                      width: double.infinity,
+                      height: double.infinity,
+                      errorBuilder: (context, error, stackTrace) => Container(
+                        decoration: BoxDecoration(
+                          gradient: LinearGradient(
+                            begin: Alignment.topLeft,
+                            end: Alignment.bottomRight,
+                            colors: [
+                              Colors.grey[200]!,
+                              Colors.grey[300]!,
+                            ],
+                          ),
+                        ),
+                        child: const Center(
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Icon(
+                                Icons.image_not_supported_outlined,
+                                size: 64,
+                                color: Colors.grey,
+                              ),
+                              SizedBox(height: 8),
+                              Text(
+                                'Фото недоступне',
+                                style: TextStyle(
+                                  color: Colors.grey,
+                                  fontSize: 14,
+                                ),
+                              ),
+                            ],
+                          ),
                         ),
                       ),
                     ),
@@ -336,7 +362,7 @@ class _MainFeedScreenState extends State<MainFeedScreen> {
               ),
             ),
             
-            // Індикатор фото (текстовий) - показуємо тільки якщо є більше одного фото
+            // Індикатори крапками - показуємо тільки якщо є більше одного фото
             if (user.photos.length > 1)
               Positioned(
                 top: 20,
@@ -344,24 +370,22 @@ class _MainFeedScreenState extends State<MainFeedScreen> {
                 right: 0,
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    // Текстовий індикатор (1/3, 2/3, 3/3)
-                    Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  children: user.photos.asMap().entries.map((entry) {
+                    int index = entry.key;
+                    bool isActive = (_currentPhotoIndex[user.id] ?? 0) == index;
+                    return AnimatedContainer(
+                      duration: const Duration(milliseconds: 300),
+                      margin: const EdgeInsets.symmetric(horizontal: 3),
+                      width: isActive ? 24 : 8,
+                      height: 8,
                       decoration: BoxDecoration(
-                        color: Colors.black.withOpacity(0.3),
-                        borderRadius: BorderRadius.circular(12),
+                        color: isActive 
+                            ? Colors.white 
+                            : Colors.white.withOpacity(0.4),
+                        borderRadius: BorderRadius.circular(4),
                       ),
-                      child: Text(
-                        '${(_currentPhotoIndex[user.id] ?? 0) + 1}/${user.photos.length}',
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontSize: 12,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                    ),
-                  ],
+                    );
+                  }).toList(),
                 ),
               ),
             
@@ -482,67 +506,72 @@ class _MainFeedScreenState extends State<MainFeedScreen> {
               ),
             ),
             
-            // Стрілки для перемикання фото (показуємо тільки якщо є більше одного фото)
+            // Невидимі зони для тапу по фото з тактильним фідбеком
             if (user.photos.length > 1)
-              Positioned(
-                bottom: 15, // Підвищили позицію стрілок
-                left: 0,
-                right: 0,
+              Positioned.fill(
+                top: 60, // Залишаємо простір для dot indicators
+                bottom: 120, // Залишаємо простір для інформації про користувача
                 child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center, // Центруємо стрілки
                   children: [
-                    // Ліва стрілка
-                    GestureDetector(
-                      onTap: () {
-                        final currentIndex = _currentPhotoIndex[user.id] ?? 0;
-                        if (currentIndex > 0) {
-                          _createControllerForUser(user.id).previousPage(
-                            duration: const Duration(milliseconds: 300),
-                            curve: Curves.easeInOut,
-                          );
-                        }
-                      },
-                      child: Container(
-                        padding: const EdgeInsets.all(12),
-                        decoration: BoxDecoration(
-                          color: Colors.black.withOpacity(0.5), // Більш видимий фон
-                          borderRadius: BorderRadius.circular(25),
-                        ),
-                        child: Icon(
-                          Icons.chevron_left,
-                          color: (_currentPhotoIndex[user.id] ?? 0) > 0 
-                              ? Colors.white 
-                              : Colors.white.withOpacity(0.3),
-                          size: 24,
+                    // Ліва зона для попереднього фото
+                    Expanded(
+                      child: GestureDetector(
+                        onTap: () {
+                          final currentIndex = _currentPhotoIndex[user.id] ?? 0;
+                          if (currentIndex > 0) {
+                            // Тактильний фідбек
+                            if (Theme.of(context).platform == TargetPlatform.iOS) {
+                              // Для iOS
+                              try {
+                                // HapticFeedback.lightImpact();
+                              } catch (e) {
+                                debugPrint('Haptic feedback not available');
+                              }
+                            }
+                            
+                            _createControllerForUser(user.id).previousPage(
+                              duration: const Duration(milliseconds: 250),
+                              curve: Curves.easeOutCubic,
+                            );
+                          }
+                        },
+                        child: Container(
+                          color: Colors.transparent,
+                          // Додаємо невеликий візуальний індикатор при дебазі
+                          // decoration: kDebugMode ? BoxDecoration(
+                          //   border: Border.all(color: Colors.red.withOpacity(0.3))
+                          // ) : null,
                         ),
                       ),
                     ),
-                    
-                    const SizedBox(width: 20), // Відступ між стрілками
-                    
-                    // Права стрілка
-                    GestureDetector(
-                      onTap: () {
-                        final currentIndex = _currentPhotoIndex[user.id] ?? 0;
-                        if (currentIndex < user.photos.length - 1) {
-                          _createControllerForUser(user.id).nextPage(
-                            duration: const Duration(milliseconds: 300),
-                            curve: Curves.easeInOut,
-                          );
-                        }
-                      },
-                      child: Container(
-                        padding: const EdgeInsets.all(12),
-                        decoration: BoxDecoration(
-                          color: Colors.black.withOpacity(0.5), // Більш видимий фон
-                          borderRadius: BorderRadius.circular(25),
-                        ),
-                        child: Icon(
-                          Icons.chevron_right,
-                          color: (_currentPhotoIndex[user.id] ?? 0) < user.photos.length - 1 
-                              ? Colors.white 
-                              : Colors.white.withOpacity(0.3),
-                          size: 24,
+                    // Права зона для наступного фото
+                    Expanded(
+                      child: GestureDetector(
+                        onTap: () {
+                          final currentIndex = _currentPhotoIndex[user.id] ?? 0;
+                          if (currentIndex < user.photos.length - 1) {
+                            // Тактильний фідбек
+                            if (Theme.of(context).platform == TargetPlatform.iOS) {
+                              // Для iOS
+                              try {
+                                // HapticFeedback.lightImpact();
+                              } catch (e) {
+                                debugPrint('Haptic feedback not available');
+                              }
+                            }
+                            
+                            _createControllerForUser(user.id).nextPage(
+                              duration: const Duration(milliseconds: 250),
+                              curve: Curves.easeOutCubic,
+                            );
+                          }
+                        },
+                        child: Container(
+                          color: Colors.transparent,
+                          // Додаємо невеликий візуальний індикатор при дебазі
+                          // decoration: kDebugMode ? BoxDecoration(
+                          //   border: Border.all(color: Colors.blue.withOpacity(0.3))
+                          // ) : null,
                         ),
                       ),
                     ),
@@ -645,29 +674,41 @@ class _MainFeedScreenState extends State<MainFeedScreen> {
   }
 
   Widget _buildActionButton(IconData icon, Color backgroundColor, VoidCallback onTap, {Color? borderColor, double size = 60}) {
-    return GestureDetector(
-      onTap: onTap,
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 200),
-        curve: Curves.easeInOut,
-        width: size,
-        height: size,
-        decoration: BoxDecoration(
-          color: backgroundColor,
-          shape: BoxShape.circle,
-          border: borderColor != null ? Border.all(color: borderColor, width: 2) : null,
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withOpacity(0.1),
-              blurRadius: 8,
-              offset: const Offset(0, 4),
-            ),
-          ],
-        ),
-        child: Icon(
-          icon,
-          color: backgroundColor == Colors.white ? Colors.black : Colors.white,
-          size: size * 0.45, // Пропорційний розмір іконки
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(size / 2),
+        splashColor: backgroundColor.withOpacity(0.3),
+        highlightColor: backgroundColor.withOpacity(0.1),
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 200),
+          curve: Curves.easeOutCubic,
+          width: size,
+          height: size,
+          decoration: BoxDecoration(
+            color: backgroundColor,
+            shape: BoxShape.circle,
+            border: borderColor != null ? Border.all(color: borderColor, width: 2) : null,
+            boxShadow: [
+              BoxShadow(
+                color: backgroundColor.withOpacity(0.3),
+                blurRadius: 12,
+                offset: const Offset(0, 6),
+                spreadRadius: 0,
+              ),
+              BoxShadow(
+                color: Colors.black.withOpacity(0.1),
+                blurRadius: 4,
+                offset: const Offset(0, 2),
+              ),
+            ],
+          ),
+          child: Icon(
+            icon,
+            color: backgroundColor == Colors.white ? Colors.black87 : Colors.white,
+            size: size * 0.45,
+          ),
         ),
       ),
     );
