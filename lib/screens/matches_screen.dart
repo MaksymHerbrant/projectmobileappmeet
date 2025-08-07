@@ -5,6 +5,7 @@ import '../models/user_profile.dart';
 import '../models/event.dart';
 import 'event_requests_screen.dart';
 import 'user_profile_view_screen.dart';
+import 'create_event_screen.dart';
 
 class MatchesScreen extends StatefulWidget {
   const MatchesScreen({Key? key}) : super(key: key);
@@ -148,24 +149,24 @@ class _MatchesScreenState extends State<MatchesScreen>
   @override
   Widget build(BuildContext context) {
     final t = AppLocalizations.of(context)!;
-    return Scaffold(
+        return Scaffold(
       backgroundColor: const Color(0xFFF3E5F5),
       body: SafeArea(
-        child: Column(
-          children: [
+          child: Column(
+            children: [
             _buildTopBar(t),
             _buildTabBar(t),
-            Expanded(
-              child: TabBarView(
-                controller: _tabController,
-                children: [
+              Expanded(
+                child: TabBarView(
+                  controller: _tabController,
+                  children: [
                   _buildLikedMeTab(t),
                   _buildMyEventsTab(t),
                   _buildEventInvitationsTab(t),
-                ],
+                  ],
+                ),
               ),
-            ),
-          ],
+            ],
         ),
       ),
     );
@@ -177,11 +178,11 @@ class _MatchesScreenState extends State<MatchesScreen>
       alignment: Alignment.centerLeft,
       child: Text(
         t.requests,
-        style: const TextStyle(
-          fontSize: 20,
-          fontWeight: FontWeight.bold,
-          color: Colors.black87,
-        ),
+            style: const TextStyle(
+              fontSize: 20,
+              fontWeight: FontWeight.bold,
+              color: Colors.black87,
+            ),
       ),
     );
   }
@@ -288,9 +289,9 @@ class _MatchesScreenState extends State<MatchesScreen>
                         borderRadius: BorderRadius.circular(8),
                       ),
                       child: const Icon(Icons.info, color: Colors.white, size: 18),
+                      ),
                     ),
                   ),
-                ),
                 Positioned(
                   left: 0,
                   right: 0,
@@ -309,29 +310,29 @@ class _MatchesScreenState extends State<MatchesScreen>
                       ),
                     ),
                     child: Row(
-                      children: [
-                        Text(
-                          '${user.name}, ${user.age}',
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                        const SizedBox(width: 8),
+                          children: [
+                            Text(
+                              '${user.name}, ${user.age}',
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontSize: 18,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            const SizedBox(width: 8),
                         const Icon(Icons.location_on, size: 16, color: Colors.white70),
-                        Text(
-                          user.location,
+                            Text(
+                              user.location,
                           style: const TextStyle(color: Colors.white70, fontSize: 14),
+                            ),
+                          ],
                         ),
-                      ],
-                    ),
                   ),
                 ),
               ],
             ),
           ),
-
+          
           // Хобі
           Padding(
             padding: const EdgeInsets.all(16),
@@ -458,7 +459,7 @@ class _MatchesScreenState extends State<MatchesScreen>
           margin: const EdgeInsets.all(20),
           width: double.infinity,
           child: ElevatedButton.icon(
-            onPressed: _showCreateEventDialog,
+            onPressed: _navigateToCreateEvent,
             icon: const Icon(Icons.add, color: Colors.white),
             label: Text(
               t.create_event,
@@ -468,9 +469,9 @@ class _MatchesScreenState extends State<MatchesScreen>
               backgroundColor: Colors.purple,
               padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+              ),
             ),
           ),
-        ),
         Expanded(
           child: _myEvents.isEmpty
               ? _buildEmptyState(
@@ -525,15 +526,15 @@ class _MatchesScreenState extends State<MatchesScreen>
                         borderRadius: BorderRadius.circular(8),
                       ),
                       child: const Icon(Icons.info, color: Colors.white, size: 18),
+                      ),
                     ),
                   ),
-                ),
                 Positioned(
                   left: 0,
                   right: 0,
                   bottom: 0,
                   child: Container(
-                    padding: const EdgeInsets.all(16),
+                  padding: const EdgeInsets.all(16),
                     decoration: BoxDecoration(
                       gradient: LinearGradient(
                         begin: Alignment.topCenter,
@@ -541,25 +542,25 @@ class _MatchesScreenState extends State<MatchesScreen>
                         colors: [Colors.transparent, Colors.black.withOpacity(0.6)],
                       ),
                     ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      mainAxisAlignment: MainAxisAlignment.end,
-                      children: [
-                        Text(
-                          event.title,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: [
+                      Text(
+                        event.title,
                           style: const TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold),
-                        ),
-                        const SizedBox(height: 4),
-                        Row(
-                          children: [
+                      ),
+                      const SizedBox(height: 4),
+                      Row(
+                        children: [
                             const Icon(Icons.location_on, size: 16, color: Colors.white70),
                             Text(event.location, style: const TextStyle(color: Colors.white70)),
-                            const SizedBox(width: 16),
+                          const SizedBox(width: 16),
                             const Icon(Icons.people, size: 16, color: Colors.white70),
                             Text('${event.participantsCount}', style: const TextStyle(color: Colors.white70)),
-                          ],
-                        ),
-                      ],
+                        ],
+                      ),
+                    ],
                     ),
                   ),
                 ),
@@ -609,16 +610,16 @@ class _MatchesScreenState extends State<MatchesScreen>
             padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
             child: SizedBox(
               width: double.infinity,
-              child: ElevatedButton(
-                onPressed: () => _handleViewRequests(event),
-                style: ElevatedButton.styleFrom(
+                              child: ElevatedButton(
+                  onPressed: () => _handleViewRequests(event),
+                  style: ElevatedButton.styleFrom(
                   backgroundColor: const Color(0xFF4C78AF),
-                  foregroundColor: Colors.white,
-                  padding: const EdgeInsets.symmetric(vertical: 12),
+                    foregroundColor: Colors.white,
+                    padding: const EdgeInsets.symmetric(vertical: 12),
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                 ),
                 child: Text(t.view_requests, style: const TextStyle(fontWeight: FontWeight.w600)),
-              ),
+                ),
             ),
           ),
         ],
@@ -648,13 +649,13 @@ class _MatchesScreenState extends State<MatchesScreen>
                   label: 'Прийняті',
                   onTap: () => setState(() => _invitationsFilter = 1),
                   activeColor: Colors.green,
-                ),
-              ),
-            ],
-          ),
-        ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
         Expanded(
-          child: _invitationsFilter == 0
+          child: _invitationsFilter == 0 
               ? _buildPendingInvitationsList(t)
               : _buildAcceptedInvitationsList(t),
         ),
@@ -758,7 +759,7 @@ class _MatchesScreenState extends State<MatchesScreen>
             ],
           ),
           if (message.isNotEmpty) ...[
-            const SizedBox(height: 8),
+          const SizedBox(height: 8),
             Container(
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(color: Colors.grey.shade50, borderRadius: BorderRadius.circular(8)),
@@ -811,7 +812,7 @@ class _MatchesScreenState extends State<MatchesScreen>
                       backgroundColor: Colors.green,
                       foregroundColor: Colors.white,
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-                    ),
+                      ),
                     child: Text(t.accept_invitation),
                   ),
                 ),
@@ -823,14 +824,14 @@ class _MatchesScreenState extends State<MatchesScreen>
                       foregroundColor: Colors.red,
                       side: const BorderSide(color: Colors.red),
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-                    ),
+                      ),
                     child: Text(t.decline_invitation),
+                    ),
                   ),
+              ],
                 ),
               ],
             ),
-        ],
-      ),
     );
   }
 
@@ -894,9 +895,9 @@ class _MatchesScreenState extends State<MatchesScreen>
       ),
       builder: (context) {
         return SafeArea(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
               ListTile(
                 leading: const Icon(Icons.person, color: Color(0xFF4C78AF)),
                 title: Text(t.view_profile),
@@ -939,7 +940,7 @@ class _MatchesScreenState extends State<MatchesScreen>
           title: Text(t.send_event_invitation),
           content: Column(
             mainAxisSize: MainAxisSize.min,
-            children: [
+                        children: [
               Text('Виберіть подію для запрошення ${user.name}:'),
               const SizedBox(height: 16),
               ..._myEvents.map((event) => ListTile(
@@ -977,19 +978,18 @@ class _MatchesScreenState extends State<MatchesScreen>
     );
   }
 
-  void _showCreateEventDialog() {
-    showDialog(
-      context: context,
-      builder: (context) {
-        return AlertDialog(
-          title: const Text('Створити подію'),
-          content: const Text('Тут буде форма створення події.'),
-          actions: [
-            TextButton(onPressed: () => Navigator.of(context).pop(), child: const Text('OK')),
-          ],
-        );
-      },
+  void _navigateToCreateEvent() async {
+    final result = await Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (context) => const CreateEventScreen(),
+      ),
     );
+    
+    if (result != null && result is Event) {
+      setState(() {
+        _myEvents.add(result);
+      });
+    }
   }
 
   void _handleViewRequests(Event event) {
@@ -1078,7 +1078,7 @@ class _TabChip extends StatelessWidget {
       onTap: onTap,
       child: Container(
         padding: const EdgeInsets.symmetric(vertical: 12),
-        decoration: BoxDecoration(
+                                   decoration: BoxDecoration(
           color: isActive ? selectedColor : Colors.transparent,
           borderRadius: BorderRadius.circular(25),
           border: Border.all(color: isActive ? selectedColor : Colors.grey.shade300),
@@ -1086,9 +1086,9 @@ class _TabChip extends StatelessWidget {
         child: Text(
           label,
           textAlign: TextAlign.center,
-          style: TextStyle(
+                                               style: TextStyle(
             color: isActive ? Colors.white : Colors.black,
-            fontWeight: FontWeight.w600,
+                                                 fontWeight: FontWeight.w600,
             fontSize: 14,
           ),
         ),
@@ -1117,18 +1117,18 @@ class _ActionButton extends StatelessWidget {
       onTap: onTap,
       child: Container(
         padding: const EdgeInsets.symmetric(vertical: 12),
-        decoration: BoxDecoration(
+                          decoration: BoxDecoration(
           color: color,
-          borderRadius: BorderRadius.circular(12),
+                            borderRadius: BorderRadius.circular(12),
           boxShadow: [
             BoxShadow(color: color.withOpacity(0.3), blurRadius: 8, offset: const Offset(0, 2)),
           ],
-        ),
-        child: Column(
-          children: [
+                          ),
+                          child: Column(
+                            children: [
             Icon(icon, color: Colors.white, size: 20),
             const SizedBox(height: 4),
-            Text(
+                                  Text(
               label,
               style: const TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.w600),
             ),
