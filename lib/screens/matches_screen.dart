@@ -6,6 +6,7 @@ import '../models/event.dart';
 import 'event_requests_screen.dart';
 import 'user_profile_view_screen.dart';
 import 'create_event_screen.dart';
+import 'accepted_event_detail_screen.dart';
 
 class MatchesScreen extends StatefulWidget {
   const MatchesScreen({Key? key}) : super(key: key);
@@ -790,7 +791,7 @@ class _MatchesScreenState extends State<MatchesScreen>
                     ),
                   ),
                   ElevatedButton(
-                    onPressed: () => _showEventDetails(event),
+                    onPressed: () => _showAcceptedEventDetails(invitation),
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.green,
                       foregroundColor: Colors.white,
@@ -1041,18 +1042,21 @@ class _MatchesScreenState extends State<MatchesScreen>
     return '${date.day}.${date.month}.${date.year}';
   }
 
-  void _showEventDetails(Event event) {
-    showDialog(
-      context: context,
-      builder: (context) {
-        return AlertDialog(
-          title: Text('Деталі події'),
-          content: Text('${event.title}\n${event.location}\n${event.description}'),
-          actions: [
-            TextButton(onPressed: () => Navigator.of(context).pop(), child: const Text('OK')),
-          ],
-        );
-      },
+  void _showAcceptedEventDetails(Map<String, dynamic> invitation) {
+    final event = invitation['event'] as Event;
+    final inviter = invitation['inviter'] as UserProfile;
+    final message = invitation['message'] as String?;
+    final acceptedAt = invitation['acceptedAt'] as DateTime;
+
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (context) => AcceptedEventDetailScreen(
+          event: event,
+          organizer: inviter,
+          acceptedAt: acceptedAt,
+          invitationMessage: message,
+        ),
+      ),
     );
   }
 }
