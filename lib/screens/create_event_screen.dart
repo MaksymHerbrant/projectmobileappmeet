@@ -1,8 +1,11 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:intl/intl.dart';
-
+import 'package:image_picker/image_picker.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 import '../models/event.dart';
+import '../service/matches_service.dart';
+import 'package:dating_app/l10n/gen/app_localizations.dart';
 
 class CreateEventScreen extends StatefulWidget {
   const CreateEventScreen({Key? key}) : super(key: key);
@@ -11,76 +14,63 @@ class CreateEventScreen extends StatefulWidget {
   State<CreateEventScreen> createState() => _CreateEventScreenState();
 }
 
-class _CreateEventScreenState extends State<CreateEventScreen>
-    with TickerProviderStateMixin {
+class _CreateEventScreenState extends State<CreateEventScreen> with TickerProviderStateMixin {
+  final _matchesService = MatchesService();
   final _formKey = GlobalKey<FormState>();
   final _scrollController = ScrollController();
   
-  // Animation controllers
+  // Контролери анімації
   late AnimationController _fadeController;
   late AnimationController _slideController;
   late Animation<double> _fadeAnimation;
   late Animation<Offset> _slideAnimation;
 
-  // Form controllers
+  // Контролери форми
   final _titleController = TextEditingController();
   final _descriptionController = TextEditingController();
   final _locationController = TextEditingController();
   final _maxParticipantsController = TextEditingController();
   
-  // Private event controllers
+  // Контролери для приватної події
   final _privateLocationController = TextEditingController();
   final _meetingPointController = TextEditingController();
   final _additionalInfoController = TextEditingController();
   final _privateMessageController = TextEditingController();
 
-  // Form state
+  // Стан форми
   DateTime? _selectedDate;
   TimeOfDay? _selectedTime;
   bool _isPrivateEvent = false;
   bool _isLoading = false;
   List<String> _selectedTags = [];
-  List<String> _selectedPhotos = [];
+  
+  // Локальні фотографії
+  final ImagePicker _picker = ImagePicker();
+  List<File> _selectedLocalPhotos = [];
 
-  // Available options
   final List<String> _availableTags = [
     'Музика', 'Танці', 'Спорт', 'Подорожі', 'Освіта', 'Вечірка',
     'Кава', 'Кіно', 'Мистецтво', 'Походи', 'Гори', 'Природа',
     'IT', 'Програмування', 'Геймінг', 'Фотографія', 'Кулінарія'
   ];
 
-  final List<String> _availablePhotos = [
-    'assets/images/pexels-rdne-4920848.jpg',
-    'assets/images/pexels-rpnickson-2609463.jpg',
-    'assets/images/club1.jpg',
-    'assets/images/goverla1.jpg',
-    'assets/images/workshop.jpg',
-  ];
-
   @override
   void initState() {
     super.initState();
     _initAnimations();
-    _maxParticipantsController.text = '10';
+    _maxParticipantsController.text = '10'; // Значення за замовчуванням
   }
 
   void _initAnimations() {
-    _fadeController = AnimationController(
-      duration: const Duration(milliseconds: 800),
-      vsync: this,
-    );
-    _slideController = AnimationController(
-      duration: const Duration(milliseconds: 600),
-      vsync: this,
-    );
+    _fadeController = AnimationController(duration: const Duration(milliseconds: 800), vsync: this);
+    _slideController = AnimationController(duration: const Duration(milliseconds: 600), vsync: this);
     
     _fadeAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
       CurvedAnimation(parent: _fadeController, curve: Curves.easeInOut),
     );
-    _slideAnimation = Tween<Offset>(
-      begin: const Offset(0, 0.3),
-      end: Offset.zero,
-    ).animate(CurvedAnimation(parent: _slideController, curve: Curves.easeOutBack));
+    _slideAnimation = Tween<Offset>(begin: const Offset(0, 0.3), end: Offset.zero).animate(
+      CurvedAnimation(parent: _slideController, curve: Curves.easeOutBack)
+    );
 
     _fadeController.forward();
     _slideController.forward();
@@ -100,6 +90,33 @@ class _CreateEventScreenState extends State<CreateEventScreen>
     _additionalInfoController.dispose();
     _privateMessageController.dispose();
     super.dispose();
+  }
+
+  // 🟢 Метод вибору фото з галереї
+  Future<void> _pickImage() async {
+    try {
+      final XFile? image = await _picker.pickImage(
+        source: ImageSource.gallery,
+        imageQuality: 70, // Оптимізація розміру
+        maxWidth: 1080,
+        maxHeight: 1920,
+      );
+      
+      if (image != null) {
+        setState(() {
+          _selectedLocalPhotos.add(File(image.path));
+        });
+      }
+    } catch (e) {
+      debugPrint("Помилка вибору фото: $e");
+    }
+  }
+
+  // 🟢 Метод видалення фото
+  void _removePhoto(int index) {
+    setState(() {
+      _selectedLocalPhotos.removeAt(index);
+    });
   }
 
   @override
@@ -287,13 +304,9 @@ class _CreateEventScreenState extends State<CreateEventScreen>
       children: [
         Row(
           children: [
-            Expanded(
-              child: _buildDateSelector(t),
-            ),
+            Expanded(child: _buildDateSelector(t)),
             const SizedBox(width: 16),
-            Expanded(
-              child: _buildTimeSelector(t),
-            ),
+            Expanded(child: _buildTimeSelector(t)),
           ],
         ),
       ],
@@ -312,44 +325,21 @@ class _CreateEventScreenState extends State<CreateEventScreen>
             color: _selectedDate == null ? Colors.grey.shade300 : Colors.purple.shade300,
             width: 1.5,
           ),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withOpacity(0.05),
-              blurRadius: 8,
-              offset: const Offset(0, 2),
-            ),
-          ],
+          boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 8, offset: const Offset(0, 2))],
         ),
         child: Row(
           children: [
-            Icon(
-              Icons.calendar_today,
-              color: _selectedDate == null ? Colors.grey.shade400 : Colors.purple.shade600,
-              size: 20,
-            ),
+            Icon(Icons.calendar_today, color: _selectedDate == null ? Colors.grey.shade400 : Colors.purple.shade600, size: 20),
             const SizedBox(width: 12),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
-                    'Дата',
-                    style: TextStyle(
-                      fontSize: 12,
-                      color: Colors.grey.shade600,
-                      fontWeight: FontWeight.w500,
-                    ),
-                  ),
+                  Text('Дата', style: TextStyle(fontSize: 12, color: Colors.grey.shade600, fontWeight: FontWeight.w500)),
                   const SizedBox(height: 2),
                   Text(
-                    _selectedDate == null
-                        ? 'Оберіть дату'
-                        : DateFormat('dd.MM.yyyy').format(_selectedDate!),
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w600,
-                      color: _selectedDate == null ? Colors.grey.shade400 : Colors.black87,
-                    ),
+                    _selectedDate == null ? 'Оберіть дату' : DateFormat('dd.MM.yyyy').format(_selectedDate!),
+                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600, color: _selectedDate == null ? Colors.grey.shade400 : Colors.black87),
                   ),
                 ],
               ),
@@ -372,44 +362,21 @@ class _CreateEventScreenState extends State<CreateEventScreen>
             color: _selectedTime == null ? Colors.grey.shade300 : Colors.purple.shade300,
             width: 1.5,
           ),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withOpacity(0.05),
-              blurRadius: 8,
-              offset: const Offset(0, 2),
-            ),
-          ],
+          boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 8, offset: const Offset(0, 2))],
         ),
         child: Row(
           children: [
-            Icon(
-              Icons.access_time,
-              color: _selectedTime == null ? Colors.grey.shade400 : Colors.purple.shade600,
-              size: 20,
-            ),
+            Icon(Icons.access_time, color: _selectedTime == null ? Colors.grey.shade400 : Colors.purple.shade600, size: 20),
             const SizedBox(width: 12),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
-                    'Час',
-                    style: TextStyle(
-                      fontSize: 12,
-                      color: Colors.grey.shade600,
-                      fontWeight: FontWeight.w500,
-                    ),
-                  ),
+                  Text('Час', style: TextStyle(fontSize: 12, color: Colors.grey.shade600, fontWeight: FontWeight.w500)),
                   const SizedBox(height: 2),
                   Text(
-                    _selectedTime == null
-                        ? 'Оберіть час'
-                        : _selectedTime!.format(context),
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w600,
-                      color: _selectedTime == null ? Colors.grey.shade400 : Colors.black87,
-                    ),
+                    _selectedTime == null ? 'Оберіть час' : _selectedTime!.format(context),
+                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600, color: _selectedTime == null ? Colors.grey.shade400 : Colors.black87),
                   ),
                 ],
               ),
@@ -430,33 +397,20 @@ class _CreateEventScreenState extends State<CreateEventScreen>
           decoration: BoxDecoration(
             color: Colors.white,
             borderRadius: BorderRadius.circular(16),
-            border: Border.all(
-              color: _isPrivateEvent ? Colors.purple.shade300 : Colors.grey.shade300,
-              width: 1.5,
-            ),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withOpacity(0.05),
-                blurRadius: 8,
-                offset: const Offset(0, 2),
-              ),
-            ],
+            border: Border.all(color: _isPrivateEvent ? Colors.purple.shade300 : Colors.grey.shade300, width: 1.5),
+            boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 8, offset: const Offset(0, 2))],
           ),
           child: Row(
             children: [
               Container(
                 padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(
-                  color: _isPrivateEvent 
-                      ? Colors.purple.shade100 
-                      : Colors.grey.shade100,
+                  color: _isPrivateEvent ? Colors.purple.shade100 : Colors.grey.shade100,
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: Icon(
                   _isPrivateEvent ? Icons.lock : Icons.public,
-                  color: _isPrivateEvent 
-                      ? Colors.purple.shade600 
-                      : Colors.grey.shade600,
+                  color: _isPrivateEvent ? Colors.purple.shade600 : Colors.grey.shade600,
                   size: 24,
                 ),
               ),
@@ -465,24 +419,11 @@ class _CreateEventScreenState extends State<CreateEventScreen>
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
-                      _isPrivateEvent ? 'Приватна вечірка' : 'Публічна подія',
-                      style: const TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.black87,
-                      ),
-                    ),
+                    Text(_isPrivateEvent ? 'Приватна вечірка' : 'Публічна подія', style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.black87)),
                     const SizedBox(height: 4),
                     Text(
-                      _isPrivateEvent 
-                          ? 'Додаткова інформація буде доступна тільки запрошеним'
-                          : 'Подія доступна всім користувачам',
-                      style: TextStyle(
-                        fontSize: 14,
-                        color: Colors.grey.shade600,
-                        height: 1.3,
-                      ),
+                      _isPrivateEvent ? 'Додаткова інформація буде доступна тільки запрошеним' : 'Подія доступна всім користувачам',
+                      style: TextStyle(fontSize: 14, color: Colors.grey.shade600, height: 1.3),
                     ),
                   ],
                 ),
@@ -492,12 +433,8 @@ class _CreateEventScreenState extends State<CreateEventScreen>
                 child: Switch(
                   value: _isPrivateEvent,
                   onChanged: (value) {
-                    setState(() {
-                      _isPrivateEvent = value;
-                    });
-                    if (value) {
-                      _scrollToPrivateFields();
-                    }
+                    setState(() => _isPrivateEvent = value);
+                    if (value) _scrollToPrivateFields();
                   },
                   activeColor: Colors.white,
                   activeTrackColor: Colors.purple.shade400,
@@ -521,49 +458,15 @@ class _CreateEventScreenState extends State<CreateEventScreen>
         icon: Icons.lock_outline,
         color: Colors.purple.shade50,
         children: [
-          Text(
-            'Ця інформація буде доступна тільки після підтвердження запиту на участь',
-            style: TextStyle(
-              fontSize: 14,
-              color: Colors.purple.shade700,
-              fontStyle: FontStyle.italic,
-              height: 1.4,
-            ),
-          ),
+          Text('Ця інформація буде доступна тільки після підтвердження запиту на участь', style: TextStyle(fontSize: 14, color: Colors.purple.shade700, fontStyle: FontStyle.italic, height: 1.4)),
           const SizedBox(height: 16),
-          _buildTextField(
-            controller: _privateLocationController,
-            label: 'Точна адреса',
-            hint: 'вул. Хрещатик, 1, кв. 10',
-            icon: Icons.home,
-            validator: _isPrivateEvent ? (value) {
-              if (value?.isEmpty ?? true) return 'Вкажіть точну адресу';
-              return null;
-            } : null,
-          ),
+          _buildTextField(controller: _privateLocationController, label: 'Точна адреса', hint: 'вул. Хрещатик, 1, кв. 10', icon: Icons.home, validator: _isPrivateEvent ? (v) => v?.isEmpty ?? true ? 'Вкажіть точну адресу' : null : null),
           const SizedBox(height: 16),
-          _buildTextField(
-            controller: _meetingPointController,
-            label: 'Місце зустрічі',
-            hint: 'Біля головного входу в ТРЦ',
-            icon: Icons.meeting_room,
-          ),
+          _buildTextField(controller: _meetingPointController, label: 'Місце зустрічі', hint: 'Біля головного входу в ТРЦ', icon: Icons.meeting_room),
           const SizedBox(height: 16),
-          _buildTextField(
-            controller: _additionalInfoController,
-            label: 'Додаткова інформація',
-            hint: 'Що потрібно взяти з собою, дрес-код тощо',
-            icon: Icons.info,
-            maxLines: 2,
-          ),
+          _buildTextField(controller: _additionalInfoController, label: 'Додаткова інформація', hint: 'Що потрібно взяти з собою, дрес-код тощо', icon: Icons.info, maxLines: 2),
           const SizedBox(height: 16),
-          _buildTextField(
-            controller: _privateMessageController,
-            label: 'Повідомлення для учасників',
-            hint: 'Особисте повідомлення, яке побачать запрошені',
-            icon: Icons.message,
-            maxLines: 3,
-          ),
+          _buildTextField(controller: _privateMessageController, label: 'Повідомлення для учасників', hint: 'Особисте повідомлення, яке побачать запрошені', icon: Icons.message, maxLines: 3),
         ],
       ),
     );
@@ -574,14 +477,7 @@ class _CreateEventScreenState extends State<CreateEventScreen>
       title: 'Теги',
       icon: Icons.tag,
       children: [
-        Text(
-          'Оберіть теги, які найкраще описують вашу подію (до 5)',
-          style: TextStyle(
-            fontSize: 14,
-            color: Colors.grey.shade600,
-            height: 1.4,
-          ),
-        ),
+        Text('Оберіть теги, які найкраще описують вашу подію (до 5)', style: TextStyle(fontSize: 14, color: Colors.grey.shade600, height: 1.4)),
         const SizedBox(height: 16),
         Wrap(
           spacing: 8,
@@ -596,36 +492,14 @@ class _CreateEventScreenState extends State<CreateEventScreen>
                 decoration: BoxDecoration(
                   color: isSelected ? Colors.purple.shade100 : Colors.white,
                   borderRadius: BorderRadius.circular(20),
-                  border: Border.all(
-                    color: isSelected ? Colors.purple.shade300 : Colors.grey.shade300,
-                    width: 1.5,
-                  ),
-                  boxShadow: isSelected ? [
-                    BoxShadow(
-                      color: Colors.purple.withOpacity(0.2),
-                      blurRadius: 4,
-                      offset: const Offset(0, 2),
-                    ),
-                  ] : null,
+                  border: Border.all(color: isSelected ? Colors.purple.shade300 : Colors.grey.shade300, width: 1.5),
+                  boxShadow: isSelected ? [BoxShadow(color: Colors.purple.withOpacity(0.2), blurRadius: 4, offset: const Offset(0, 2))] : null,
                 ),
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    if (isSelected) ...[
-                      Icon(
-                        Icons.check_circle,
-                        size: 16,
-                        color: Colors.purple.shade600,
-                      ),
-                      const SizedBox(width: 4),
-                    ],
-                    Text(
-                      tag,
-                      style: TextStyle(
-                        color: isSelected ? Colors.purple.shade700 : Colors.grey.shade700,
-                        fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
-                      ),
-                    ),
+                    if (isSelected) ...[Icon(Icons.check_circle, size: 16, color: Colors.purple.shade600), const SizedBox(width: 4)],
+                    Text(tag, style: TextStyle(color: isSelected ? Colors.purple.shade700 : Colors.grey.shade700, fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500)),
                   ],
                 ),
               ),
@@ -636,79 +510,76 @@ class _CreateEventScreenState extends State<CreateEventScreen>
     );
   }
 
+  // 🟢 ОНОВЛЕНА СЕКЦІЯ ФОТОГРАФІЙ 
   Widget _buildPhotosSection(AppLocalizations t) {
     return _buildSection(
       title: 'Фотографії',
-      icon: Icons.photo_library,
+      icon: Icons.photo_camera,
       children: [
         Text(
-          'Оберіть фото, що найкраще передає атмосферу події',
-          style: TextStyle(
-            fontSize: 14,
-            color: Colors.grey.shade600,
-            height: 1.4,
-          ),
+          'Додайте власні фото з галереї (до 5 штук)',
+          style: TextStyle(fontSize: 14, color: Colors.grey.shade600),
         ),
         const SizedBox(height: 16),
         SizedBox(
           height: 120,
           child: ListView.builder(
             scrollDirection: Axis.horizontal,
-            itemCount: _availablePhotos.length,
+            itemCount: _selectedLocalPhotos.length < 5 ? _selectedLocalPhotos.length + 1 : 5,
             itemBuilder: (context, index) {
-              final photo = _availablePhotos[index];
-              final isSelected = _selectedPhotos.contains(photo);
               
-              return GestureDetector(
-                onTap: () => _togglePhoto(photo),
-                child: Container(
-                  width: 100,
-                  margin: const EdgeInsets.only(right: 12),
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(16),
-                    border: Border.all(
-                      color: isSelected ? Colors.purple.shade400 : Colors.grey.shade300,
-                      width: isSelected ? 3 : 1,
+              if (index == _selectedLocalPhotos.length) {
+                return GestureDetector(
+                  onTap: _pickImage,
+                  child: Container(
+                    width: 100,
+                    margin: const EdgeInsets.only(right: 12),
+                    decoration: BoxDecoration(
+                      color: Colors.purple.shade50,
+                      borderRadius: BorderRadius.circular(16),
+                      border: Border.all(color: Colors.purple.shade200, style: BorderStyle.solid, width: 2),
                     ),
-                    boxShadow: isSelected ? [
-                      BoxShadow(
-                        color: Colors.purple.withOpacity(0.3),
-                        blurRadius: 8,
-                        offset: const Offset(0, 2),
-                      ),
-                    ] : null,
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(Icons.add_a_photo, color: Colors.purple.shade400, size: 32),
+                        const SizedBox(height: 8),
+                        Text('Додати', style: TextStyle(color: Colors.purple.shade600, fontWeight: FontWeight.bold)),
+                      ],
+                    ),
                   ),
-                  child: Stack(
-                    children: [
-                      ClipRRect(
-                        borderRadius: BorderRadius.circular(14),
-                        child: Image.asset(
-                          photo,
-                          width: 100,
-                          height: 120,
-                          fit: BoxFit.cover,
-                        ),
+                );
+              }
+
+              return Stack(
+                children: [
+                  Container(
+                    width: 100,
+                    margin: const EdgeInsets.only(right: 12),
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(16),
+                      image: DecorationImage(
+                        image: FileImage(_selectedLocalPhotos[index]),
+                        fit: BoxFit.cover,
                       ),
-                      if (isSelected)
-                        Positioned(
-                          top: 8,
-                          right: 8,
-                          child: Container(
-                            padding: const EdgeInsets.all(4),
-                            decoration: BoxDecoration(
-                              color: Colors.purple.shade600,
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                            child: const Icon(
-                              Icons.check,
-                              color: Colors.white,
-                              size: 16,
-                            ),
-                          ),
-                        ),
-                    ],
+                    ),
                   ),
-                ),
+                  Positioned(
+                    top: 4,
+                    right: 16,
+                    child: GestureDetector(
+                      onTap: () => _removePhoto(index),
+                      child: Container(
+                        padding: const EdgeInsets.all(4),
+                        decoration: const BoxDecoration(
+                          color: Colors.black54,
+                          shape: BoxShape.circle,
+                        ),
+                        child: const Icon(Icons.close, color: Colors.white, size: 16),
+                      ),
+                    ),
+                  ),
+                ],
               );
             },
           ),
@@ -729,11 +600,7 @@ class _CreateEventScreenState extends State<CreateEventScreen>
         color: color ?? Colors.white,
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.05),
-            blurRadius: 10,
-            offset: const Offset(0, 2),
-          ),
+          BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 10, offset: const Offset(0, 2)),
         ],
       ),
       child: Column(
@@ -747,21 +614,10 @@ class _CreateEventScreenState extends State<CreateEventScreen>
                   color: Colors.purple.shade100,
                   borderRadius: BorderRadius.circular(10),
                 ),
-                child: Icon(
-                  icon,
-                  color: Colors.purple.shade600,
-                  size: 20,
-                ),
+                child: Icon(icon, color: Colors.purple.shade600, size: 20),
               ),
               const SizedBox(width: 12),
-              Text(
-                title,
-                style: const TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.black87,
-                ),
-              ),
+              Text(title, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.black87)),
             ],
           ),
           const SizedBox(height: 16),
@@ -789,22 +645,10 @@ class _CreateEventScreenState extends State<CreateEventScreen>
         labelText: label,
         hintText: hint,
         prefixIcon: Icon(icon, color: Colors.purple.shade400),
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(16),
-          borderSide: BorderSide(color: Colors.grey.shade300),
-        ),
-        enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(16),
-          borderSide: BorderSide(color: Colors.grey.shade300),
-        ),
-        focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(16),
-          borderSide: BorderSide(color: Colors.purple.shade400, width: 2),
-        ),
-        errorBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(16),
-          borderSide: const BorderSide(color: Colors.red),
-        ),
+        border: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: BorderSide(color: Colors.grey.shade300)),
+        enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: BorderSide(color: Colors.grey.shade300)),
+        focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: BorderSide(color: Colors.purple.shade400, width: 2)),
+        errorBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: const BorderSide(color: Colors.red)),
         filled: true,
         fillColor: Colors.grey.shade50,
         labelStyle: TextStyle(color: Colors.purple.shade600),
@@ -824,38 +668,25 @@ class _CreateEventScreenState extends State<CreateEventScreen>
           foregroundColor: Colors.white,
           elevation: 8,
           shadowColor: Colors.purple.withOpacity(0.3),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(16),
-          ),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         ),
         child: _isLoading
             ? const SizedBox(
-                width: 24,
-                height: 24,
-                child: CircularProgressIndicator(
-                  strokeWidth: 2,
-                  valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
-                ),
+                width: 24, height: 24,
+                child: CircularProgressIndicator(strokeWidth: 2, valueColor: AlwaysStoppedAnimation<Color>(Colors.white)),
               )
             : Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   const Icon(Icons.add_circle_outline, size: 24),
                   const SizedBox(width: 8),
-                  Text(
-                    t.create_event,
-                    style: const TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
+                  Text(t.create_event, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
                 ],
               ),
       ),
     );
   }
 
-  // Helper methods
   Future<void> _selectDate() async {
     final date = await showDatePicker(
       context: context,
@@ -865,21 +696,14 @@ class _CreateEventScreenState extends State<CreateEventScreen>
       builder: (context, child) {
         return Theme(
           data: Theme.of(context).copyWith(
-            colorScheme: ColorScheme.light(
-              primary: Colors.purple.shade600,
-              onPrimary: Colors.white,
-              surface: Colors.white,
-              onSurface: Colors.black,
-            ),
+            colorScheme: ColorScheme.light(primary: Colors.purple.shade600, onPrimary: Colors.white, surface: Colors.white, onSurface: Colors.black),
           ),
           child: child!,
         );
       },
     );
     if (date != null) {
-      setState(() {
-        _selectedDate = date;
-      });
+      setState(() => _selectedDate = date);
     }
   }
 
@@ -890,21 +714,14 @@ class _CreateEventScreenState extends State<CreateEventScreen>
       builder: (context, child) {
         return Theme(
           data: Theme.of(context).copyWith(
-            colorScheme: ColorScheme.light(
-              primary: Colors.purple.shade600,
-              onPrimary: Colors.white,
-              surface: Colors.white,
-              onSurface: Colors.black,
-            ),
+            colorScheme: ColorScheme.light(primary: Colors.purple.shade600, onPrimary: Colors.white, surface: Colors.white, onSurface: Colors.black),
           ),
           child: child!,
         );
       },
     );
     if (time != null) {
-      setState(() {
-        _selectedTime = time;
-      });
+      setState(() => _selectedTime = time);
     }
   }
 
@@ -927,17 +744,6 @@ class _CreateEventScreenState extends State<CreateEventScreen>
     });
   }
 
-  void _togglePhoto(String photo) {
-    setState(() {
-      if (_selectedPhotos.contains(photo)) {
-        _selectedPhotos.remove(photo);
-      } else {
-        _selectedPhotos.clear();
-        _selectedPhotos.add(photo);
-      }
-    });
-  }
-
   void _scrollToPrivateFields() {
     Future.delayed(const Duration(milliseconds: 300), () {
       _scrollController.animateTo(
@@ -948,49 +754,42 @@ class _CreateEventScreenState extends State<CreateEventScreen>
     });
   }
 
+  // 🟢 🟢 ОНОВЛЕНА ЛОГІКА СТВОРЕННЯ ПОДІЇ ТА ЗАВАНТАЖЕННЯ ФОТО
   Future<void> _createEvent() async {
     if (!_formKey.currentState!.validate()) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: const Text('Будь ласка, заповніть всі обов\'язкові поля'),
-          backgroundColor: Colors.red.shade600,
-          behavior: SnackBarBehavior.floating,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-        ),
-      );
+      _showErrorSnackBar('Будь ласка, заповніть всі обов\'язкові поля');
       return;
     }
 
     if (_selectedDate == null || _selectedTime == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: const Text('Оберіть дату та час події'),
-          backgroundColor: Colors.orange.shade600,
-          behavior: SnackBarBehavior.floating,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-        ),
-      );
+      _showErrorSnackBar('Оберіть дату та час події');
       return;
     }
 
-    if (_selectedPhotos.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: const Text('Оберіть принаймні одне фото'),
-          backgroundColor: Colors.orange.shade600,
-          behavior: SnackBarBehavior.floating,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-        ),
-      );
+    if (_selectedLocalPhotos.isEmpty) {
+      _showErrorSnackBar('Оберіть принаймні одне фото');
       return;
     }
 
-    setState(() {
-      _isLoading = true;
-    });
+    setState(() => _isLoading = true);
 
     try {
-      // Combine date and time
+      List<String> uploadedPhotoUrls = [];
+      final supabase = Supabase.instance.client;
+      final userId = supabase.auth.currentUser!.id;
+
+      for (File imageFile in _selectedLocalPhotos) {
+        final fileExt = imageFile.path.split('.').last;
+        final fileName = '${DateTime.now().millisecondsSinceEpoch}_$userId.$fileExt';
+        
+        // Завантажуємо в бакет "event_photos"
+        await supabase.storage.from('event_photos').upload(fileName, imageFile);
+        
+        // Отримуємо публічне посилання
+        final imageUrl = supabase.storage.from('event_photos').getPublicUrl(fileName);
+        uploadedPhotoUrls.add(imageUrl);
+      }
+
       final eventDateTime = DateTime(
         _selectedDate!.year,
         _selectedDate!.month,
@@ -1000,14 +799,14 @@ class _CreateEventScreenState extends State<CreateEventScreen>
       );
 
       final event = Event(
-        id: DateTime.now().millisecondsSinceEpoch.toString(),
+        id: '', // Supabase сам згенерує ID
         title: _titleController.text.trim(),
         description: _descriptionController.text.trim(),
         location: _locationController.text.trim(),
         dateTime: eventDateTime,
-        photos: _selectedPhotos,
+        photos: uploadedPhotoUrls, // Передаємо URL-адреси з Supabase
         tags: _selectedTags,
-        participantsCount: int.parse(_maxParticipantsController.text),
+        participantsCount: int.tryParse(_maxParticipantsController.text) ?? 10,
         isPrivate: _isPrivateEvent,
         privateLocation: _isPrivateEvent ? _privateLocationController.text.trim() : null,
         meetingPoint: _isPrivateEvent && _meetingPointController.text.isNotEmpty 
@@ -1016,14 +815,13 @@ class _CreateEventScreenState extends State<CreateEventScreen>
             ? _additionalInfoController.text.trim() : null,
       );
 
-      // Simulate API call
-      await Future.delayed(const Duration(seconds: 2));
+      await _matchesService.createEvent(event);
 
       if (mounted) {
         Navigator.of(context).pop(event);
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: const Text('Подію успішно створено! 🎉'),
+            content: Text('Подію "${event.title}" успішно створено! 🎉'),
             backgroundColor: Colors.green.shade600,
             behavior: SnackBarBehavior.floating,
             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
@@ -1031,22 +829,25 @@ class _CreateEventScreenState extends State<CreateEventScreen>
         );
       }
     } catch (e) {
+      debugPrint("Error creating event: $e");
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: const Text('Помилка при створенні події. Спробуйте ще раз.'),
-            backgroundColor: Colors.red.shade600,
-            behavior: SnackBarBehavior.floating,
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-          ),
-        );
+        _showErrorSnackBar('Помилка при створенні події. Спробуйте ще раз.');
       }
     } finally {
       if (mounted) {
-        setState(() {
-          _isLoading = false;
-        });
+        setState(() => _isLoading = false);
       }
     }
+  }
+
+  void _showErrorSnackBar(String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(message),
+        backgroundColor: Colors.red.shade600,
+        behavior: SnackBarBehavior.floating,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+      ),
+    );
   }
 }
