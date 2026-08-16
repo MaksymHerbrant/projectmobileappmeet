@@ -143,7 +143,10 @@ class AuthService {
     final user = currentUser;
     if (user != null) {
       try {
-        await _supabase.from('profiles').update({'fcm_token': null}).eq('id', user.id);
+        // Знімаємо лише поточний пристрій — на інших девайсах пуші мають лишитись.
+        final token = await FirebaseMessaging.instance.getToken();
+        final query = _supabase.from('user_devices').delete().eq('profile_id', user.id);
+        await (token != null ? query.eq('fcm_token', token) : query);
         if (kDebugMode) debugPrint('🧹 FCM токен видалено з бази перед виходом');
       } catch (e) {
         if (kDebugMode) debugPrint('⚠️ Не вдалося видалити токен з бази: $e');
@@ -164,7 +167,11 @@ class AuthService {
       if (settings.authorizationStatus == AuthorizationStatus.authorized) {
         final token = await FirebaseMessaging.instance.getToken();
         if (token != null) {
-          await _supabase.from('profiles').update({'fcm_token': token}).eq('id', user.id);
+          await _supabase.from('user_devices').upsert({
+            'profile_id': user.id,
+            'fcm_token': token,
+            'updated_at': DateTime.now().toUtc().toIso8601String(),
+          });
           if (kDebugMode) debugPrint('🚀 FCM токен оновлено');
         }
       }

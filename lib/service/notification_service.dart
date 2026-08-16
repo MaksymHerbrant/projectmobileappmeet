@@ -4,7 +4,10 @@ import 'package:flutter/foundation.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 /// Відправка пушів через Supabase Edge Function.
-/// Параметри: token, title, body, data — відповідають очікуваному тілу Edge Function.
+///
+/// Клієнт передає лише receiver_id. Токен пристрою читає сама Edge Function
+/// під service_role — чужі FCM-токени тепер недоступні з застосунку, і функція
+/// перевіряє, що відправник має право писати отримувачу.
 class NotificationService {
   final _supabase = Supabase.instance.client;
   static const String _functionName = 'send-push';
@@ -17,19 +20,11 @@ class NotificationService {
     Map<String, String>? data,
   }) async {
     try {
-      final userData = await _supabase
-          .from('profiles')
-          .select('fcm_token')
-          .eq('id', receiverId)
-          .maybeSingle();
-      final String? deviceToken = userData?['fcm_token'] as String?;
-      if (deviceToken == null || deviceToken.isEmpty) return;
-
       await _supabase.functions
           .invoke(
             _functionName,
             body: {
-              'token': deviceToken,
+              'receiver_id': receiverId,
               'title': title,
               'body': body,
               'data': data ?? {},
