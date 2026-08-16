@@ -8,105 +8,24 @@ class ChatService {
   RealtimeChannel? _presenceChannel;
   final NotificationService _notificationService = NotificationService();
 
+  /// Список чатів. Realtime-підписка на `rooms` тепер лише сигнал «щось
+  /// змінилось» — сам список збирає одна RPC замість чотирьох запитів на
+  /// кожну кімнату. Завдяки RLS підписка віддає тільки мої кімнати.
   Stream<List<Map<String, dynamic>>> getMyChatsStream() {
-    final userId = _supabase.auth.currentUser!.id;
-
     return _supabase
         .from('rooms')
         .stream(primaryKey: ['id'])
-        .order('last_message_time', ascending: false)
-        .asyncMap((data) async {
-      final List<Map<String, dynamic>> rooms = List<Map<String, dynamic>>.from(data as List);
-      final List<Map<String, dynamic>> enrichedRooms = [];
+        .asyncMap((_) => fetchMyChats());
+  }
 
-      for (var room in rooms) {
-        final roomId = room['id'];
-
-        try {
-          // 🛑 1. ГОЛОВНЕ ВИПРАВЛЕННЯ: Чи є Я в цьому чаті?
-          final amIParticipant = await _supabase
-              .from('room_participants')
-              .select('room_id') // ✅ Замінили на room_id
-              .eq('room_id', roomId)
-              .eq('profile_id', userId)
-              .maybeSingle();
-
-          // Якщо мене немає в цій групі/чаті - просто ігноруємо її! (Чужі події сюди більше не потраплять)
-          if (amIParticipant == null) {
-            continue; 
-          }
-
-          // 2. Отримуємо ІНШИХ учасників (не мене)
-          final List<dynamic> participants = await _supabase
-              .from('room_participants')
-              .select('profile_id, profiles(full_name, photos)')
-              .eq('room_id', roomId)
-              .neq('profile_id', userId);
-
-          final Map<String, dynamic>? participantData = 
-              participants.isNotEmpty ? participants.first as Map<String, dynamic> : null;
-          
-          final unreadList = await _supabase
-              .from('messages')
-              .select('id')
-              .eq('room_id', roomId)
-              .eq('is_read', false)
-              .neq('sender_id', userId);
-          
-          final int unreadCount = unreadList.length;
-
-          // ГРУПОВИЙ ЧАТ
-          if (room['is_group'] == true || room['type'] == 'group') { 
-            String displayMessage = room['last_message'] ?? 'Чат створено';
-            
-            if (room['last_message_sender_id'] != null) {
-              final senderProfile = await _supabase
-                  .from('profiles')
-                  .select('full_name')
-                  .eq('id', room['last_message_sender_id'])
-                  .maybeSingle();
-              if (senderProfile != null) {
-                displayMessage = "${senderProfile['full_name']}: $displayMessage";
-              }
-            }
-
-            enrichedRooms.add({
-              'room_id': roomId,
-              'type': 'group',
-              'name': room['name'] ?? 'Група події',
-              'last_message': displayMessage,
-              'last_message_time': room['last_message_time']?.toString() ?? DateTime.now().toIso8601String(),
-              'photo': room['avatar_url'] ?? room['photo'], 
-              'unread_count': unreadCount,
-            });
-          } 
-          // ПРИВАТНИЙ ЧАТ
-          else if (participantData != null) {
-            final profile = participantData['profiles'] as Map<String, dynamic>?;
-            List<String> photos = [];
-            
-            if (profile != null && profile['photos'] != null) {
-              photos = List<String>.from(profile['photos'] as List);
-            }
-
-            enrichedRooms.add({
-              'room_id': roomId,
-              'type': 'private',
-              'last_message': room['last_message'],
-              'last_message_time': room['last_message_time']?.toString(),
-              'other_user_id': participantData['profile_id'],
-              'other_user_name': profile != null ? (profile['full_name'] ?? 'Невідомий') : 'Невідомий',
-              'other_user_photo': photos.isNotEmpty ? photos.first : null,
-              'unread_count': unreadCount,
-            });
-          }
-        } catch (e) {
-          debugPrint("⚠️ Помилка обробки кімнати $roomId: $e");
-          continue;
-        }
-      }
-      return enrichedRooms;
-    });
+  Future<List<Map<String, dynamic>>> fetchMyChats() async {
+    try {
+      final response = await _supabase.rpc('get_my_chats');
+      return List<Map<String, dynamic>>.from(response as List);
+    } catch (e) {
+      debugPrint("⚠️ Помилка завантаження чатів: $e");
+      return [];
+    }
   }
   void subscribeToPresence(String userId, Function(Set<String>) onUpdate) {
     final Set<String> onlineIds = {};
