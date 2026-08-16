@@ -2,7 +2,7 @@ class Event {
   final String id;
   final String title;
   final String location;
-  final DateTime dateTime;
+  final DateTime dateTime; // У базі це 'event_date'
   final List<String> photos;
   final List<String> tags;
   final String description;
@@ -27,37 +27,30 @@ class Event {
     this.additionalInfo,
   });
 
-  factory Event.fromJson(Map<String, dynamic> json) {
+  // 🟢 ФАБРИЧНИЙ МЕТОД для подій
+  factory Event.fromMap(Map<String, dynamic> map) {
     return Event(
-      id: json['id'].toString(),
-      title: json['title'] ?? '',
-      location: json['location'] ?? '',
-      dateTime: DateTime.parse(json['dateTime'] ?? DateTime.now().toIso8601String()),
-      photos: List<String>.from(json['photos'] ?? []),
-      tags: List<String>.from(json['tags'] ?? []),
-      description: json['description'] ?? '',
-      participantsCount: json['participantsCount'] ?? 0,
-      isPrivate: json['isPrivate'] ?? false,
-      privateLocation: json['privateLocation'],
-      meetingPoint: json['meetingPoint'],
-      additionalInfo: json['additionalInfo'],
+      id: map['id'].toString(),
+      title: map['title'] ?? 'Без назви',
+      location: map['location'] ?? 'Онлайн',
+      // Парсимо дату з рядка ISO 8601
+      dateTime: map['event_date'] != null 
+          ? DateTime.parse(map['event_date']) 
+          : DateTime.now(),
+      photos: map['photos'] != null 
+          ? List<String>.from(map['photos']) 
+          : [],
+      tags: map['tags'] != null 
+          ? List<String>.from(map['tags']) 
+          : [],
+      description: map['description'] ?? '',
+      // Поки ставимо 0 або беремо з бази, якщо додав колонку participants_count
+      participantsCount: map['participants_count'] ?? 0, 
+      isPrivate: map['is_private'] ?? false,
+      // Додаткові поля (якщо вони є в базі, інакше null)
+      privateLocation: map['private_location'],
+      meetingPoint: map['meeting_point'],
+      additionalInfo: map['additional_info'],
     );
   }
-
-  Map<String, dynamic> toJson() {
-    return {
-      'id': id,
-      'title': title,
-      'location': location,
-      'dateTime': dateTime.toIso8601String(),
-      'photos': photos,
-      'tags': tags,
-      'description': description,
-      'participantsCount': participantsCount,
-      'isPrivate': isPrivate,
-      'privateLocation': privateLocation,
-      'meetingPoint': meetingPoint,
-      'additionalInfo': additionalInfo,
-    };
-  }
-} 
+}

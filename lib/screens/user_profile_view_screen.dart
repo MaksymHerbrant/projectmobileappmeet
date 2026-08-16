@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../providers/locale_provider.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
-import '../models/user_profile.dart';
-import 'chat_screen.dart';
-import 'profile_screen.dart';
+import 'package:dating_app/l10n/gen/app_localizations.dart';
+import '../models/user_profile.dart'; // Імпорт моделі користувача
+import 'chat_screen.dart'; // Імпорт чат-екрана
+import 'profile_screen.dart'; // Імпорт профілю користувача
 
 class UserProfileViewScreen extends StatefulWidget {
   final UserProfile user;

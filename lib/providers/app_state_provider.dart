@@ -1,176 +1,162 @@
 import 'package:flutter/material.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 import '../models/user_profile.dart';
 import '../models/event.dart';
-import '../models/message.dart';
-import '../services/mock_data_service.dart';
+import '../service/matches_service.dart';
+import '../service/chat_service.dart';
 
 class AppStateProvider extends ChangeNotifier {
-  final MockDataService _mockDataService = MockDataService();
+  // Сервіси
   
-  // Поточний користувач
-  UserProfile? _currentUser;
-  UserProfile? get currentUser => _currentUser;
+  final MatchesService _matchesService = MatchesService();
+  final ChatService _chatService = ChatService(); // Переконайтеся, що цей сервіс існує
+  final _supabase = Supabase.instance.client;
+
+  // --- СТАН (Дані) ---
   
-  // Список користувачів для свайпера
-  List<UserProfile> _users = [];
-  List<UserProfile> get users => _users;
+  UserProfile? _currentUserProfile;
+  List<Map<String, dynamic>> _incomingRequests = []; // Вхідні лайки
+  List<Event> _myEvents = []; // Мої події
+  List<Map<String, dynamic>> _myEventApplications = []; // Мої заявки на події
+  int _unreadMessageCount = 0; // Лічильник непрочитаних
   
-  // Матчі
-  List<Map<String, dynamic>> _matches = [];
-  List<Map<String, dynamic>> get matches => _matches;
+  bool _isLoading = false;
+  String? _errorMessage;
+
+  // --- ГЕТТЕРИ (Щоб читати дані з UI) ---
+
+  UserProfile? get currentUserProfile => _currentUserProfile;
+  List<Map<String, dynamic>> get incomingRequests => _incomingRequests;
+  List<Event> get myEvents => _myEvents;
+  List<Map<String, dynamic>> get myEventApplications => _myEventApplications;
+  int get unreadMessageCount => _unreadMessageCount;
   
-  // Події
-  List<Event> _events = [];
-  List<Event> get events => _events;
-  
-  // Чатові розмови
-  List<ChatConversation> _conversations = [];
-  List<ChatConversation> get conversations => _conversations;
-  
-  // Активні контакти
-  List<ActiveContact> _activeContacts = [];
-  List<ActiveContact> get activeContacts => _activeContacts;
-  
-  // Лайки та дизлайки
-  Set<String> _likedUsers = {};
-  Set<String> _dislikedUsers = {};
-  
-  // Ініціалізація
-  AppStateProvider() {
-    _initializeData();
+  bool get isLoading => _isLoading;
+  String? get errorMessage => _errorMessage;
+
+  // --- ОСНОВНІ ДІЇ ---
+
+  // 1. Головний метод: Завантажити ВСЕ (викликається при старті)
+  Future<void> loadAllData() async {
+    _setLoading(true);
+    _errorMessage = null;
+
+    try {
+      final userId = _supabase.auth.currentUser?.id;
+      if (userId == null) throw Exception("User not logged in");
+
+      // Виконуємо запити паралельно для швидкості
+      await Future.wait([
+        _fetchUserProfile(userId),
+        refreshIncomingRequests(),
+        refreshMyEvents(),
+        _countUnreadMessages(),
+      ]);
+
+    } catch (e) {
+      _errorMessage = e.toString();
+      debugPrint("❌ AppStateProvider Error: $e");
+    } finally {
+      _setLoading(false);
+    }
   }
-  
-  void _initializeData() {
-    _users = _mockDataService.getUsers();
-    _matches = _mockDataService.getMatchesWithMessages();
-    _events = _mockDataService.getEvents();
-    _conversations = _mockDataService.getConversations();
-    _activeContacts = _mockDataService.getActiveContacts();
-    
-    // Встановлюємо поточного користувача (мок)
-    _currentUser = UserProfile(
-      id: 'current_user',
-      name: 'Ти',
-      age: 25,
-      description: 'Люблю подорожі, музику та нові знайомства',
-      photos: ['assets/images/portrait-man-laughing.jpg'],
-      location: 'Київ',
-      hobbies: ['Подорожі', 'Музика', 'Спорт', 'Книги'],
-    );
+
+  // 2. Оновити тільки вхідні лайки (наприклад, після свайпу)
+  Future<void> refreshIncomingRequests() async {
+    try {
+      final requests = await _matchesService.getIncomingRequests();
+      _incomingRequests = requests;
+      notifyListeners(); // Повідомляємо UI про зміни
+    } catch (e) {
+      debugPrint("Error fetching requests: $e");
+    }
   }
-  
-  // Лайк користувача
-  void likeUser(String userId) {
-    if (!_likedUsers.contains(userId) && !_dislikedUsers.contains(userId)) {
-      _likedUsers.add(userId);
-      
-      // Перевіряємо чи є взаємний лайк (матч)
-      final likedUser = _users.firstWhere((user) => user.id == userId);
-      if (_checkForMatch(likedUser)) {
-        _createMatch(likedUser);
-      }
-      
+
+  // 3. Оновити мої події
+  Future<void> refreshMyEvents() async {
+    try {
+      final events = await _matchesService.getMyEvents();
+      _myEvents = events;
+      notifyListeners();
+    } catch (e) {
+      debugPrint("Error fetching events: $e");
+    }
+  }
+
+  // 4. Прийняти лайк (Оптимістичне оновлення UI)
+  Future<void> acceptLike(String likeId) async {
+    // 1. Миттєво прибираємо зі списку на екрані (щоб користувач не чекав)
+    _incomingRequests.removeWhere((item) => item['like_id'] == likeId);
+    notifyListeners();
+
+    try {
+      // 2. Робимо запит на сервер
+      await _matchesService.acceptLike(likeId);
+      // Якщо успіх - нічого не робимо, бо ми вже оновили UI
+    } catch (e) {
+      // Якщо помилка - повертаємо назад (відкочуємо зміни) і показуємо помилку
+      _errorMessage = "Не вдалося прийняти лайк";
+      await refreshIncomingRequests(); // Перезавантажуємо список чесно
       notifyListeners();
     }
   }
-  
-  // Дизлайк користувача
-  void dislikeUser(String userId) {
-    if (!_likedUsers.contains(userId) && !_dislikedUsers.contains(userId)) {
-      _dislikedUsers.add(userId);
+
+  // 5. Відхилити лайк
+  Future<void> rejectLike(String likeId) async {
+    _incomingRequests.removeWhere((item) => item['like_id'] == likeId);
+    notifyListeners();
+
+    try {
+      await _matchesService.rejectLike(likeId);
+    } catch (e) {
+      await refreshIncomingRequests();
+    }
+  }
+
+  // --- ВНУТРІШНІ МЕТОДИ ---
+
+  Future<void> _fetchUserProfile(String userId) async {
+    try {
+      final data = await _supabase.from('profiles').select().eq('id', userId).single();
+      _currentUserProfile = UserProfile.fromMap(data);
       notifyListeners();
+    } catch (e) {
+      debugPrint("Error fetching profile: $e");
     }
   }
-  
-  // Перевірка на матч
-  bool _checkForMatch(UserProfile likedUser) {
-    // В реальному додатку тут була б логіка перевірки взаємного лайку
-    // Для мок-даних просто повертаємо true з ймовірністю 30%
-    return DateTime.now().millisecondsSinceEpoch % 3 == 0;
-  }
-  
-  // Створення матчу
-  void _createMatch(UserProfile matchedUser) {
-    final match = {
-      'user': matchedUser,
-      'message': 'Ви понравилися один одному! 💕',
-      'hasMessage': true,
-      'matchedAt': DateTime.now(),
-    };
-    
-    _matches.insert(0, match);
-    
-    // Створюємо чатову розмову
-    final conversation = ChatConversation(
-      id: 'match_${matchedUser.id}',
-      userId: matchedUser.id,
-      userName: matchedUser.name,
-      userPhoto: matchedUser.photos.first,
-      lastMessage: 'Ви понравилися один одному! 💕',
-      lastMessageTime: DateTime.now(),
-      unreadCount: 1,
-      isOnline: true,
-    );
-    
-    _conversations.insert(0, conversation);
-  }
-  
-  // Отримання повідомлень для розмови
-  List<Message> getMessagesForConversation(String conversationId) {
-    return _mockDataService.getMessages(conversationId);
-  }
-  
-  // Відправка повідомлення
-  void sendMessage(String conversationId, String content) {
-    final message = Message(
-      id: DateTime.now().millisecondsSinceEpoch.toString(),
-      senderId: 'current_user',
-      receiverId: conversationId,
-      content: content,
-      timestamp: DateTime.now(),
-      isRead: false,
-    );
-    
-    // Оновлюємо останнє повідомлення в розмові
-    final conversationIndex = _conversations.indexWhere((c) => c.id == conversationId);
-    if (conversationIndex != -1) {
-      _conversations[conversationIndex] = ChatConversation(
-        id: _conversations[conversationIndex].id,
-        userId: _conversations[conversationIndex].userId,
-        userName: _conversations[conversationIndex].userName,
-        userPhoto: _conversations[conversationIndex].userPhoto,
-        lastMessage: 'Ти: $content',
-        lastMessageTime: DateTime.now(),
-        unreadCount: _conversations[conversationIndex].unreadCount,
-        isOnline: _conversations[conversationIndex].isOnline,
-        isTyping: _conversations[conversationIndex].isTyping,
-      );
+
+  Future<void> _countUnreadMessages() async {
+    // Тут логіка підрахунку непрочитаних. 
+    // Якщо у ChatService є метод getUnreadCount(), використай його.
+    // Поки ставимо заглушку або простий запит
+    try {
+      final userId = _supabase.auth.currentUser!.id;
+      // Приклад запиту:
+      final response = await _supabase
+          .from('messages')
+          .select('id')
+          .eq('is_read', false)
+          .neq('sender_id', userId) // Повідомлення не від мене
+          .count();
+      
+      _unreadMessageCount = response.count;
+      notifyListeners();
+    } catch (e) {
+      // ignore
     }
-    
+  }
+
+  void _setLoading(bool value) {
+    _isLoading = value;
     notifyListeners();
   }
   
-  // Створення події
-  void createEvent(Event event) {
-    _events.add(event);
-    notifyListeners();
-  }
-  
-  // Приєднання до події
-  void joinEvent(String eventId) {
-    // В реальному додатку тут була б логіка приєднання до події
-    notifyListeners();
-  }
-  
-  // Очищення даних
-  void clearData() {
-    _users.clear();
-    _matches.clear();
-    _events.clear();
-    _conversations.clear();
-    _activeContacts.clear();
-    _likedUsers.clear();
-    _dislikedUsers.clear();
+  // Метод для очищення стану при виході (Logout)
+  void clearState() {
+    _currentUserProfile = null;
+    _incomingRequests = [];
+    _myEvents = [];
+    _unreadMessageCount = 0;
     notifyListeners();
   }
 }

@@ -1,11 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../providers/locale_provider.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'registration_screen.dart';
 import 'login_screen.dart';
 import 'main_navigation_screen.dart';
-
+import 'package:dating_app/l10n/gen/app_localizations.dart';
 class LandingScreen extends StatelessWidget {
   const LandingScreen({super.key});
 

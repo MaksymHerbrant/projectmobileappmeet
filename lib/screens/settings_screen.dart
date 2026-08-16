@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../providers/locale_provider.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
-
+import 'package:dating_app/l10n/gen/app_localizations.dart';
+import '../service/auth_service.dart'; // Імпортуємо твій сервіс
+import 'change_password_screen.dart';
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({Key? key}) : super(key: key);
 
@@ -11,54 +12,59 @@ class SettingsScreen extends StatefulWidget {
 }
 
 class _SettingsScreenState extends State<SettingsScreen> {
+  // Екземпляр сервісу для виходу
+  final _authService = AuthService();
+
+  // Стан налаштувань (тимчасові локальні змінні)
   bool _notificationsEnabled = true;
   bool _darkModeEnabled = false;
   bool _locationEnabled = true;
-  double _maxDistance = 50.0;
-  int _minAge = 18;
-  int _maxAge = 35;
 
   @override
   Widget build(BuildContext context) {
     return Consumer<LocaleProvider>(
       builder: (context, localeProvider, child) {
         return Scaffold(
-      body: Container(
-        decoration: const BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.bottomCenter,
-            end: Alignment.topCenter,
-            colors: [Color(0xFFF3E5F5), Colors.white],
-          ),
-        ),
-        child: SafeArea(
-          child: Column(
-            children: [
-              _buildTopBar(),
-              Expanded(
-                child: SingleChildScrollView(
-                  padding: const EdgeInsets.all(20),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      _buildLanguageSection(),
-                      const SizedBox(height: 24),
-                      _buildNotificationsSection(),
-                      const SizedBox(height: 24),
-                      _buildPrivacySection(),
-                      const SizedBox(height: 24),
-                      _buildPreferencesSection(),
-                      const SizedBox(height: 24),
-                      _buildAccountSection(),
-                      const SizedBox(height: 40),
-                    ],
-                  ),
-                ),
+          body: Container(
+            decoration: const BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.bottomCenter,
+                end: Alignment.topCenter,
+                colors: [Color(0xFFF3E5F5), Colors.white],
               ),
-            ],
+            ),
+            child: SafeArea(
+              child: Column(
+                children: [
+                  _buildTopBar(),
+                  Expanded(
+                    child: SingleChildScrollView(
+                      padding: const EdgeInsets.all(20),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          // ЗАКОМЕНТОВАНО: Секція мови
+                          // _buildLanguageSection(),
+                          // const SizedBox(height: 24),
+                          
+                          _buildNotificationsSection(),
+                          const SizedBox(height: 24),
+                          
+                          _buildPrivacySection(),
+                          const SizedBox(height: 24),
+                          
+                          // ВИДАЛЕНО: Секція параметрів пошуку (_buildPreferencesSection)
+                          
+                          _buildAccountSection(), // Тут кнопка виходу
+                          const SizedBox(height: 40),
+                        ],
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
           ),
-        ),
-      ),
         );
       },
     );
@@ -94,6 +100,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
     );
   }
 
+  /* --- ЗАКОМЕНТОВАНА СЕКЦІЯ МОВИ ---
   Widget _buildLanguageSection() {
     return _buildSectionCard(
       title: AppLocalizations.of(context)!.language,
@@ -109,9 +116,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
   }
 
   Widget _buildLanguageSelector() {
-          final localeProvider = Provider.of<LocaleProvider>(context, listen: false);
-      final currentLanguage = LocaleProvider.getLanguageName(localeProvider.locale.languageCode);
-      final availableLanguages = LocaleProvider.availableLanguages;
+    final localeProvider = Provider.of<LocaleProvider>(context, listen: false);
+    final currentLanguage = LocaleProvider.getLanguageName(localeProvider.locale.languageCode);
+    final availableLanguages = LocaleProvider.availableLanguages;
     
     return Container(
       decoration: BoxDecoration(
@@ -128,21 +135,13 @@ class _SettingsScreenState extends State<SettingsScreen> {
           items: availableLanguages.map((language) {
             return DropdownMenuItem<String>(
               value: language,
-              child: Row(
-                children: [
-                  Text(
-                    language,
-                    style: const TextStyle(fontSize: 16),
-                  ),
-                ],
-              ),
+              child: Text(language, style: const TextStyle(fontSize: 16)),
             );
           }).toList(),
           onChanged: (value) async {
             if (value != null) {
               final languageCode = LocaleProvider.getLanguageCode(value);
               await localeProvider.changeLanguageByCode(languageCode);
-              _showLanguageChangedDialog();
             }
           },
         ),
@@ -150,252 +149,30 @@ class _SettingsScreenState extends State<SettingsScreen> {
     );
   }
 
-  Widget _getLanguageFlag(String language) {
-    String flag;
-    switch (language) {
-      case 'Українська':
-        flag = '🇺🇦';
-        break;
-      case 'English':
-        flag = '🇬🇧';
-        break;
-      case 'Polski':
-        flag = '🇵🇱';
-        break;
-      case 'Português':
-        flag = '🇵🇹';
-        break;
-      case 'Español':
-        flag = '🇪🇸';
-        break;
-      default:
-        flag = '🇺🇦';
-    }
-    return Text(flag, style: const TextStyle(fontSize: 20));
-  }
-
   Widget _buildLanguagePreview() {
-    final previewText = AppLocalizations.of(context)!.hello_how_are_you;
-
     return Container(
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
         color: Colors.blue.withOpacity(0.1),
         borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: Colors.blue.withOpacity(0.3)),
       ),
       child: Row(
         children: [
-          Icon(Icons.preview, color: Colors.blue, size: 16),
+          const Icon(Icons.preview, color: Colors.blue, size: 16),
           const SizedBox(width: 8),
           Expanded(
             child: Text(
-              previewText,
-              style: TextStyle(
-                color: Colors.blue.shade700,
-                fontSize: 14,
-                fontStyle: FontStyle.italic,
-              ),
+              AppLocalizations.of(context)!.hello_how_are_you,
+              style: TextStyle(color: Colors.blue.shade700, fontStyle: FontStyle.italic),
             ),
           ),
         ],
       ),
     );
   }
+  */
 
-  Widget _buildNotificationsSection() {
-    return _buildSectionCard(
-      title: AppLocalizations.of(context)!.notifications,
-      icon: Icons.notifications,
-      child: Column(
-        children: [
-          _buildSwitchTile(
-            title: AppLocalizations.of(context)!.enable_notifications,
-            subtitle: AppLocalizations.of(context)!.new_matches,
-            value: _notificationsEnabled,
-            onChanged: (value) {
-              setState(() {
-                _notificationsEnabled = value;
-              });
-            },
-          ),
-          if (_notificationsEnabled) ...[
-            const SizedBox(height: 12),
-            _buildNotificationTypes(),
-          ],
-        ],
-      ),
-    );
-  }
-
-  Widget _buildNotificationTypes() {
-    return Column(
-      children: [
-        _buildCheckboxTile(
-          title: AppLocalizations.of(context)!.new_matches,
-          subtitle: AppLocalizations.of(context)!.messages_notifications,
-          value: true,
-          onChanged: (value) {},
-        ),
-        _buildCheckboxTile(
-          title: AppLocalizations.of(context)!.messages_notifications,
-          subtitle: AppLocalizations.of(context)!.messages_notifications,
-          value: true,
-          onChanged: (value) {},
-        ),
-        _buildCheckboxTile(
-          title: AppLocalizations.of(context)!.events_nearby_notifications,
-          subtitle: AppLocalizations.of(context)!.events_nearby_notifications,
-          value: false,
-          onChanged: (value) {},
-        ),
-      ],
-    );
-  }
-
-  Widget _buildPrivacySection() {
-    return _buildSectionCard(
-      title: AppLocalizations.of(context)!.privacy,
-      icon: Icons.privacy_tip,
-      child: Column(
-        children: [
-          _buildSwitchTile(
-            title: AppLocalizations.of(context)!.location_access,
-            subtitle: AppLocalizations.of(context)!.location_access,
-            value: _locationEnabled,
-            onChanged: (value) {
-              setState(() {
-                _locationEnabled = value;
-              });
-            },
-          ),
-          const SizedBox(height: 12),
-          _buildSwitchTile(
-            title: AppLocalizations.of(context)!.dark_mode,
-            subtitle: AppLocalizations.of(context)!.dark_mode,
-            value: _darkModeEnabled,
-            onChanged: (value) {
-              setState(() {
-                _darkModeEnabled = value;
-              });
-            },
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildPreferencesSection() {
-    return _buildSectionCard(
-      title: AppLocalizations.of(context)!.search_preferences,
-      icon: Icons.tune,
-      child: Column(
-        children: [
-          _buildDistanceSlider(),
-          const SizedBox(height: 20),
-          _buildAgeRangeSlider(),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildDistanceSlider() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Text(
-              AppLocalizations.of(context)!.max_distance,
-              style: const TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.w500,
-              ),
-            ),
-            Text(
-              '${_maxDistance.round()} ${AppLocalizations.of(context)!.km_away.split(' ')[0]}',
-              style: const TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.w600,
-                color: Colors.blue,
-              ),
-            ),
-          ],
-        ),
-        const SizedBox(height: 8),
-        Slider(
-          value: _maxDistance,
-          min: 1.0,
-          max: 100.0,
-          divisions: 99,
-          activeColor: Colors.blue,
-          onChanged: (value) {
-            setState(() {
-              _maxDistance = value;
-            });
-          },
-        ),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Text('1 ${AppLocalizations.of(context)!.km_away.split(' ')[0]}', style: const TextStyle(fontSize: 12, color: Colors.grey)),
-            Text('100 ${AppLocalizations.of(context)!.km_away.split(' ')[0]}', style: const TextStyle(fontSize: 12, color: Colors.grey)),
-          ],
-        ),
-      ],
-    );
-  }
-
-  Widget _buildAgeRangeSlider() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Text(
-              AppLocalizations.of(context)!.age_range,
-              style: const TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.w500,
-              ),
-            ),
-            Text(
-              '$_minAge - $_maxAge ${AppLocalizations.of(context)!.years_old}',
-              style: const TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.w600,
-                color: Colors.blue,
-              ),
-            ),
-          ],
-        ),
-        const SizedBox(height: 8),
-        RangeSlider(
-          values: RangeValues(_minAge.toDouble(), _maxAge.toDouble()),
-          min: 18.0,
-          max: 60.0,
-          divisions: 42,
-          activeColor: Colors.blue,
-          onChanged: (values) {
-            setState(() {
-              _minAge = values.start.round();
-              _maxAge = values.end.round();
-            });
-          },
-        ),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Text('18 ${AppLocalizations.of(context)!.years_old}', style: const TextStyle(fontSize: 12, color: Colors.grey)),
-            Text('60 ${AppLocalizations.of(context)!.years_old}', style: const TextStyle(fontSize: 12, color: Colors.grey)),
-          ],
-        ),
-      ],
-    );
-  }
-
+  // --- СЕКЦІЯ АКАУНТА (З ВИХОДОМ) ---
   Widget _buildAccountSection() {
     return _buildSectionCard(
       title: AppLocalizations.of(context)!.account,
@@ -404,286 +181,144 @@ class _SettingsScreenState extends State<SettingsScreen> {
         children: [
           _buildListTile(
             title: AppLocalizations.of(context)!.change_password,
-            subtitle: AppLocalizations.of(context)!.change_password,
+            subtitle: "Оновити ваш пароль",
             icon: Icons.lock,
             onTap: () {
-              _showChangePasswordDialog();
+              // 👇 ДОДАНО ПЕРЕХІД НА ЕКРАН ЗМІНИ ПАРОЛЯ
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => const ChangePasswordScreen()),
+              );
             },
           ),
+          // 🟢 КНОПКА ВИХОДУ
           _buildListTile(
-            title: AppLocalizations.of(context)!.email,
-            subtitle: 'user@example.com',
-            icon: Icons.email,
-            onTap: () {
-              _showChangeEmailDialog();
-            },
+            title: 'Вийти з акаунта',
+            subtitle: 'Завершити поточну сесію',
+            icon: Icons.logout,
+            onTap: _showLogoutDialog,
+            isDestructive: true,
           ),
           _buildListTile(
             title: AppLocalizations.of(context)!.delete_account,
-            subtitle: AppLocalizations.of(context)!.delete_account,
+            subtitle: "Незворотно видалити дані",
             icon: Icons.delete_forever,
-            onTap: () {
-              _showDeleteAccountDialog();
-            },
+            onTap: _showDeleteAccountDialog, // 👇 ДОДАНО
             isDestructive: true,
           ),
+          
         ],
       ),
     );
   }
-
-  Widget _buildSectionCard({
-    required String title,
-    required IconData icon,
-    required Widget child,
-  }) {
-    return Container(
-      margin: const EdgeInsets.only(bottom: 16),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.05),
-            blurRadius: 10,
-            offset: const Offset(0, 2),
-          ),
-        ],
-      ),
-      child: Padding(
-        padding: const EdgeInsets.all(20),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: [
-                Icon(icon, color: Colors.blue, size: 24),
-                const SizedBox(width: 12),
-                Text(
-                  title,
-                  style: const TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.black87,
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 16),
-            child,
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildSwitchTile({
-    required String title,
-    required String subtitle,
-    required bool value,
-    required ValueChanged<bool> onChanged,
-  }) {
-    return Container(
-      padding: const EdgeInsets.symmetric(vertical: 8),
-      child: Row(
-        children: [
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  title,
-                  style: const TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
-                Text(
-                  subtitle,
-                  style: TextStyle(
-                    fontSize: 14,
-                    color: Colors.grey.shade600,
-                  ),
-                ),
-              ],
-            ),
-          ),
-          Switch(
-            value: value,
-            onChanged: onChanged,
-            activeColor: Colors.blue,
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildCheckboxTile({
-    required String title,
-    required String subtitle,
-    required bool value,
-    required ValueChanged<bool> onChanged,
-  }) {
-    return Container(
-      padding: const EdgeInsets.symmetric(vertical: 8),
-      child: Row(
-        children: [
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  title,
-                  style: const TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
-                Text(
-                  subtitle,
-                  style: TextStyle(
-                    fontSize: 14,
-                    color: Colors.grey.shade600,
-                  ),
-                ),
-              ],
-            ),
-          ),
-          Checkbox(
-            value: value,
-            onChanged: (newValue) => onChanged(newValue ?? false),
-            activeColor: Colors.blue,
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildListTile({
-    required String title,
-    required String subtitle,
-    required IconData icon,
-    required VoidCallback onTap,
-    bool isDestructive = false,
-  }) {
-    return Container(
-      margin: const EdgeInsets.only(bottom: 8),
-      child: ListTile(
-        leading: Icon(
-          icon,
-          color: isDestructive ? Colors.red : Colors.grey.shade600,
-        ),
-        title: Text(
-          title,
-          style: TextStyle(
-            color: isDestructive ? Colors.red : Colors.black87,
-            fontWeight: FontWeight.w500,
-          ),
-        ),
-        subtitle: Text(
-          subtitle,
-          style: TextStyle(
-            color: isDestructive ? Colors.red.shade300 : Colors.grey.shade600,
-          ),
-        ),
-        trailing: const Icon(Icons.arrow_forward_ios, size: 16),
-        onTap: onTap,
-        contentPadding: EdgeInsets.zero,
-      ),
-    );
-  }
-
-  void _showLanguageChangedDialog() {
-    final localeProvider = Provider.of<LocaleProvider>(context, listen: false);
-    final currentLanguage = LocaleProvider.getLanguageName(localeProvider.locale.languageCode);
-    
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: Text(AppLocalizations.of(context)!.language_changed),
-        content: Text(AppLocalizations.of(context)!.language_changed_message(currentLanguage)),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(),
-            child: Text(AppLocalizations.of(context)!.ok),
-          ),
-        ],
-      ),
-    );
-  }
-
-  void _showChangePasswordDialog() {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: Text(AppLocalizations.of(context)!.change_password),
-        content: Text(AppLocalizations.of(context)!.change_password),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(),
-            child: Text(AppLocalizations.of(context)!.ok),
-          ),
-        ],
-      ),
-    );
-  }
-
-  void _showChangeEmailDialog() {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: Text(AppLocalizations.of(context)!.change_email),
-        content: Text(AppLocalizations.of(context)!.change_email),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(),
-            child: Text(AppLocalizations.of(context)!.ok),
-          ),
-        ],
-      ),
-    );
-  }
-
+// --- ЛОГІКА ВИДАЛЕННЯ АКАУНТА ---
   void _showDeleteAccountDialog() {
     showDialog(
       context: context,
-      builder: (context) => AlertDialog(
-        title: Text(AppLocalizations.of(context)!.delete_account),
-        content: Text(AppLocalizations.of(context)!.delete_account_message),
+      // ВАЖЛИВО: перейменовуємо контекст діалогу на dialogContext
+      builder: (dialogContext) => AlertDialog(
+        title: const Text('Видалити акаунт?'),
+        content: const Text(
+          'Ви впевнені? Цю дію неможливо скасувати. Всі ваші повідомлення, фото, матчі та дані профілю будуть назавжди видалені з системи.',
+        ),
         actions: [
           TextButton(
-            onPressed: () => Navigator.of(context).pop(),
-            child: Text(AppLocalizations.of(context)!.cancel),
+            onPressed: () => Navigator.pop(dialogContext), 
+            child: const Text('Скасувати')
           ),
           TextButton(
-            onPressed: () {
-              Navigator.of(context).pop();
-              _showDeleteAccountConfirmation();
+            onPressed: () async {
+              // 1. ЗБЕРІГАЄМО необхідні інструменти головного екрана ДО асинхронних дій
+              final scaffoldMessenger = ScaffoldMessenger.of(context);
+              final navigator = Navigator.of(context);
+
+              // 2. Закриваємо діалог, використовуючи його власний контекст
+              Navigator.pop(dialogContext); 
+              
+              try {
+                await _authService.deleteAccount();
+                if (mounted) {
+                  // 3. Використовуємо збережений навігатор
+                  navigator.pushNamedAndRemoveUntil('/landing', (route) => false);
+                }
+              } catch (e) {
+                if (mounted) {
+                  // 4. Використовуємо збережений месенджер (він не null, бо ми його зберегли)
+                  scaffoldMessenger.showSnackBar(
+                    const SnackBar(
+                      content: Text('Не вдалося видалити акаунт'), 
+                      backgroundColor: Colors.red
+                    ),
+                  );
+                }
+              }
             },
             style: TextButton.styleFrom(foregroundColor: Colors.red),
-            child: Text(AppLocalizations.of(context)!.delete),
+            child: const Text('Видалити назавжди'),
+          ),
+        ],
+      ),
+    );
+  }
+  // --- ЛОГІКА ВИХОДУ ---
+  void _showLogoutDialog() {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Вихід'),
+        content: const Text('Ви впевнені, що хочете вийти з акаунта?'),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(context), child: const Text('Скасувати')),
+          TextButton(
+            onPressed: () async {
+              await _authService.signOut();
+              if (mounted) {
+                // Повертаємось на LandingScreen і видаляємо всі екрани з черги
+                Navigator.of(context).pushNamedAndRemoveUntil('/landing', (route) => false);
+              }
+            },
+            style: TextButton.styleFrom(foregroundColor: Colors.red),
+            child: const Text('Вийти'),
           ),
         ],
       ),
     );
   }
 
-  void _showDeleteAccountConfirmation() {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: Text(AppLocalizations.of(context)!.account_deleted),
-        content: Text(AppLocalizations.of(context)!.account_deleted_message),
-        actions: [
-          TextButton(
-            onPressed: () {
-              Navigator.of(context).pop();
-              Navigator.of(context).pop(); // Повертаємось до профілю
-            },
-            child: Text(AppLocalizations.of(context)!.ok),
-          ),
+  // --- ДОПОМІЖНІ ВІДЖЕТИ (ШАБЛОНИ) ---
+
+  Widget _buildSectionCard({required String title, required IconData icon, required Widget child}) {
+    return Container(
+      margin: const EdgeInsets.only(bottom: 16),
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 10)],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(children: [Icon(icon, color: Colors.blue), const SizedBox(width: 12), Text(title, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold))]),
+          const SizedBox(height: 16),
+          child,
         ],
       ),
     );
   }
-} 
+
+  Widget _buildListTile({required String title, required String subtitle, required IconData icon, required VoidCallback onTap, bool isDestructive = false}) {
+    return ListTile(
+      leading: Icon(icon, color: isDestructive ? Colors.red : Colors.grey),
+      title: Text(title, style: TextStyle(color: isDestructive ? Colors.red : Colors.black87, fontWeight: FontWeight.w500)),
+      subtitle: Text(subtitle, style: TextStyle(color: isDestructive ? Colors.red.withOpacity(0.7) : Colors.grey)),
+      trailing: const Icon(Icons.arrow_forward_ios, size: 14),
+      onTap: onTap,
+      contentPadding: EdgeInsets.zero,
+    );
+  }
+
+  // Інші секції
+  Widget _buildNotificationsSection() => _buildSectionCard(title: "Сповіщення", icon: Icons.notifications, child: const Text("Налаштування сповіщень"));
+  Widget _buildPrivacySection() => _buildSectionCard(title: "Приватність", icon: Icons.privacy_tip, child: const Text("Налаштування конфіденційності"));
+}

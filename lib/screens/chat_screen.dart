@@ -1,11 +1,11 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
-import '../models/message.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 import '../providers/locale_provider.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:dating_app/l10n/gen/app_localizations.dart';
 import 'conversation_screen.dart';
-import 'profile_screen.dart';
+import '../service/chat_service.dart';
 
 class ChatScreen extends StatefulWidget {
   const ChatScreen({super.key});
@@ -15,91 +15,82 @@ class ChatScreen extends StatefulWidget {
 }
 
 class _ChatScreenState extends State<ChatScreen> {
+  final ChatService _chatService = ChatService();
+  final _supabase = Supabase.instance.client;
   final TextEditingController _searchController = TextEditingController();
+  
   String _searchQuery = '';
+  Set<String> _onlineUsers = {}; 
+  final Map<String, bool> _typingUsers = {}; 
+  Timer? _refreshTimer; // Додано таймер для автоматичного оновлення часу
 
-  // Активні контакти (stories)
-  final List<ActiveContact> activeContacts = [
-    ActiveContact(
-      id: '1',
-      name: 'Ти',
-      photo: 'assets/images/portrait-man-laughing.jpg',
-      isOnline: true,
-    ),
-    ActiveContact(
-      id: '2',
-      name: 'Роман',
-      photo: 'assets/images/close-up-portrait-curly-handsome-european-male.jpg',
-      hasNewStory: true,
-      isOnline: true,
-    ),
-    ActiveContact(
-      id: '3',
-      name: 'Яна',
-      photo: 'assets/images/selfie-portrait-videocall.jpg',
-      isOnline: false,
-    ),
-    ActiveContact(
-      id: '4',
-      name: 'Андрій',
-      photo: 'assets/images/pleased-smiling-man-with-beard-looking-camera.jpg',
-      isOnline: true,
-    ),
-  ];
+  @override
+  void initState() {
+    super.initState();
+    _initRealtime();
+    // Таймер оновлює екран щохвилини, щоб час "Зараз" змінювався на цифри
+    _refreshTimer = Timer.periodic(const Duration(minutes: 1), (_) {
+      if (mounted) {
+        setState(() {});
+      }
+    });
+  }
 
-  // Список чатів
-  final List<ChatConversation> conversations = [
-    ChatConversation(
-      id: '1',
-      userId: '2',
-      userName: 'Роман',
-      userPhoto: 'assets/images/close-up-portrait-curly-handsome-european-male.jpg',
-      lastMessage: 'Пише..',
-      lastMessageTime: DateTime.now(),
-      unreadCount: 5,
-      isOnline: true,
-      isTyping: true,
-    ),
-    ChatConversation(
-      id: '2',
-      userId: '5',
-      userName: 'Максим',
-      userPhoto: 'assets/images/portrait-man-laughing.jpg',
-      lastMessage: 'Ти: Привіт, як справи?',
-      lastMessageTime: DateTime.now().subtract(const Duration(minutes: 5)),
-      unreadCount: 0,
-      isOnline: false,
-    ),
-    ChatConversation(
-      id: '3',
-      userId: '3',
-      userName: 'Яна',
-      userPhoto: 'assets/images/selfie-portrait-videocall.jpg',
-      lastMessage: 'Коли зустрінемося?',
-      lastMessageTime: DateTime.now(),
-      unreadCount: 3,
-      isOnline: true,
-    ),
-    ChatConversation(
-      id: '4',
-      userId: '4',
-      userName: 'Андрій',
-      userPhoto: 'assets/images/pleased-smiling-man-with-beard-looking-camera.jpg',
-      lastMessage: 'Йдеш сьогодні в кафе?',
-      lastMessageTime: DateTime.now(),
-      unreadCount: 0,
-      isOnline: true,
-    ),
-  ];
-
-  List<ChatConversation> get filteredConversations {
-    if (_searchQuery.isEmpty) {
-      return conversations;
+  void _initRealtime() {
+    final myId = _supabase.auth.currentUser?.id;
+    if (myId != null) {
+      _chatService.subscribeToPresence(myId, (ids) {
+        if (mounted) setState(() => _onlineUsers = ids);
+      });
     }
-    return conversations.where((conversation) {
-      return conversation.userName.toLowerCase().contains(_searchQuery.toLowerCase()) ||
-             conversation.lastMessage.toLowerCase().contains(_searchQuery.toLowerCase());
-    }).toList();
+  }
+
+  @override
+  void dispose() {
+    _refreshTimer?.cancel(); // Відключаємо таймер
+    _chatService.unsubscribeFromPresence();
+    _searchController.dispose();
+    super.dispose();
+  }
+
+  Future<void> _openChat(Map<String, dynamic> chat, {required bool isOnline}) async {
+    final roomId = chat['room_id'].toString();
+    final isGroup = chat['type'] == 'group';
+
+    final name = isGroup ? chat['name'] : (chat['other_user_name'] ?? 'Користувач');
+
+    // 👇 РОЗУМНЕ ВИЗНАЧЕННЯ ФОТО (Універсальне для обох типів)
+    String photoUrl;
+    if (isGroup) {
+      // Якщо група - беремо фото групи
+      photoUrl = chat['photo'] ?? 'https://ui-avatars.com/api/?name=Group&format=png&background=random';
+    } else {
+      // Якщо приватний - беремо фото співрозмовника
+      photoUrl = chat['other_user_photo'] ?? 'https://ui-avatars.com/api/?name=User&format=png&background=random';
+    }
+    final navigator = Navigator.of(context);
+
+    try {
+      await _chatService.markMessagesAsRead(roomId);
+      if (!mounted) return;
+
+      await navigator.push(
+        MaterialPageRoute(
+          builder: (context) => ConversationScreen(
+            roomId: roomId,
+            userName: name,
+            userPhoto: photoUrl,
+            isOnline: isOnline,
+            isGroup: isGroup,
+            otherUserId: chat['other_user_id']?.toString() ?? '',
+          ),
+        ),
+      );
+
+      if (mounted) setState(() {});
+    } catch (e) {
+      debugPrint("Error opening chat: $e");
+    }
   }
 
   @override
@@ -118,27 +109,204 @@ class _ChatScreenState extends State<ChatScreen> {
             child: SafeArea(
               child: Column(
                 children: [
-                  // Верхня панель з заголовком та фільтром
                   _buildTopBar(),
-                  
-                  // Пошук
                   _buildSearchBar(),
                   
-                  // Активні контакти (stories)
-                  _buildActiveContacts(),
-                  
-                  // Заголовок повідомлень
-                  _buildMessagesHeader(),
-                  
-                  // Список повідомлень
                   Expanded(
-                    child: _buildConversationsList(),
+                    child: StreamBuilder<List<Map<String, dynamic>>>(
+                      stream: _chatService.getMyChatsStream(),
+                      builder: (context, snapshot) {
+                        if (snapshot.connectionState == ConnectionState.waiting) {
+                          return const Center(child: CircularProgressIndicator());
+                        }
+                        if (snapshot.hasError) {
+                          return const Center(child: Text('Помилка завантаження...'));
+                        }
+
+                        final conversations = snapshot.data ?? [];
+                        final filtered = conversations.where((chat) {
+                          final name = chat['type'] == 'group' ? chat['name'] : chat['other_user_name'] ?? 'Користувач';
+                          return name.toLowerCase().contains(_searchQuery.toLowerCase());
+                        }).toList();
+
+                        if (filtered.isEmpty) {
+                          return Center(child: Text(AppLocalizations.of(context)!.no_chats_yet ?? 'Чатів ще немає'));
+                        }
+
+                        return Column(
+                          children: [
+                            _buildActiveContacts(filtered),
+                            _buildMessagesHeader(),
+                            Expanded(child: _buildConversationsList(filtered)),
+                          ],
+                        );
+                      },
+                    ),
                   ),
                 ],
               ),
             ),
           ),
+        );
+      },
+    );
+  }
 
+  Widget _buildActiveContacts(List<Map<String, dynamic>> chats) {
+    final onlineFriends = chats.where((c) {
+      return c['type'] == 'private' && _onlineUsers.contains(c['other_user_id']);
+    }).toList();
+
+    if (onlineFriends.isEmpty) return const SizedBox.shrink();
+
+    return Container(
+      height: 100,
+      margin: const EdgeInsets.symmetric(vertical: 8),
+      child: ListView.builder(
+        scrollDirection: Axis.horizontal,
+        padding: const EdgeInsets.symmetric(horizontal: 20),
+        itemCount: onlineFriends.length,
+        itemBuilder: (context, index) {
+          final friend = onlineFriends[index];
+          final photo = friend['other_user_photo'] ?? 'https://ui-avatars.com/api/?name=${friend['other_user_name'] ?? 'User'}&format=png';
+          final name = friend['other_user_name'] ?? 'User';
+
+          return GestureDetector(
+            onTap: () => _openChat(friend, isOnline: true),
+            child: Container(
+              margin: const EdgeInsets.only(right: 16),
+              child: Column(
+                children: [
+                  Stack(
+                    children: [
+                      Container(
+                        width: 60, height: 60,
+                        decoration: BoxDecoration(shape: BoxShape.circle, border: Border.all(color: Colors.green, width: 2)),
+                        child: ClipRRect(borderRadius: BorderRadius.circular(30), child: Image.network(photo, fit: BoxFit.cover)),
+                      ),
+                      Positioned(right: 0, bottom: 0, child: Container(width: 14, height: 14, decoration: BoxDecoration(color: Colors.green, shape: BoxShape.circle, border: Border.all(color: Colors.white, width: 2)))),
+                    ],
+                  ),
+                  const SizedBox(height: 4),
+                  Text(name, style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w500)),
+                ],
+              ),
+            ),
+          );
+        },
+      ),
+    );
+  }
+
+  Widget _buildConversationsList(List<Map<String, dynamic>> conversations) {
+    return ListView.builder(
+      padding: const EdgeInsets.symmetric(horizontal: 20),
+      itemCount: conversations.length,
+      itemBuilder: (context, index) {
+        final chat = conversations[index];
+        final isGroup = chat['type'] == 'group';
+        
+        // 👇 УНІВЕРСАЛЬНЕ ВИЗНАЧЕННЯ ІМЕНІ ТА ФОТО ПРЯМО ТУТ
+        final name = isGroup ? chat['name'] : (chat['other_user_name'] ?? 'Невідомий');
+        
+        // Вибираємо правильне джерело фото і правильну PNG-заглушку
+        String photo;
+        if (isGroup) {
+          // Для груп беремо поле 'photo' (з avatar_url у ChatService)
+          photo = chat['photo'] ?? 'https://ui-avatars.com/api/?name=${name}&format=png&background=random';
+        } else {
+          // Для приватних чатів беремо фото співрозмовника
+          photo = chat['other_user_photo'] ?? 'https://ui-avatars.com/api/?name=${name}&format=png&background=random';
+        }
+
+        final lastMsg = chat['last_message'] ?? '';
+        
+        // ЄДИНЕ ОГОЛОШЕННЯ ЧАСУ, гарантує правильний парсинг
+        // ЄДИНЕ ОГОЛОШЕННЯ ЧАСУ з автоматичною корекцією часових поясів
+        DateTime? parsedTime;
+        if (chat['last_message_time'] != null) {
+          try {
+            String timeStr = chat['last_message_time'].toString().trim();
+            parsedTime = DateTime.parse(timeStr).toLocal();
+            
+            // РОЗУМНА КОРЕКЦІЯ: 
+            // Якщо час повідомлення більший за поточний час (полетів у майбутнє на 2 години),
+            // ми просто віднімаємо локальний зсув (ваші +2 години).
+            final now = DateTime.now();
+            if (parsedTime.isAfter(now.add(const Duration(minutes: 1)))) {
+              parsedTime = parsedTime.subtract(now.timeZoneOffset);
+            }
+            
+          } catch (e) {
+            debugPrint("Time parsing error: $e");
+          }
+        }
+        
+        final unread = chat['unread_count'] ?? 0;
+        final roomId = chat['room_id'];
+        final isOnline = !isGroup && _onlineUsers.contains(chat['other_user_id']);
+        final isTyping = _typingUsers[roomId] == true;
+        
+        return GestureDetector(
+          onTap: () => _openChat(chat, isOnline: isOnline),
+          child: Container(
+            margin: const EdgeInsets.only(bottom: 12),
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(12),
+              boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 8, offset: const Offset(0, 2))],
+            ),
+            child: Row(
+              children: [
+                Stack(
+                  children: [
+                    Container(
+                      width: 50, height: 50,
+                      decoration: BoxDecoration(shape: BoxShape.circle, border: Border.all(color: isOnline ? Colors.green : Colors.grey.shade300, width: 2)),
+                      child: ClipRRect(borderRadius: BorderRadius.circular(25), child: Image.network(photo, fit: BoxFit.cover)),
+                    ),
+                    if (isOnline) Positioned(right: 0, bottom: 0, child: Container(width: 12, height: 12, decoration: BoxDecoration(color: Colors.green, shape: BoxShape.circle, border: Border.all(color: Colors.white, width: 2)))),
+                  ],
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          Expanded(child: Text(name, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600, color: Colors.black))),
+                          Text(
+                            parsedTime != null ? _formatTime(parsedTime) : '', // ТЕПЕР ПРАЦЮЄ КОРЕКТНО
+                            style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 4),
+                      Row(
+                        children: [
+                          Expanded(
+                            child: Text(
+                              isTyping ? '${AppLocalizations.of(context)!.typing ?? "Друкує"}...' : lastMsg,
+                              style: TextStyle(fontSize: 14, color: isTyping ? Colors.blue : Colors.grey.shade600, fontStyle: isTyping ? FontStyle.italic : FontStyle.normal, fontWeight: unread > 0 ? FontWeight.bold : FontWeight.normal),
+                              maxLines: 1, overflow: TextOverflow.ellipsis,
+                            ),
+                          ),
+                          if (unread > 0)
+                            Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                              decoration: const BoxDecoration(color: Colors.blue, borderRadius: BorderRadius.all(Radius.circular(10))),
+                              child: Text('$unread', style: const TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold)),
+                            ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
         );
       },
     );
@@ -148,338 +316,35 @@ class _ChatScreenState extends State<ChatScreen> {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
       child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          // Заголовок
-          Text(
-            AppLocalizations.of(context)!.chats,
-            style: const TextStyle(
-              fontSize: 28,
-              fontWeight: FontWeight.bold,
-              color: Colors.black,
-            ),
-          ),
-          
-          const Spacer(),
-          
-          // Кнопка коментаря
+          Text(AppLocalizations.of(context)!.chats, style: const TextStyle(fontSize: 28, fontWeight: FontWeight.bold, color: Colors.black)),
           GestureDetector(
-            onTap: () {
-              _showGroupOptionsDialog();
-            },
-            child: Container(
-              padding: const EdgeInsets.all(8),
-              decoration: BoxDecoration(
-                color: Colors.black,
-                borderRadius: BorderRadius.circular(20),
-              ),
-              child: const Icon(
-                Icons.comment,
-                color: Colors.white,
-                size: 20,
-              ),
-            ),
-          ),
-          
-          const SizedBox(width: 12),
-          
-          // Кнопка фільтра
-          GestureDetector(
-            onTap: () {
-              // Логіка фільтрації
-            },
-            child: Container(
-              padding: const EdgeInsets.all(8),
-              decoration: BoxDecoration(
-                color: Colors.black,
-                borderRadius: BorderRadius.circular(20),
-              ),
-              child: Image.asset(
-                'assets/icons/filter.png',
-                width: 20,
-                height: 20,
-                color: Colors.white,
-              ),
-            ),
+            onTap: _showGroupOptionsDialog,
+            child: Container(padding: const EdgeInsets.all(8), decoration: BoxDecoration(color: Colors.black, borderRadius: BorderRadius.circular(20)), child: const Icon(Icons.add, color: Colors.white, size: 24)),
           ),
         ],
       ),
     );
   }
-
+  
   Widget _buildSearchBar() {
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-      decoration: BoxDecoration(
-        color: Colors.grey.shade200,
-        borderRadius: BorderRadius.circular(25),
-      ),
-      child: Row(
-        children: [
-          Image.asset(
-            'assets/icons/search.png',
-            width: 20,
-            height: 20,
-            color: Colors.grey.shade600,
-          ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: TextField(
-              controller: _searchController,
-              onChanged: (value) {
-                setState(() {
-                  _searchQuery = value;
-                });
-              },
-              decoration: InputDecoration(
-                hintText: AppLocalizations.of(context)!.search_contacts,
-                hintStyle: const TextStyle(
-                  color: Colors.grey,
-                  fontSize: 16,
-                ),
-                border: InputBorder.none,
-              ),
-            ),
-          ),
-        ],
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 2),
+      decoration: BoxDecoration(color: Colors.grey.shade200, borderRadius: BorderRadius.circular(25)),
+      child: TextField(
+        controller: _searchController,
+        onChanged: (val) => setState(() => _searchQuery = val),
+        decoration: InputDecoration(hintText: AppLocalizations.of(context)!.search_contacts, border: InputBorder.none, icon: const Icon(Icons.search, color: Colors.grey)),
       ),
     );
   }
-
-  Widget _buildActiveContacts() {
-    return Container(
-      height: 100,
-      margin: const EdgeInsets.symmetric(vertical: 8),
-      child: ListView.builder(
-        scrollDirection: Axis.horizontal,
-        padding: const EdgeInsets.symmetric(horizontal: 20),
-        itemCount: activeContacts.length,
-        itemBuilder: (context, index) {
-          final contact = activeContacts[index];
-          return Container(
-            margin: const EdgeInsets.only(right: 16),
-            child: Column(
-              children: [
-                Stack(
-                  children: [
-                    Container(
-                      width: 60,
-                      height: 60,
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        border: Border.all(
-                          color: contact.isOnline ? Colors.green : Colors.grey.shade300,
-                          width: 2,
-                        ),
-                      ),
-                      child: ClipRRect(
-                        borderRadius: BorderRadius.circular(30),
-                        child: Image.asset(
-                          contact.photo,
-                          fit: BoxFit.cover,
-                        ),
-                      ),
-                    ),
-                    if (contact.hasNewStory)
-                      Positioned(
-                        right: 0,
-                        top: 0,
-                        child: Container(
-                          width: 16,
-                          height: 16,
-                          decoration: const BoxDecoration(
-                            color: Colors.red,
-                            shape: BoxShape.circle,
-                          ),
-                        ),
-                      ),
-                  ],
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  contact.name,
-                  style: const TextStyle(
-                    fontSize: 12,
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
-              ],
-            ),
-          );
-        },
-      ),
-    );
-  }
-
+  
   Widget _buildMessagesHeader() {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
-      child: Row(
-        children: [
-          Text(
-            AppLocalizations.of(context)!.messages,
-            style: const TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
-              color: Colors.black,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildConversationsList() {
-    return ListView.builder(
-      padding: const EdgeInsets.symmetric(horizontal: 20),
-      itemCount: filteredConversations.length,
-      itemBuilder: (context, index) {
-        final conversation = filteredConversations[index];
-        return GestureDetector(
-          onTap: () {
-                         Navigator.of(context).push(
-               MaterialPageRoute(
-                 builder: (context) => ConversationScreen(
-                   userName: conversation.userName,
-                   userPhoto: conversation.userPhoto,
-                   isOnline: conversation.isOnline,
-                 ),
-               ),
-             );
-          },
-          child: Container(
-            margin: const EdgeInsets.only(bottom: 12),
-            padding: const EdgeInsets.all(12),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(12),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withOpacity(0.05),
-                  blurRadius: 8,
-                  offset: const Offset(0, 2),
-                ),
-              ],
-            ),
-            child: Row(
-              children: [
-                // Аватар
-                Stack(
-                  children: [
-                    Container(
-                      width: 50,
-                      height: 50,
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        border: Border.all(
-                          color: conversation.isOnline ? Colors.green : Colors.grey.shade300,
-                          width: 2,
-                        ),
-                      ),
-                      child: ClipRRect(
-                        borderRadius: BorderRadius.circular(25),
-                        child: Image.asset(
-                          conversation.userPhoto,
-                          fit: BoxFit.cover,
-                        ),
-                      ),
-                    ),
-                    if (conversation.isOnline)
-                      Positioned(
-                        right: 0,
-                        bottom: 0,
-                        child: Container(
-                          width: 12,
-                          height: 12,
-                          decoration: const BoxDecoration(
-                            color: Colors.green,
-                            shape: BoxShape.circle,
-                            border: Border.fromBorderSide(
-                              BorderSide(color: Colors.white, width: 2),
-                            ),
-                          ),
-                        ),
-                      ),
-                  ],
-                ),
-                
-                const SizedBox(width: 12),
-                
-                // Інформація про чат
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
-                        children: [
-                          Expanded(
-                            child: Text(
-                              conversation.userName,
-                              style: const TextStyle(
-                                fontSize: 16,
-                                fontWeight: FontWeight.w600,
-                                color: Colors.black,
-                              ),
-                            ),
-                          ),
-                          Text(
-                            _formatTime(conversation.lastMessageTime),
-                            style: TextStyle(
-                              fontSize: 12,
-                              color: Colors.grey.shade600,
-                            ),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 4),
-                      Row(
-                        children: [
-                          Expanded(
-                            child: Text(
-                              conversation.isTyping 
-                                ? AppLocalizations.of(context)!.typing
-                                : conversation.lastMessage,
-                              style: TextStyle(
-                                fontSize: 14,
-                                color: conversation.isTyping 
-                                  ? Colors.blue 
-                                  : Colors.grey.shade600,
-                                fontStyle: conversation.isTyping 
-                                  ? FontStyle.italic 
-                                  : FontStyle.normal,
-                              ),
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                          ),
-                          if (conversation.unreadCount > 0) ...[
-                            const SizedBox(width: 8),
-                            Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                              decoration: const BoxDecoration(
-                                color: Colors.blue,
-                                borderRadius: BorderRadius.all(Radius.circular(10)),
-                              ),
-                              child: Text(
-                                conversation.unreadCount.toString(),
-                                style: const TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 12,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                            ),
-                          ],
-                        ],
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-          ),
-        );
-      },
+      child: Row(children: [Text(AppLocalizations.of(context)!.messages, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold))]),
     );
   }
 
@@ -487,15 +352,24 @@ class _ChatScreenState extends State<ChatScreen> {
     final now = DateTime.now();
     final difference = now.difference(time);
     
-    if (difference.inDays > 0) {
-      return DateFormat('dd.MM').format(time);
-    } else if (difference.inHours > 0) {
-      return '${difference.inHours}г';
-    } else if (difference.inMinutes > 0) {
-      return '${difference.inMinutes}хв';
-    } else {
-      return 'зараз';
+    // Якщо менше 60 сек
+    if (difference.inSeconds.abs() < 60) {
+      return AppLocalizations.of(context)?.now ?? 'Зараз';
     }
+    
+    // Сьогодні
+    if ((now.year == time.year && now.month == time.month && now.day == time.day) || time.isAfter(now)) {
+      return "${time.hour.toString().padLeft(2, '0')}:${time.minute.toString().padLeft(2, '0')}";
+    }
+    
+    // Вчора
+    final yesterday = now.subtract(const Duration(days: 1));
+    if (time.year == yesterday.year && time.month == yesterday.month && time.day == yesterday.day) {
+      return "Вчора";
+    }
+
+    // Інші дні
+    return "${time.day.toString().padLeft(2, '0')}.${time.month.toString().padLeft(2, '0')}";
   }
 
   void _showGroupOptionsDialog() {
@@ -503,232 +377,17 @@ class _ChatScreenState extends State<ChatScreen> {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: Text(AppLocalizations.of(context)!.create_group),
+          title: Text(AppLocalizations.of(context)!.create_group ?? 'Create Group'),
           content: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              ListTile(
-                leading: const Icon(Icons.group_add),
-                title: Text(AppLocalizations.of(context)!.private_group),
-                onTap: () {
-                  Navigator.of(context).pop();
-                  _showCreateGroupDialog(true);
-                },
-              ),
-              ListTile(
-                leading: const Icon(Icons.public),
-                title: Text(AppLocalizations.of(context)!.public_group),
-                onTap: () {
-                  Navigator.of(context).pop();
-                  _showCreateGroupDialog(false);
-                },
-              ),
-              ListTile(
-                leading: const Icon(Icons.group),
-                title: Text(AppLocalizations.of(context)!.join_group),
-                onTap: () {
-                  Navigator.of(context).pop();
-                  _showJoinGroupDialog();
-                },
-              ),
+              ListTile(leading: const Icon(Icons.group_add), title: Text(AppLocalizations.of(context)!.private_group ?? 'Private Group'), onTap: () => Navigator.of(context).pop()),
+              ListTile(leading: const Icon(Icons.public), title: Text(AppLocalizations.of(context)!.public_group ?? 'Public Group'), onTap: () => Navigator.of(context).pop()),
             ],
           ),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-              child: Text(AppLocalizations.of(context)!.cancel),
-            ),
-          ],
+          actions: [TextButton(onPressed: () => Navigator.of(context).pop(), child: Text(AppLocalizations.of(context)!.cancel ?? 'Cancel'))],
         );
       },
     );
   }
-
-  void _showCreateGroupDialog(bool isPrivate) {
-    final nameController = TextEditingController();
-    final descriptionController = TextEditingController();
-    
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: Text(isPrivate 
-            ? AppLocalizations.of(context)!.private_group
-            : AppLocalizations.of(context)!.public_group),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              TextField(
-                controller: nameController,
-                decoration: InputDecoration(
-                  labelText: AppLocalizations.of(context)!.group_name,
-                  border: const OutlineInputBorder(),
-                ),
-              ),
-              const SizedBox(height: 16),
-              TextField(
-                controller: descriptionController,
-                decoration: InputDecoration(
-                  labelText: AppLocalizations.of(context)!.group_description,
-                  border: const OutlineInputBorder(),
-                ),
-                maxLines: 3,
-              ),
-            ],
-          ),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-              child: Text(AppLocalizations.of(context)!.cancel),
-            ),
-            ElevatedButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-                _showSuccessDialog(
-                  'Група "${nameController.text}" створена успішно!',
-                );
-              },
-              child: Text(AppLocalizations.of(context)!.save),
-            ),
-          ],
-        );
-      },
-    );
-  }
-
-  void _showJoinGroupDialog() {
-    final mockGroups = [
-      {
-        'name': 'Київські вечірки',
-        'members': 45,
-        'description': 'Організація вечірок у Києві',
-      },
-      {
-        'name': 'Походи в Карпати',
-        'members': 23,
-        'description': 'Група для організації походів',
-      },
-      {
-        'name': 'Фотографія',
-        'members': 67,
-        'description': 'Спільнота фотографів',
-      },
-    ];
-
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: Text(AppLocalizations.of(context)!.join_group),
-          content: SizedBox(
-            width: double.maxFinite,
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: mockGroups.map((group) {
-                return Container(
-                  margin: const EdgeInsets.only(bottom: 16),
-                  padding: const EdgeInsets.all(16),
-                  decoration: BoxDecoration(
-                    color: Colors.grey.shade50,
-                    borderRadius: BorderRadius.circular(12),
-                    border: Border.all(color: Colors.grey.shade200),
-                  ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        group['name'] as String,
-                        style: const TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      const SizedBox(height: 8),
-                      Text(
-                        '${group['members']} ${AppLocalizations.of(context)!.group_members} • ${group['description']}',
-                        style: TextStyle(
-                          color: Colors.grey.shade600,
-                          fontSize: 14,
-                        ),
-                      ),
-                      const SizedBox(height: 12),
-                      Center(
-                        child: SizedBox(
-                          width: double.infinity,
-                          height: 44,
-                          child: ElevatedButton(
-                            onPressed: () {
-                              Navigator.of(context).pop();
-                              _showSuccessDialog(
-                                '${AppLocalizations.of(context)!.group_joined} "${group['name']}"!',
-                              );
-                            },
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: const Color(0xFFF3E5F5),
-                              foregroundColor: Colors.black87,
-                              elevation: 0,
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(22),
-                              ),
-                            ),
-                            child: Text(
-                              AppLocalizations.of(context)!.join,
-                              style: const TextStyle(
-                                fontSize: 16,
-                                fontWeight: FontWeight.w600,
-                              ),
-                            ),
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                );
-              }).toList(),
-            ),
-          ),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-              child: Text(AppLocalizations.of(context)!.cancel),
-            ),
-          ],
-        );
-      },
-    );
-  }
-
-  void _showSuccessDialog(String message) {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: Row(
-            children: [
-              const Icon(Icons.check_circle, color: Colors.green),
-              const SizedBox(width: 8),
-              Text(AppLocalizations.of(context)!.success),
-            ],
-          ),
-          content: Text(message),
-          actions: [
-            ElevatedButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-              child: Text(AppLocalizations.of(context)!.ok),
-            ),
-          ],
-        );
-      },
-    );
-  }
-
-
-} 
+}

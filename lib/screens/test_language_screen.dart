@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../providers/language_provider.dart';
-import '../l10n/app_localizations.dart';
-
+import 'package:dating_app/l10n/gen/app_localizations.dart';
 class TestLanguageScreen extends StatelessWidget {
   const TestLanguageScreen({super.key});
 
@@ -12,7 +11,7 @@ class TestLanguageScreen extends StatelessWidget {
       builder: (context, languageProvider, child) {
         return Scaffold(
           appBar: AppBar(
-            title: Text(AppLocalizations.of(context).get('app_name')),
+            title: Text(AppLocalizations.of(context)!.app_name),
             backgroundColor: Colors.blue,
             foregroundColor: Colors.white,
           ),
@@ -39,22 +38,22 @@ class TestLanguageScreen extends StatelessWidget {
                     ),
                     const SizedBox(height: 20),
                     Text(
-                      'Назва додатку: ${AppLocalizations.of(context).get('app_name')}',
+                      'Назва додатку: ${AppLocalizations.of(context)!.app_name}',
                       style: const TextStyle(fontSize: 18),
                     ),
                     const SizedBox(height: 10),
                     Text(
-                      'Кнопка "ОК": ${AppLocalizations.of(context).get('ok')}',
+                      'Кнопка "ОК": ${AppLocalizations.of(context)!.ok}',
                       style: const TextStyle(fontSize: 18),
                     ),
                     const SizedBox(height: 10),
                     Text(
-                      'Кнопка "Скасувати": ${AppLocalizations.of(context).get('cancel')}',
+                      'Кнопка "Скасувати": ${AppLocalizations.of(context)!.cancel}',
                       style: const TextStyle(fontSize: 18),
                     ),
                     const SizedBox(height: 10),
                     Text(
-                      'Кнопка "Зберегти": ${AppLocalizations.of(context).get('save')}',
+                      'Кнопка "Зберегти": ${AppLocalizations.of(context)!.save}',
                       style: const TextStyle(fontSize: 18),
                     ),
                     const SizedBox(height: 30),

@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import '../models/event.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
-
+import 'package:dating_app/l10n/gen/app_localizations.dart';
 class EventDetailScreen extends StatefulWidget {
   final Event event;
   

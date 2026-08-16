@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../providers/locale_provider.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import '../models/user_profile.dart';
 import '../models/event.dart';
-import 'chat_screen.dart';
-import 'profile_screen.dart';
+import '../service/matches_service.dart'; // 👇 Імпорт сервісу
+import 'package:dating_app/l10n/gen/app_localizations.dart';
+import 'chat_screen.dart'; // Якщо плануєш перехід в чат
 import 'user_profile_view_screen.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 class EventRequestsScreen extends StatefulWidget {
   final Event event;
@@ -18,77 +19,107 @@ class EventRequestsScreen extends StatefulWidget {
 }
 
 class _EventRequestsScreenState extends State<EventRequestsScreen> {
-  
-  // Мокові дані для запитів на подію
-  final List<Map<String, dynamic>> _eventRequests = [
-    {
-      'user': UserProfile(
-        id: '1',
-        name: 'Марія',
-        age: 24,
-        description: 'Люблю активний відпочинок та нові знайомства',
-        photos: ['assets/images/uifaces-popular-image-3.jpg'],
-        location: 'Київ',
-        hobbies: ['Походи', 'Фотографія', 'Спорт'],
-      ),
-      'message': 'Дуже хочу приєднатися до походу! Маю досвід в горах.',
-      'hasMessage': true,
-    },
-    {
-      'user': UserProfile(
-        id: '2',
-        name: 'Андрій',
-        age: 26,
-        description: 'Шукаю компанію для активного відпочинку',
-        photos: ['assets/images/uifaces-popular-image-7.jpg'],
-        location: 'Львів',
-        hobbies: ['Гори', 'Походи', 'Природа'],
-      ),
-      'message': null,
-      'hasMessage': false,
-    },
-    {
-      'user': UserProfile(
-        id: '3',
-        name: 'Катерина',
-        age: 23,
-        description: 'Люблю подорожувати та знайомитися з новими людьми',
-        photos: ['assets/images/uifaces-popular-image-5.jpg'],
-        location: 'Харків',
-        hobbies: ['Подорожі', 'Фотографія', 'Книги'],
-      ),
-      'message': 'Привіт! Це буде мій перший похід, але дуже хочу спробувати!',
-      'hasMessage': true,
-    },
-  ];
+  final _matchesService = MatchesService(); // 👇
+  bool _isLoading = true;
+  List<Map<String, dynamic>> _eventRequests = [];
 
+  @override
+  void initState() {
+    super.initState();
+    _loadRequests();
+  }
 
+  Future<void> _loadRequests() async {
+    setState(() => _isLoading = true);
+    try {
+      // 1. Завантажуємо заявки з бази
+      final requests = await _matchesService.getRequestsForEvent(widget.event.id);
+      
+      // 2. Отримуємо дані поточного користувача (ТЕБЕ), щоб було з чим порівнювати
+      final myId = Supabase.instance.client.auth.currentUser!.id;
+      final myProfileData = await Supabase.instance.client
+          .from('profiles')
+          .select('hobbies, location')
+          .eq('id', myId)
+          .single();
+
+      final List<String> myHobbies = List<String>.from(myProfileData['hobbies'] ?? []);
+      final String myLocation = myProfileData['location'] ?? '';
+
+      // 3. ✨ АЛГОРИТМ КОРИСНОЇ СХОЖОСТІ
+      for (var request in requests) {
+        final user = request['user'] as UserProfile;
+        int matchScore = 0;
+
+        // А) Спільна локація (+20 балів)
+        if (user.location == myLocation) {
+          matchScore += 20;
+        }
+
+        // Б) Спільні інтереси (+10 балів за кожен збіг)
+        final commonHobbiesCount = user.hobbies.where((hobby) => myHobbies.contains(hobby)).length;
+        matchScore += (commonHobbiesCount * 10);
+
+        // В) Наявність повідомлення (+5 балів, бо людина проявила ініціативу)
+        if (request['hasMessage'] == true) {
+          matchScore += 5;
+        }
+
+        // Зберігаємо бал у мапу запиту
+        request['match_score'] = matchScore;
+      }
+
+      // 4. Сортуємо список: від найбільшого балу до найменшого
+      requests.sort((a, b) => (b['match_score'] as int).compareTo(a['match_score'] as int));
+
+      if (mounted) {
+        setState(() {
+          _eventRequests = requests;
+          _isLoading = false;
+        });
+      }
+    } catch (e) {
+      debugPrint("❌ Помилка завантаження заявок: $e");
+      if (mounted) setState(() => _isLoading = false);
+    }
+  }
+
+  // Хелпер для фото
+  ImageProvider _getImageProvider(List<String>? photos) {
+    if (photos == null || photos.isEmpty) return const NetworkImage('https://ui-avatars.com/api/?name=User&background=random');
+    final path = photos.first;
+    if (path.startsWith('http')) return NetworkImage(path);
+    if (path.contains('placeholder')) return const NetworkImage('https://ui-avatars.com/api/?name=User&background=random');
+    return AssetImage(path);
+  }
 
   @override
   Widget build(BuildContext context) {
     return Consumer<LocaleProvider>(
       builder: (context, localeProvider, child) {
         return Scaffold(
-      backgroundColor: const Color(0xFFF3E5F5),
-      body: Container(
-        decoration: const BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.bottomCenter,
-            end: Alignment.topCenter,
-            colors: [Color(0xFFF3E5F5), Colors.white],
-          ),
-        ),
-        child: SafeArea(
-          child: Column(
-            children: [
-              _buildTopBar(),
-              Expanded(
-                child: _buildRequestsList(),
+          backgroundColor: const Color(0xFFF3E5F5),
+          body: Container(
+            decoration: const BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.bottomCenter,
+                end: Alignment.topCenter,
+                colors: [Color(0xFFF3E5F5), Colors.white],
               ),
-            ],
+            ),
+            child: SafeArea(
+              child: Column(
+                children: [
+                  _buildTopBar(),
+                  Expanded(
+                    child: _isLoading 
+                        ? const Center(child: CircularProgressIndicator())
+                        : _buildRequestsList(),
+                  ),
+                ],
+              ),
+            ),
           ),
-        ),
-      ),
         );
       },
     );
@@ -107,11 +138,7 @@ class _EventRequestsScreenState extends State<EventRequestsScreen> {
                 color: Colors.white.withOpacity(0.9),
                 borderRadius: BorderRadius.circular(12),
                 boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withOpacity(0.1),
-                    blurRadius: 8,
-                    offset: const Offset(0, 2),
-                  ),
+                  BoxShadow(color: Colors.black.withOpacity(0.1), blurRadius: 8, offset: const Offset(0, 2)),
                 ],
               ),
               child: const Icon(Icons.arrow_back, color: Colors.black87),
@@ -124,18 +151,12 @@ class _EventRequestsScreenState extends State<EventRequestsScreen> {
               children: [
                 Text(
                   AppLocalizations.of(context)!.event_requests,
-                  style: const TextStyle(
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.black87,
-                  ),
+                  style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.black87),
                 ),
                 Text(
                   widget.event.title,
-                  style: const TextStyle(
-                    fontSize: 14,
-                    color: Colors.black54,
-                  ),
+                  style: const TextStyle(fontSize: 14, color: Colors.black54),
+                  overflow: TextOverflow.ellipsis,
                 ),
               ],
             ),
@@ -156,27 +177,22 @@ class _EventRequestsScreenState extends State<EventRequestsScreen> {
       itemBuilder: (context, index) {
         final item = _eventRequests[index];
         return _buildUserCardWithMessage(
-          item['user'], 
-          item['message'], 
-          item['hasMessage']
+          item['user'] as UserProfile, 
+          item['message'] as String?, 
+          item['hasMessage'] as bool,
+          item['request_id'] as String, // ID заявки для прийняття/відхилення
         );
       },
     );
   }
 
-  Widget _buildUserCardWithMessage(UserProfile user, String? message, bool hasMessage) {
+  Widget _buildUserCardWithMessage(UserProfile user, String? message, bool hasMessage, String requestId) {
     return Container(
       margin: const EdgeInsets.only(bottom: 16),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(20),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.08),
-            blurRadius: 12,
-            offset: const Offset(0, 4),
-          ),
-        ],
+        boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.08), blurRadius: 12, offset: const Offset(0, 4))],
       ),
       child: Column(
         children: [
@@ -186,7 +202,7 @@ class _EventRequestsScreenState extends State<EventRequestsScreen> {
             decoration: BoxDecoration(
               borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
               image: DecorationImage(
-                image: AssetImage(user.photos.first),
+                image: _getImageProvider(user.photos), // 🟢 Фікс картинок
                 fit: BoxFit.cover,
               ),
             ),
@@ -196,41 +212,26 @@ class _EventRequestsScreenState extends State<EventRequestsScreen> {
                   decoration: BoxDecoration(
                     borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
                     gradient: LinearGradient(
-                      begin: Alignment.topCenter,
-                      end: Alignment.bottomCenter,
-                      colors: [
-                        Colors.transparent,
-                        Colors.black.withOpacity(0.6),
-                      ],
+                      begin: Alignment.topCenter, end: Alignment.bottomCenter,
+                      colors: [Colors.transparent, Colors.black.withOpacity(0.6)],
                     ),
                   ),
                 ),
-                // Іконка інформації в правому верхньому куті
+                // Іконка інформації
                 Positioned(
-                  top: 12,
-                  right: 12,
+                  top: 12, right: 12,
                   child: GestureDetector(
-                    onTap: () => _showUserMenu(context, user),
+                    onTap: () => _showUserMenu(context, user, requestId),
                     child: Container(
                       padding: const EdgeInsets.all(6),
-                      decoration: BoxDecoration(
-                        color: Colors.white.withOpacity(0.2),
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      child: Image.asset(
-                        'assets/icons/info.png',
-                        width: 18,
-                        height: 18,
-                        color: Colors.white,
-                      ),
+                      decoration: BoxDecoration(color: Colors.white.withOpacity(0.2), borderRadius: BorderRadius.circular(8)),
+                      child: const Icon(Icons.info, color: Colors.white, size: 18),
                     ),
                   ),
                 ),
                 // Інформація внизу фото
                 Positioned(
-                  bottom: 0,
-                  left: 0,
-                  right: 0,
+                  bottom: 0, left: 0, right: 0,
                   child: Padding(
                     padding: const EdgeInsets.all(16),
                     child: Column(
@@ -238,39 +239,16 @@ class _EventRequestsScreenState extends State<EventRequestsScreen> {
                       children: [
                         Row(
                           children: [
-                            Text(
-                              '${user.name}, ${user.age}',
-                              style: const TextStyle(
-                                color: Colors.white,
-                                fontSize: 18,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
+                            Text('${user.name}, ${user.age}', style: const TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold)),
                             const SizedBox(width: 8),
-                            Icon(
-                              Icons.location_on,
-                              color: Colors.white.withOpacity(0.8),
-                              size: 16,
-                            ),
-                            Text(
-                              user.location,
-                              style: TextStyle(
-                                color: Colors.white.withOpacity(0.8),
-                                fontSize: 14,
-                              ),
-                            ),
+                            Icon(Icons.location_on, color: Colors.white.withOpacity(0.8), size: 16),
+                            Text(user.location, style: TextStyle(color: Colors.white.withOpacity(0.8), fontSize: 14)),
                           ],
                         ),
-                        const SizedBox(height: 4),
-                        Text(
-                          user.description,
-                          style: TextStyle(
-                            color: Colors.white.withOpacity(0.9),
-                            fontSize: 14,
-                          ),
-                          maxLines: 2,
-                          overflow: TextOverflow.ellipsis,
-                        ),
+                        if (user.description.isNotEmpty) ...[
+                          const SizedBox(height: 4),
+                          Text(user.description, style: TextStyle(color: Colors.white.withOpacity(0.9), fontSize: 14), maxLines: 1, overflow: TextOverflow.ellipsis),
+                        ]
                       ],
                     ),
                   ),
@@ -280,107 +258,69 @@ class _EventRequestsScreenState extends State<EventRequestsScreen> {
           ),
           
           // Інтереси
-          Padding(
-            padding: const EdgeInsets.all(16),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  AppLocalizations.of(context)!.common_interests,
-                  style: const TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w600,
-                    color: Colors.black54,
+          if (user.hobbies.isNotEmpty)
+            Padding(
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(AppLocalizations.of(context)!.common_interests, style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: Colors.black54)),
+                  const SizedBox(height: 8),
+                  Wrap(
+                    spacing: 8, runSpacing: 4,
+                    children: user.hobbies.take(3).map((hobby) {
+                      return Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                        decoration: BoxDecoration(
+                          color: const Color.fromARGB(255, 30, 111, 233).withOpacity(0.15),
+                          borderRadius: BorderRadius.circular(20),
+                          border: Border.all(color: const Color.fromARGB(255, 30, 91, 233).withOpacity(0.3), width: 1),
+                        ),
+                        child: Text(hobby, style: const TextStyle(fontSize: 12, color: Color.fromARGB(255, 30, 101, 233), fontWeight: FontWeight.w600)),
+                      );
+                    }).toList(),
                   ),
-                ),
-                const SizedBox(height: 8),
-                Wrap(
-                  spacing: 8,
-                  runSpacing: 4,
-                  children: user.hobbies.take(3).map((hobby) {
-                    return Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                      decoration: BoxDecoration(
-                        color: const Color.fromARGB(255, 30, 111, 233).withOpacity(0.15),
-                        borderRadius: BorderRadius.circular(20),
-                        border: Border.all(
-                          color: const Color.fromARGB(255, 30, 91, 233).withOpacity(0.3),
-                          width: 1,
-                        ),
-                      ),
-                      child: Text(
-                        hobby,
-                        style: const TextStyle(
-                          fontSize: 12,
-                          color: Color.fromARGB(255, 30, 101, 233),
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                    );
-                  }).toList(),
-                ),
-              ],
+                ],
+              ),
             ),
-          ),
 
           // Повідомлення (якщо є)
           if (hasMessage && message != null) ...[
             Container(
-              margin: const EdgeInsets.symmetric(horizontal: 16),
+              margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
                 color: const Color.fromARGB(255, 76, 120, 175).withOpacity(0.1),
                 borderRadius: BorderRadius.circular(12),
-                border: Border.all(
-                  color: const Color.fromARGB(255, 76, 120, 175).withOpacity(0.3),
-                  width: 1,
-                ),
+                border: Border.all(color: const Color.fromARGB(255, 76, 120, 175).withOpacity(0.3), width: 1),
               ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Row(
                     children: [
-                      Icon(
-                        Icons.message,
-                        size: 16,
-                        color: const Color.fromARGB(255, 76, 120, 175),
-                      ),
+                      const Icon(Icons.message, size: 16, color: Color.fromARGB(255, 76, 120, 175)),
                       const SizedBox(width: 6),
-                      Text(
-                        AppLocalizations.of(context)!.message,
-                        style: TextStyle(
-                          fontSize: 12,
-                          fontWeight: FontWeight.w600,
-                          color: const Color.fromARGB(255, 76, 120, 175),
-                        ),
-                      ),
+                      Text(AppLocalizations.of(context)!.message, style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: Color.fromARGB(255, 76, 120, 175))),
                     ],
                   ),
                   const SizedBox(height: 6),
-                  Text(
-                    message,
-                    style: const TextStyle(
-                      fontSize: 14,
-                      color: Colors.black87,
-                    ),
-                  ),
+                  Text(message, style: const TextStyle(fontSize: 14, color: Colors.black87)),
                 ],
               ),
             ),
-            const SizedBox(height: 12),
           ],
 
           // Кнопки дій
           Padding(
-            padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+            padding: const EdgeInsets.all(16),
             child: Row(
               children: [
                 Expanded(
                   child: _buildActionButton(
                     icon: Icons.close,
                     color: const Color.fromARGB(255, 126, 126, 126),
-                    onTap: () => _handleReject(user),
+                    onTap: () => _handleReject(requestId, user.name),
                     label: AppLocalizations.of(context)!.reject,
                   ),
                 ),
@@ -390,7 +330,7 @@ class _EventRequestsScreenState extends State<EventRequestsScreen> {
                   child: _buildActionButton(
                     icon: Icons.check,
                     color: const Color.fromARGB(255, 76, 175, 80),
-                    onTap: () => _handleAccept(user),
+                    onTap: () => _handleAccept(requestId, user.name),
                     label: AppLocalizations.of(context)!.accept,
                   ),
                 ),
@@ -402,12 +342,7 @@ class _EventRequestsScreenState extends State<EventRequestsScreen> {
     );
   }
 
-  Widget _buildActionButton({
-    required IconData icon,
-    required Color color,
-    required VoidCallback onTap,
-    required String label,
-  }) {
+  Widget _buildActionButton({required IconData icon, required Color color, required VoidCallback onTap, required String label}) {
     return GestureDetector(
       onTap: onTap,
       child: Container(
@@ -415,26 +350,13 @@ class _EventRequestsScreenState extends State<EventRequestsScreen> {
         decoration: BoxDecoration(
           color: color,
           borderRadius: BorderRadius.circular(12),
-          boxShadow: [
-            BoxShadow(
-              color: color.withOpacity(0.3),
-              blurRadius: 8,
-              offset: const Offset(0, 2),
-            ),
-          ],
+          boxShadow: [BoxShadow(color: color.withOpacity(0.3), blurRadius: 8, offset: const Offset(0, 2))],
         ),
         child: Column(
           children: [
             Icon(icon, color: Colors.white, size: 20),
             const SizedBox(height: 4),
-            Text(
-              label,
-              style: const TextStyle(
-                color: Colors.white,
-                fontSize: 12,
-                fontWeight: FontWeight.w600,
-              ),
-            ),
+            Text(label, style: const TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.w600)),
           ],
         ),
       ),
@@ -453,37 +375,20 @@ class _EventRequestsScreenState extends State<EventRequestsScreen> {
               decoration: BoxDecoration(
                 color: Colors.white.withOpacity(0.9),
                 borderRadius: BorderRadius.circular(50),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withOpacity(0.1),
-                    blurRadius: 12,
-                    offset: const Offset(0, 4),
-                  ),
-                ],
+                boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.1), blurRadius: 12, offset: const Offset(0, 4))],
               ),
-              child: Icon(
-                Icons.people,
-                size: 48,
-                color: const Color.fromARGB(255, 76, 120, 175),
-              ),
+              child: const Icon(Icons.people, size: 48, color: Color.fromARGB(255, 76, 120, 175)),
             ),
             const SizedBox(height: 24),
             Text(
               AppLocalizations.of(context)!.no_event_requests,
-              style: const TextStyle(
-                fontSize: 20,
-                fontWeight: FontWeight.bold,
-                color: Colors.black87,
-              ),
+              style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.black87),
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 8),
             Text(
               AppLocalizations.of(context)!.no_event_requests_subtitle,
-              style: const TextStyle(
-                fontSize: 16,
-                color: Colors.black54,
-              ),
+              style: const TextStyle(fontSize: 16, color: Colors.black54),
               textAlign: TextAlign.center,
             ),
           ],
@@ -492,33 +397,41 @@ class _EventRequestsScreenState extends State<EventRequestsScreen> {
     );
   }
 
-  void _handleAccept(UserProfile user) {
-    setState(() {
-      _eventRequests.removeWhere((item) => item['user'].id == user.id);
-    });
-    
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text('${user.name} прийнято до події!'),
-        backgroundColor: const Color.fromARGB(255, 76, 175, 80),
-      ),
-    );
+  // 🟢 Обробка Прийняття
+  Future<void> _handleAccept(String requestId, String userName) async {
+    try {
+      await _matchesService.respondToEventRequest(requestId, 'accepted');
+      setState(() {
+        _eventRequests.removeWhere((item) => item['request_id'] == requestId);
+      });
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('$userName прийнято до події!'), backgroundColor: Colors.green),
+        );
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Помилка'), backgroundColor: Colors.red));
+    }
   }
 
-  void _handleReject(UserProfile user) {
-    setState(() {
-      _eventRequests.removeWhere((item) => item['user'].id == user.id);
-    });
-    
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text('${user.name} відхилено'),
-        backgroundColor: const Color.fromARGB(255, 126, 126, 126),
-      ),
-    );
+  // 🟢 Обробка Відхилення
+  Future<void> _handleReject(String requestId, String userName) async {
+    try {
+      await _matchesService.respondToEventRequest(requestId, 'declined');
+      setState(() {
+        _eventRequests.removeWhere((item) => item['request_id'] == requestId);
+      });
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('$userName відхилено'), backgroundColor: Colors.grey),
+        );
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Помилка'), backgroundColor: Colors.red));
+    }
   }
 
-  void _showUserMenu(BuildContext context, UserProfile user) {
+  void _showUserMenu(BuildContext context, UserProfile user, String requestId) {
     showModalBottomSheet(
       context: context,
       backgroundColor: Colors.transparent,
@@ -531,25 +444,11 @@ class _EventRequestsScreenState extends State<EventRequestsScreen> {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Container(
-                margin: const EdgeInsets.only(top: 12),
-                width: 40,
-                height: 4,
-                decoration: BoxDecoration(
-                  color: Colors.grey[300],
-                  borderRadius: BorderRadius.circular(2),
-                ),
-              ),
+              Container(margin: const EdgeInsets.only(top: 12), width: 40, height: 4, decoration: BoxDecoration(color: Colors.grey[300], borderRadius: BorderRadius.circular(2))),
               const SizedBox(height: 20),
               ListTile(
                 leading: const Icon(Icons.person, color: Color.fromARGB(255, 76, 120, 175)),
-                title: Text(
-                  AppLocalizations.of(context)!.view_profile,
-                  style: const TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
+                title: Text(AppLocalizations.of(context)!.view_profile, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500)),
                 onTap: () {
                   Navigator.pop(context);
                   _handleViewProfile(user);
@@ -557,17 +456,10 @@ class _EventRequestsScreenState extends State<EventRequestsScreen> {
               ),
               ListTile(
                 leading: const Icon(Icons.block, color: Colors.red),
-                title: Text(
-                  AppLocalizations.of(context)!.block_user,
-                  style: const TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w500,
-                    color: Colors.red,
-                  ),
-                ),
+                title: Text(AppLocalizations.of(context)!.block_user, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500, color: Colors.red)),
                 onTap: () {
                   Navigator.pop(context);
-                  _handleBlockUser(user);
+                  _handleReject(requestId, user.name); // Блокування поки працює як відхилення
                 },
               ),
               const SizedBox(height: 20),
@@ -579,71 +471,6 @@ class _EventRequestsScreenState extends State<EventRequestsScreen> {
   }
 
   void _handleViewProfile(UserProfile user) {
-    // Навігація до профілю користувача
-    Navigator.of(context).push(
-      MaterialPageRoute(
-        builder: (context) => UserProfileViewScreen(user: user),
-      ),
-    );
+    Navigator.of(context).push(MaterialPageRoute(builder: (context) => UserProfileViewScreen(user: user)));
   }
-
-  void _handleBlockUser(UserProfile user) {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(16),
-          ),
-          title: Text(
-            AppLocalizations.of(context)!.block_user_title,
-            style: const TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-          content: Text(
-            AppLocalizations.of(context)!.block_user_message(user.name),
-            style: const TextStyle(fontSize: 16),
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.of(context).pop(),
-              child: Text(
-                AppLocalizations.of(context)!.cancel,
-                style: const TextStyle(
-                  color: Colors.grey,
-                  fontSize: 16,
-                ),
-              ),
-            ),
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-                setState(() {
-                  _eventRequests.removeWhere((item) => item['user'].id == user.id);
-                });
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                    content: Text('${user.name} заблоковано'),
-                    backgroundColor: Colors.red,
-                  ),
-                );
-              },
-              child: Text(
-                AppLocalizations.of(context)!.block,
-                style: const TextStyle(
-                  color: Colors.red,
-                  fontSize: 16,
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-            ),
-          ],
-        );
-      },
-    );
-  }
-
-
-} 
+}

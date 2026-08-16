@@ -1,11 +1,15 @@
+import 'dart:async';
+import 'dart:ui'; // Для ефекту блюру
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_card_swiper/flutter_card_swiper.dart';
+import 'package:cached_network_image/cached_network_image.dart'; // 🔥 1. Імпорт для швидкості
 import '../models/user_profile.dart';
 import '../providers/locale_provider.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import '../service/matches_service.dart';
 import 'profile_detail_screen.dart';
 import 'events_screen.dart';
+import 'package:dating_app/l10n/gen/app_localizations.dart';
 
 class MainFeedScreen extends StatefulWidget {
   const MainFeedScreen({super.key});
@@ -15,17 +19,124 @@ class MainFeedScreen extends StatefulWidget {
 }
 
 class _MainFeedScreenState extends State<MainFeedScreen> {
-  int _selectedTab = 0; // 0 - Для вас, 1 - Заходи поблизу
-  int _currentUserIndex = 0; // Індекс поточного користувача
-  
-  // Контролер для CardSwiper
+  final MatchesService _matchesService = MatchesService();
   final CardSwiperController _cardSwiperController = CardSwiperController();
+  final TextEditingController _searchController = TextEditingController();
+  final FocusNode _searchFocusNode = FocusNode();
   
-  // Контролери для каруселі фото кожного користувача
+  // Стан
+  int _selectedTab = 0; 
+  bool _isLoading = true;
+  bool _isFinished = false;
+  bool _isSearchActive = false; 
+  
+  List<UserProfile> users = [];
+  Timer? _debounce; 
+
   final Map<String, PageController> _photoControllers = {};
   final Map<String, int> _currentPhotoIndex = {};
 
-  /// Створює або повертає існуючий PageController для користувача
+  @override
+  void initState() {
+    super.initState();
+    _loadUsers();
+    
+    _searchFocusNode.addListener(() {
+      setState(() {
+        _isSearchActive = _searchFocusNode.hasFocus;
+      });
+    });
+  }
+
+  @override
+  void dispose() {
+    _debounce?.cancel();
+    _searchController.dispose();
+    _searchFocusNode.dispose();
+    _cardSwiperController.dispose();
+    for (var controller in _photoControllers.values) {
+      controller.dispose();
+    }
+    super.dispose();
+  }
+
+  // --- ЗАВАНТАЖЕННЯ ДАНИХ ---
+
+  Future<void> _loadUsers() async {
+    setState(() {
+      _isLoading = true;
+      _isFinished = false;
+    });
+
+    try {
+      final newUsers = await _matchesService.getSmartMatches();
+      if (mounted) {
+        setState(() {
+          users = newUsers;
+          _isLoading = false;
+        });
+        
+        // 🔥 2. Одразу починаємо вантажити фото перших користувачів
+        if (users.isNotEmpty) _preloadImages(context, users[0]);
+        if (users.length > 1) _preloadImages(context, users[1]);
+      }
+    } catch (e) {
+      debugPrint("Помилка завантаження: $e");
+      if (mounted) setState(() => _isLoading = false);
+    }
+  }
+  
+  // 🔥 3. ФУНКЦІЯ ДЛЯ ШВИДКОГО ЗАВАНТАЖЕННЯ (Pre-cache)
+  void _preloadImages(BuildContext context, UserProfile user) {
+    for (var photoUrl in user.photos) {
+      if (photoUrl.isNotEmpty && photoUrl.startsWith('http')) {
+        precacheImage(CachedNetworkImageProvider(photoUrl), context);
+      }
+    }
+  }
+
+  // --- ПОШУК ---
+
+  void _onSearchChanged(String query) {
+    if (_debounce?.isActive ?? false) _debounce!.cancel();
+    
+    if (query.isEmpty) return; 
+
+    _debounce = Timer(const Duration(milliseconds: 500), () async {
+      try {
+        final searchResults = await _matchesService.searchUsersByName(query);
+        if (mounted) {
+          setState(() {
+            users = searchResults;
+          });
+        }
+      } catch (e) {
+        debugPrint("Помилка пошуку: $e");
+      }
+    });
+  }
+
+  // --- ЛОГІКА СВАЙПІВ ---
+
+  void _onEnd() {
+    setState(() => _isFinished = true);
+  }
+
+  bool _onSwipe(int previousIndex, int? currentIndex, CardSwiperDirection direction) {
+    if (previousIndex >= users.length) return false;
+    final swipedUser = users[previousIndex];
+    
+    if (direction == CardSwiperDirection.right) {
+      _matchesService.recordSwipe(swipedUser.id, true);
+    } else if (direction == CardSwiperDirection.left) {
+      _matchesService.recordSwipe(swipedUser.id, false);
+    }
+    
+    return true;
+  }
+
+  // --- ХЕЛПЕРИ UI ---
+
   PageController _createControllerForUser(String userId) {
     if (!_photoControllers.containsKey(userId)) {
       _photoControllers[userId] = PageController(initialPage: 0);
@@ -34,82 +145,14 @@ class _MainFeedScreenState extends State<MainFeedScreen> {
     return _photoControllers[userId]!;
   }
 
-  // Функція для локалізації хобі
-  List<String> _getLocalizedHobbies(List<String> hobbies, BuildContext context) {
-    Map<String, String> hobbyTranslations = {
-      'Фентезі книги': AppLocalizations.of(context)!.fantasy_books,
-      'Похід з наметом': AppLocalizations.of(context)!.camping,
-      'Ранкова кава з видом на гори': AppLocalizations.of(context)!.morning_coffee,
-      'Гра на гітарі': AppLocalizations.of(context)!.guitar,
-      'Фотографія': AppLocalizations.of(context)!.photography,
-      'Кулінарія': AppLocalizations.of(context)!.cooking,
-      'Подорожі': AppLocalizations.of(context)!.travel,
-      'Спорт': AppLocalizations.of(context)!.sport,
-      'Читання': AppLocalizations.of(context)!.reading,
-      'Йога': AppLocalizations.of(context)!.yoga,
-      'Медитація': AppLocalizations.of(context)!.meditation,
-      'Велоспорт': AppLocalizations.of(context)!.cycling,
-      'Мистецтво': AppLocalizations.of(context)!.art,
-      'Фітнес': AppLocalizations.of(context)!.fitness,
-      'Гори': AppLocalizations.of(context)!.mountains,
-      'Бокс': AppLocalizations.of(context)!.boxing,
-      'Плавання': AppLocalizations.of(context)!.swimming,
-      'Біг': AppLocalizations.of(context)!.running,
-      'Здорове харчування': AppLocalizations.of(context)!.healthy_nutrition,
-      'Мотивація': AppLocalizations.of(context)!.motivation,
-    };
-    
-    return hobbies.map((hobby) => hobbyTranslations[hobby] ?? hobby).toList();
-  }
-
-  // Список користувачів
-  final List<UserProfile> users = [
-    UserProfile(
-      id: '1',
-      name: 'Роман',
-      age: 19,
-      description: 'Люблю пригоди, ігри, книги, походи, знаходити друзів, затишну компанію, дивитися на зірки, геймерські битви',
-      photos: [
-        'assets/images/portrait-man-laughing.jpg',
-        'assets/images/close-up-portrait-curly-handsome-european-male.jpg',
-        'assets/images/pleased-smiling-man-with-beard-looking-camera.jpg',
-      ],
-      location: 'Луцьк',
-      hobbies: ['Фентезі книги', 'Похід з наметом', 'Ранкова кава з видом на гори', 'Гра на гітарі', 'Фотографія', 'Кулінарія', 'Подорожі', 'Спорт'],
-    ),
-    UserProfile(
-      id: '2',
-      name: 'Анна',
-      age: 22,
-      description: 'Люблю подорожувати, фотографувати, читати книги та знайомитися з новими людьми',
-      photos: [
-        'assets/images/selfie-portrait-videocall.jpg',
-        'assets/images/portrait-man-laughing.jpg',
-        'assets/images/close-up-portrait-curly-handsome-european-male.jpg',
-      ],
-      location: 'Київ',
-      hobbies: ['Подорожі', 'Фотографія', 'Читання', 'Йога', 'Медитація', 'Велоспорт', 'Кулінарія', 'Мистецтво'],
-    ),
-    UserProfile(
-      id: '3',
-      name: 'Максим',
-      age: 25,
-      description: 'Спортсмен, люблю активний спосіб життя та нові виклики',
-      photos: [
-        'assets/images/pleased-smiling-man-with-beard-looking-camera.jpg',
-        'assets/images/portrait-man-laughing.jpg',
-        'assets/images/selfie-portrait-videocall.jpg',
-      ],
-      location: 'Львів',
-      hobbies: ['Спорт', 'Фітнес', 'Гори', 'Бокс', 'Плавання', 'Біг', 'Здорове харчування', 'Мотивація'],
-    ),
-  ];
+  // --- ГОЛОВНИЙ BUILD ---
 
   @override
   Widget build(BuildContext context) {
     return Consumer<LocaleProvider>(
       builder: (context, localeProvider, child) {
         return Scaffold(
+          resizeToAvoidBottomInset: false, 
           body: Container(
             decoration: const BoxDecoration(
               gradient: LinearGradient(
@@ -121,16 +164,32 @@ class _MainFeedScreenState extends State<MainFeedScreen> {
             child: SafeArea(
               child: Column(
                 children: [
-                  // Верхня панель
                   _buildTopBar(),
-                  
-                  // Основний контент з свайп-картками
                   Expanded(
-                    child: _buildSwipeCards(),
+                    child: Stack(
+                      children: [
+                        _buildBody(), 
+                        if (_isSearchActive)
+                          Positioned.fill(
+                            child: GestureDetector(
+                              onTap: () {
+                                FocusScope.of(context).unfocus();
+                                _searchController.clear();
+                                if (users.isEmpty) _loadUsers();
+                              },
+                              child: ClipRect(
+                                child: BackdropFilter(
+                                  filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+                                  child: Container(color: Colors.black.withOpacity(0.1)),
+                                ),
+                              ),
+                            ),
+                          ),
+                      ],
+                    ),
                   ),
-                  
-                  // Нижня панель дій
-                  _buildBottomActions(),
+                  if (!_isLoading && !_isFinished && users.isNotEmpty && !_isSearchActive && MediaQuery.of(context).viewInsets.bottom == 0)
+                    _buildBottomActions(),
                 ],
               ),
             ),
@@ -140,211 +199,237 @@ class _MainFeedScreenState extends State<MainFeedScreen> {
     );
   }
 
+  // --- ВІДЖЕТИ ---
+
+  Widget _buildBody() {
+    if (_isLoading) return const Center(child: CircularProgressIndicator());
+    if (users.isEmpty) return _buildEmptyState();
+    if (_isFinished) return _buildFinishedState();
+
+    return CardSwiper(
+      controller: _cardSwiperController,
+      cardsCount: users.length,
+      // 🔥 Оптимізація: малюємо тільки 2 картки
+      numberOfCardsDisplayed: users.length < 2 ? users.length : 2,
+      onSwipe: _onSwipe,
+      onEnd: _onEnd,
+      isLoop: false,
+      cardBuilder: (context, index, horizontalThresholdPercentage, verticalThresholdPercentage) {
+        // 🔥 4. ЗАПУСКАЄМО ЗАВАНТАЖЕННЯ НАСТУПНОГО КОРИСТУВАЧА
+        // Поки ми дивимось на index, ми вже качаємо index + 1
+        if (index + 1 < users.length) {
+          _preloadImages(context, users[index + 1]);
+        }
+        
+        return _buildUserCard(users[index]);
+      },
+      duration: const Duration(milliseconds: 300),
+      threshold: 80,
+      allowedSwipeDirection: const AllowedSwipeDirection.only(left: true, right: true, up: false, down: false),
+    );
+  }
+
   Widget _buildTopBar() {
-    return Container(
+     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 15),
       child: Column(
         children: [
-          // Пошукова панель
           Container(
             margin: const EdgeInsets.only(bottom: 15),
             child: TextField(
+              controller: _searchController,
+              focusNode: _searchFocusNode,
               decoration: InputDecoration(
-                hintText: AppLocalizations.of(context)!.search_people,
+                hintText: AppLocalizations.of(context)!.search_people, 
                 prefixIcon: const Icon(Icons.search, color: Colors.grey),
+                suffixIcon: _searchController.text.isNotEmpty 
+                  ? IconButton(
+                      icon: const Icon(Icons.clear, color: Colors.grey),
+                      onPressed: () {
+                        _searchController.clear();
+                        FocusScope.of(context).unfocus();
+                        _loadUsers();
+                      },
+                    )
+                  : null,
                 filled: true,
                 fillColor: Colors.white.withOpacity(0.9),
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(25),
-                  borderSide: BorderSide.none,
-                ),
+                border: OutlineInputBorder(borderRadius: BorderRadius.circular(25), borderSide: BorderSide.none),
                 contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
               ),
-              onChanged: (value) {
-                // Тут буде логіка пошуку людей
-                debugPrint('Пошук: $value');
-              },
+              onChanged: _onSearchChanged, 
             ),
           ),
           
-          // Кнопки "Для вас" та "Заходи поблизу"
-          Row(
-            children: [
-              Expanded(
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    GestureDetector(
-                      onTap: () {
-                        setState(() {
-                          _selectedTab = 0;
-                        });
-                      },
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
-                        decoration: BoxDecoration(
-                          color: _selectedTab == 0 ? Colors.black : Colors.transparent,
-                          borderRadius: BorderRadius.circular(20),
-                        ),
-                        child: Text(
-                          AppLocalizations.of(context)!.for_you,
-                          style: TextStyle(
-                            color: _selectedTab == 0 ? Colors.white : Colors.black,
-                            fontWeight: FontWeight.w600,
-                            fontSize: 16,
+          if (!_isSearchActive)
+            Row(
+              children: [
+                Expanded(
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      GestureDetector(
+                        onTap: () => setState(() => _selectedTab = 0),
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+                          decoration: BoxDecoration(
+                            color: _selectedTab == 0 ? Colors.black : Colors.transparent,
+                            borderRadius: BorderRadius.circular(20),
                           ),
+                          child: Text(AppLocalizations.of(context)!.for_you, style: TextStyle(color: _selectedTab == 0 ? Colors.white : Colors.black, fontWeight: FontWeight.w600, fontSize: 16)),
                         ),
                       ),
-                    ),
-                    const SizedBox(width: 20),
-                    GestureDetector(
-                      onTap: () {
-                        Navigator.of(context).push(
-                          MaterialPageRoute(
-                            builder: (context) => const EventsScreen(),
+                      const SizedBox(width: 20),
+                      GestureDetector(
+                        onTap: () => Navigator.of(context).push(MaterialPageRoute(builder: (context) => const EventsScreen())),
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+                          decoration: BoxDecoration(
+                            color: _selectedTab == 1 ? Colors.black : Colors.transparent,
+                            borderRadius: BorderRadius.circular(20),
                           ),
-                        );
-                      },
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
-                        decoration: BoxDecoration(
-                          color: _selectedTab == 1 ? Colors.black : Colors.transparent,
-                          borderRadius: BorderRadius.circular(20),
-                        ),
-                        child: Text(
-                          AppLocalizations.of(context)!.events_nearby,
-                          style: TextStyle(
-                            color: _selectedTab == 1 ? Colors.white : Colors.black,
-                            fontWeight: FontWeight.w600,
-                            fontSize: 16,
-                          ),
+                          child: Text(AppLocalizations.of(context)!.events_nearby, style: TextStyle(color: _selectedTab == 1 ? Colors.white : Colors.black, fontWeight: FontWeight.w600, fontSize: 16)),
                         ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
-              ),
-            ],
-          ),
+              ],
+            ),
         ],
       ),
     );
   }
 
-  /// Головний контейнер для відображення анкет з CardSwiper
-  Widget _buildSwipeCards() {
-    if (users.isEmpty) {
-      return const Center(
-        child: Text(
-          'Більше немає користувачів',
-          style: TextStyle(fontSize: 18),
+  Widget _buildEmptyState() {
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(30.0),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Container(
+              padding: const EdgeInsets.all(20),
+              decoration: BoxDecoration(color: Colors.white, shape: BoxShape.circle, boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.1), blurRadius: 10)]),
+              child: const Icon(Icons.sentiment_dissatisfied, size: 60, color: Colors.grey),
+            ),
+            const SizedBox(height: 24),
+            const Text('Отакої!', style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Colors.black87)),
+            const SizedBox(height: 12),
+            const Text('Користувачі не знайдені.', textAlign: TextAlign.center, style: TextStyle(fontSize: 16, color: Colors.grey)),
+            const SizedBox(height: 30),
+            ElevatedButton.icon(
+              onPressed:  _loadUsers,
+              icon: const Icon(Icons.refresh),
+              label: const Text('Оновити'),
+              style: ElevatedButton.styleFrom(backgroundColor: Colors.black, foregroundColor: Colors.white, padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 15), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30))),
+            ),
+          ],
         ),
-      );
-    }
-    
-    return CardSwiper(
-      controller: _cardSwiperController,
-      cardsCount: users.length,
-      numberOfCardsDisplayed: users.length < 3 ? users.length : 3,
-      onSwipe: _onSwipe,
-      onEnd: _onEnd,
-      cardBuilder: (context, index, horizontalThresholdPercentage, verticalThresholdPercentage) {
-        return _buildUserCard(users[index]);
-      },
-      duration: const Duration(milliseconds: 300),
-      threshold: 80, // Поріг для свайпу анкети
-      allowedSwipeDirection: AllowedSwipeDirection.only(
-        left: true,
-        right: true,
-        up: false,
-        down: false,
-      ), // Дозволяємо лише горизонтальні свайпи для анкет
+      ),
+    );
+  }
+
+  Widget _buildFinishedState() {
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(30.0),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Container(
+              padding: const EdgeInsets.all(20),
+              decoration: BoxDecoration(color: Colors.white, shape: BoxShape.circle, boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.1), blurRadius: 10)]),
+              child: const Icon(Icons.check_circle_outline, size: 60, color: Colors.green),
+            ),
+            const SizedBox(height: 24),
+            const Text('На сьогодні все!', style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
+            const SizedBox(height: 30),
+            ElevatedButton.icon(
+              onPressed: _loadUsers,
+              icon: const Icon(Icons.refresh),
+              label: const Text('Шукати знову'),
+              style: ElevatedButton.styleFrom(backgroundColor: Colors.black, foregroundColor: Colors.white, padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 15)),
+            ),
+          ],
+        ),
+      ),
     );
   }
 
   Widget _buildUserCard(UserProfile user) {
-    return AnimatedContainer(
-      duration: const Duration(milliseconds: 300),
-      curve: Curves.easeInOut,
-      margin: const EdgeInsets.all(10), // Зменшили відступ для більшої картки
-      height: MediaQuery.of(context).size.height * 0.75, // Збільшили висоту картки
+    final controller = _createControllerForUser(user.id);
+
+    return Container(
+      // 🔥 1. ВАЖЛИВО: Робимо картку непрозорою, щоб не бачити наступну
       decoration: BoxDecoration(
+        color: Colors.white, // Білий фон перекриває картку знизу
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.1),
-            blurRadius: 10,
-            offset: const Offset(0, 5),
-          ),
+            color: Colors.black.withOpacity(0.15), 
+            blurRadius: 15, 
+            offset: const Offset(0, 8)
+          )
         ],
       ),
       child: ClipRRect(
         borderRadius: BorderRadius.circular(20),
         child: Stack(
           children: [
-                            // Карусель фото з покращеним UI та анімаціями
-            Container(
-              height: double.infinity,
-              margin: const EdgeInsets.only(bottom: 0),
-              child: PageView.builder(
-                key: ValueKey('pageview_${user.id}'),
-                controller: _createControllerForUser(user.id),
-                physics: const BouncingScrollPhysics(), // Плавне листання з відскоком
-                itemCount: user.photos.length,
-                itemBuilder: (context, photoIndex) {
-                  return AnimatedContainer(
-                    duration: const Duration(milliseconds: 300),
-                    curve: Curves.easeInOut,
-                    child: Image.asset(
-                      user.photos[photoIndex],
+            // 1. Карусель фото
+            Positioned.fill(
+              // 🔥 2. Додаємо білий фон під фото, щоб при завантаженні не було "дірки"
+              child: Container(
+                color: Colors.white, 
+                child: PageView.builder(
+                  controller: controller,
+                  physics: const NeverScrollableScrollPhysics(),
+                  itemCount: user.photos.isEmpty ? 1 : user.photos.length,
+                  itemBuilder: (context, photoIndex) {
+                    final photo = user.photos.isNotEmpty ? user.photos[photoIndex] : null;
+
+                    if (photo != null && photo.startsWith('http')) {
+                      return CachedNetworkImage(
+                        imageUrl: photo,
+                        fit: BoxFit.cover,
+                        width: double.infinity,
+                        height: double.infinity,
+                        // 🔥 3. Замість прозорості показуємо сірий блок
+                        placeholder: (context, url) => Container(
+                          color: Colors.grey[200], 
+                          child: const Center(
+                            child: SizedBox(
+                              width: 30, height: 30, 
+                              child: CircularProgressIndicator(strokeWidth: 2, color: Colors.grey)
+                            )
+                          ),
+                        ),
+                        errorWidget: (context, url, error) => Container(color: Colors.grey[300]),
+                        // 🔥 4. Вимикаємо плавну появу (fade-in), бо вона створює прозорість на 0.5с
+                        fadeInDuration: Duration.zero, 
+                        fadeOutDuration: Duration.zero,
+                      );
+                    }
+
+                    // Для локальних фото
+                    return Image(
+                      image: _getSingleImageProvider(photo),
                       fit: BoxFit.cover,
                       width: double.infinity,
                       height: double.infinity,
-                      errorBuilder: (context, error, stackTrace) => Container(
-                        decoration: BoxDecoration(
-                          gradient: LinearGradient(
-                            begin: Alignment.topLeft,
-                            end: Alignment.bottomRight,
-                            colors: [
-                              Colors.grey[200]!,
-                              Colors.grey[300]!,
-                            ],
-                          ),
-                        ),
-                        child: const Center(
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Icon(
-                                Icons.image_not_supported_outlined,
-                                size: 64,
-                                color: Colors.grey,
-                              ),
-                              SizedBox(height: 8),
-                              Text(
-                                'Фото недоступне',
-                                style: TextStyle(
-                                  color: Colors.grey,
-                                  fontSize: 14,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                    ),
-                  );
-                },
-                onPageChanged: (index) {
-                  debugPrint('PageView onPageChanged: $index для користувача ${user.name}');
-                  setState(() {
-                    _currentPhotoIndex[user.id] = index;
-                  });
-                },
+                      // Те саме для звичайних фото - білий фон при помилці
+                      errorBuilder: (context, error, stackTrace) => Container(color: Colors.grey[200]),
+                    );
+                  },
+                  onPageChanged: (index) {
+                    setState(() => _currentPhotoIndex[user.id] = index);
+                  },
+                ),
               ),
             ),
-            
-            // Градієнт поверх фото
+
+            // 2. Градієнт (Тінь знизу)
             Positioned.fill(
               child: Container(
                 decoration: BoxDecoration(
@@ -352,47 +437,72 @@ class _MainFeedScreenState extends State<MainFeedScreen> {
                     begin: Alignment.topCenter,
                     end: Alignment.bottomCenter,
                     colors: [
-                      Colors.transparent,
-                      Colors.black.withOpacity(0.3),
-                      Colors.black.withOpacity(0.7),
+                      Colors.transparent, 
+                      Colors.black.withOpacity(0.3), 
+                      Colors.black.withOpacity(0.9)
                     ],
                     stops: const [0.0, 0.6, 1.0],
                   ),
                 ),
               ),
             ),
-            
-            // Індикатори крапками - показуємо тільки якщо є більше одного фото
+
+            // 3. Тап-зони (Для перемикання фото)
+            if (user.photos.length > 1)
+              Row(
+                children: [
+                  Expanded(
+                    child: GestureDetector(
+                      behavior: HitTestBehavior.translucent, // Пропускає натискання
+                      onTap: () {
+                        controller.previousPage(duration: const Duration(milliseconds: 200), curve: Curves.easeOut);
+                        if ((_currentPhotoIndex[user.id] ?? 0) > 0) {
+                          setState(() => _currentPhotoIndex[user.id] = (_currentPhotoIndex[user.id] ?? 0) - 1);
+                        }
+                      },
+                      child: Container(color: Colors.transparent),
+                    ),
+                  ),
+                  Expanded(
+                    child: GestureDetector(
+                      behavior: HitTestBehavior.translucent,
+                      onTap: () {
+                        controller.nextPage(duration: const Duration(milliseconds: 200), curve: Curves.easeOut);
+                        if ((_currentPhotoIndex[user.id] ?? 0) < user.photos.length - 1) {
+                          setState(() => _currentPhotoIndex[user.id] = (_currentPhotoIndex[user.id] ?? 0) + 1);
+                        }
+                      },
+                      child: Container(color: Colors.transparent),
+                    ),
+                  ),
+                ],
+              ),
+
+            // 4. Індикатори (Крапки зверху)
             if (user.photos.length > 1)
               Positioned(
-                top: 20,
-                left: 0,
-                right: 0,
+                top: 20, left: 0, right: 0,
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
-                  children: user.photos.asMap().entries.map((entry) {
-                    int index = entry.key;
+                  children: List.generate(user.photos.length, (index) {
                     bool isActive = (_currentPhotoIndex[user.id] ?? 0) == index;
                     return AnimatedContainer(
-                      duration: const Duration(milliseconds: 300),
+                      duration: const Duration(milliseconds: 200),
                       margin: const EdgeInsets.symmetric(horizontal: 3),
-                      width: isActive ? 24 : 8,
-                      height: 8,
+                      width: isActive ? 24 : 6,
+                      height: 4,
                       decoration: BoxDecoration(
-                        color: isActive 
-                            ? Colors.white 
-                            : Colors.white.withOpacity(0.4),
-                        borderRadius: BorderRadius.circular(4),
+                        color: isActive ? Colors.white : Colors.white.withOpacity(0.5),
+                        borderRadius: BorderRadius.circular(2),
                       ),
                     );
-                  }).toList(),
+                  }),
                 ),
               ),
-            
-            // Іконка інформації (зверху справа)
+
+            // 5. Кнопка Інфо (i)
             Positioned(
-              top: 20,
-              right: 20,
+              top: 20, right: 20,
               child: GestureDetector(
                 onTap: () {
                   Navigator.of(context).push(
@@ -413,314 +523,97 @@ class _MainFeedScreenState extends State<MainFeedScreen> {
                 child: Container(
                   padding: const EdgeInsets.all(8),
                   decoration: BoxDecoration(
-                    color: Colors.white.withOpacity(0.2),
-                    borderRadius: BorderRadius.circular(20),
+                    color: Colors.white.withOpacity(0.2), 
+                    borderRadius: BorderRadius.circular(20)
                   ),
-                  child: const Icon(
-                    Icons.info_outline,
-                    color: Colors.white,
-                    size: 20,
-                  ),
+                  child: const Icon(Icons.info_outline, color: Colors.white, size: 20),
                 ),
               ),
             ),
-            
-            // Інформація про користувача
+
+            // 6. Текстова інформація (Ім'я, вік, місто)
             Positioned(
-              bottom: 0,
-              left: 0,
-              right: 0,
-              child: Container(
-                padding: const EdgeInsets.all(20),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      children: [
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                '${user.name}, ${user.age}',
-                                style: const TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 24,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                              const SizedBox(height: 4),
-                              Row(
-                                children: [
-                                  const Icon(
-                                    Icons.location_on,
-                                    color: Colors.white70,
-                                    size: 16,
-                                  ),
-                                  const SizedBox(width: 4),
-                                  Text(
-                                    user.location,
-                                    style: const TextStyle(
-                                      color: Colors.white70,
-                                      fontSize: 16,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ],
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 12),
-                    Text(
-                      user.description,
-                      style: const TextStyle(
-                        color: Colors.white,
-                        fontSize: 14,
+              bottom: 0, left: 0, right: 0,
+              child: IgnorePointer(
+                child: Container(
+                  padding: const EdgeInsets.all(20),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        '${user.name}, ${user.age}', 
+                        style: const TextStyle(color: Colors.white, fontSize: 24, fontWeight: FontWeight.bold),
+                        maxLines: 1,
                       ),
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                    const SizedBox(height: 12),
-                    Wrap(
-                      spacing: 8,
-                      runSpacing: 4,
-                      children: _getLocalizedHobbies(user.hobbies, context).take(5).map((hobby) => Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                        decoration: BoxDecoration(
-                          color: Colors.white.withOpacity(0.2),
-                          borderRadius: BorderRadius.circular(15),
-                        ),
-                        child: Text(
-                          hobby,
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontSize: 12,
+                      const SizedBox(height: 4),
+                      Row(
+                        children: [
+                          const Icon(Icons.location_on, color: Colors.white70, size: 16),
+                          const SizedBox(width: 4),
+                          Text(
+                            user.location.isNotEmpty ? user.location : 'Ukraine', 
+                            style: const TextStyle(color: Colors.white70, fontSize: 16)
                           ),
-                        ),
-                      )).toList(),
-                    ),
-                  ],
+                        ],
+                      ),
+                      const SizedBox(height: 12),
+                      Text(
+                        user.description, 
+                        style: const TextStyle(color: Colors.white, fontSize: 14), 
+                        maxLines: 2, 
+                        overflow: TextOverflow.ellipsis
+                      ),
+                      const SizedBox(height: 12),
+                      Wrap(
+                        spacing: 8, runSpacing: 4,
+                        children: user.hobbies.take(3).map((hobby) => Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                          decoration: BoxDecoration(
+                            color: Colors.white.withOpacity(0.2), 
+                            borderRadius: BorderRadius.circular(15)
+                          ),
+                          child: Text(hobby, style: const TextStyle(color: Colors.white, fontSize: 12)),
+                        )).toList(),
+                      ),
+                    ],
+                  ),
                 ),
               ),
             ),
-            
-            // Невидимі зони для тапу по фото з тактильним фідбеком
-            if (user.photos.length > 1)
-              Positioned.fill(
-                top: 60, // Залишаємо простір для dot indicators
-                bottom: 120, // Залишаємо простір для інформації про користувача
-                child: Row(
-                  children: [
-                    // Ліва зона для попереднього фото
-                    Expanded(
-                      child: GestureDetector(
-                        onTap: () {
-                          final currentIndex = _currentPhotoIndex[user.id] ?? 0;
-                          if (currentIndex > 0) {
-                            // Тактильний фідбек
-                            if (Theme.of(context).platform == TargetPlatform.iOS) {
-                              // Для iOS
-                              try {
-                                // HapticFeedback.lightImpact();
-                              } catch (e) {
-                                debugPrint('Haptic feedback not available');
-                              }
-                            }
-                            
-                            _createControllerForUser(user.id).previousPage(
-                              duration: const Duration(milliseconds: 250),
-                              curve: Curves.easeOutCubic,
-                            );
-                          }
-                        },
-                        child: Container(
-                          color: Colors.transparent,
-                          // Додаємо невеликий візуальний індикатор при дебазі
-                          // decoration: kDebugMode ? BoxDecoration(
-                          //   border: Border.all(color: Colors.red.withOpacity(0.3))
-                          // ) : null,
-                        ),
-                      ),
-                    ),
-                    // Права зона для наступного фото
-                    Expanded(
-                      child: GestureDetector(
-                        onTap: () {
-                          final currentIndex = _currentPhotoIndex[user.id] ?? 0;
-                          if (currentIndex < user.photos.length - 1) {
-                            // Тактильний фідбек
-                            if (Theme.of(context).platform == TargetPlatform.iOS) {
-                              // Для iOS
-                              try {
-                                // HapticFeedback.lightImpact();
-                              } catch (e) {
-                                debugPrint('Haptic feedback not available');
-                              }
-                            }
-                            
-                            _createControllerForUser(user.id).nextPage(
-                              duration: const Duration(milliseconds: 250),
-                              curve: Curves.easeOutCubic,
-                            );
-                          }
-                        },
-                        child: Container(
-                          color: Colors.transparent,
-                          // Додаємо невеликий візуальний індикатор при дебазі
-                          // decoration: kDebugMode ? BoxDecoration(
-                          //   border: Border.all(color: Colors.blue.withOpacity(0.3))
-                          // ) : null,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
           ],
         ),
       ),
     );
   }
-
-  /// Обробка свайпу картки
-  bool _onSwipe(int previousIndex, int? currentIndex, CardSwiperDirection direction) {
-    debugPrint('Свайпнуто ${direction.name} з індексу $previousIndex на $currentIndex');
-    
-    if (direction == CardSwiperDirection.right) {
-      // Лайк
-      debugPrint('Лайк для ${users[previousIndex].name}');
-      // Тут можна додати логіку для лайку (збереження в базу даних тощо)
-    } else if (direction == CardSwiperDirection.left) {
-      // Дизлайк
-      debugPrint('Дизлайк для ${users[previousIndex].name}');
-      // Тут можна додати логіку для дизлайку (збереження в базу даних тощо)
-    }
-    
-    // Оновлюємо поточний індекс користувача
-    if (currentIndex != null) {
-      setState(() {
-        _currentUserIndex = currentIndex;
-      });
-    }
-    
-    // Скидаємо фото до першої для наступного користувача
-    if (currentIndex != null && currentIndex < users.length) {
-      final nextUser = users[currentIndex];
-      final controller = _photoControllers[nextUser.id];
-      if (controller != null) {
-        controller.animateToPage(
-          0,
-          duration: const Duration(milliseconds: 300),
-          curve: Curves.easeInOut,
-        );
-        // Скидаємо індекс фото
-        _currentPhotoIndex[nextUser.id] = 0;
-      }
-    }
-    
-    return true;
-  }
-
-  /// Обробка закінчення карток
-  void _onEnd() {
-    debugPrint('Закінчилися картки');
-    // Тут можна додати логіку для завантаження нових користувачів
+  // --- ХЕЛПЕР (Для старих ImageProvider) ---
+  ImageProvider _getSingleImageProvider(String? path) {
+    if (path == null || path.isEmpty) return const NetworkImage('https://ui-avatars.com/api/?name=User&background=random');
+    if (path.startsWith('http')) return NetworkImage(path);
+    if (path.contains('placeholder')) return const NetworkImage('https://ui-avatars.com/api/?name=User&background=random');
+    return AssetImage(path);
   }
 
   Widget _buildBottomActions() {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 20),
+      padding: const EdgeInsets.symmetric(horizontal: 50, vertical: 20),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         children: [
-          // Кнопка ❌ (не подобається) - свайп вліво
-          _buildActionButton(
-            Icons.close,
-            Colors.red,
-            () {
-              _cardSwiperController.swipeLeft();
-            },
-            size: 65,
-          ),
-          
-          // Кнопка 💬 (повідомлення)
-          _buildActionButton(
-            Icons.chat_bubble_outline,
-            Colors.white,
-            () {
-              if (_currentUserIndex < users.length) {
-                debugPrint('Повідомлення для ${users[_currentUserIndex].name}');
-                // Тут можна додати логіку для відкриття чату
-              }
-            },
-            borderColor: Colors.grey.shade300,
-            size: 55,
-          ),
-          
-          // Кнопка ❤️ (подобається) - свайп вправо
-          _buildActionButton(
-            Icons.favorite,
-            Colors.blue,
-            () {
-              _cardSwiperController.swipeRight();
-            },
-            size: 65,
-          ),
+          // Замість controller.swipeLeft()
+          _buildActionButton(Icons.close, Colors.red, () => _cardSwiperController.swipe(CardSwiperDirection.left), size: 65),
+
+          // Замість controller.swipeRight()
+          _buildActionButton(Icons.favorite, Colors.blue, () => _cardSwiperController.swipe(CardSwiperDirection.right), size: 65),
         ],
       ),
     );
   }
-
+  
   Widget _buildActionButton(IconData icon, Color backgroundColor, VoidCallback onTap, {Color? borderColor, double size = 60}) {
-    return Material(
-      color: Colors.transparent,
-      child: InkWell(
-        onTap: onTap,
-        borderRadius: BorderRadius.circular(size / 2),
-        splashColor: backgroundColor.withOpacity(0.3),
-        highlightColor: backgroundColor.withOpacity(0.1),
-        child: AnimatedContainer(
-          duration: const Duration(milliseconds: 200),
-          curve: Curves.easeOutCubic,
-          width: size,
-          height: size,
-          decoration: BoxDecoration(
-            color: backgroundColor,
-            shape: BoxShape.circle,
-            border: borderColor != null ? Border.all(color: borderColor, width: 2) : null,
-            boxShadow: [
-              BoxShadow(
-                color: backgroundColor.withOpacity(0.3),
-                blurRadius: 12,
-                offset: const Offset(0, 6),
-                spreadRadius: 0,
-              ),
-              BoxShadow(
-                color: Colors.black.withOpacity(0.1),
-                blurRadius: 4,
-                offset: const Offset(0, 2),
-              ),
-            ],
-          ),
-          child: Icon(
-            icon,
-            color: backgroundColor == Colors.white ? Colors.black87 : Colors.white,
-            size: size * 0.45,
-          ),
-        ),
-      ),
-    );
-  }
-
-  @override
-  void dispose() {
-    // Очищаємо всі PageController'и для запобігання витоку пам'яті
-    for (var controller in _photoControllers.values) {
-      controller.dispose();
-    }
-    _photoControllers.clear();
-    super.dispose();
+     return GestureDetector(onTap: onTap, child: Container(
+       width: size, height: size, 
+       decoration: BoxDecoration(color: backgroundColor, shape: BoxShape.circle, border: borderColor != null ? Border.all(color: borderColor) : null),
+       child: Icon(icon, color: Colors.white),
+     ));
   }
 }

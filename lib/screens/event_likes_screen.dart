@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import '../models/event.dart';
 import '../models/user_profile.dart';
+import '../service/matches_service.dart'; // 👇 Імпорт сервісу
+import 'package:dating_app/l10n/gen/app_localizations.dart';
 
 class EventLikesScreen extends StatefulWidget {
   const EventLikesScreen({Key? key}) : super(key: key);
@@ -11,89 +12,67 @@ class EventLikesScreen extends StatefulWidget {
 }
 
 class _EventLikesScreenState extends State<EventLikesScreen> {
-  // Мокові дані для демонстрації
-  final List<Event> _myEvents = [
-    Event(
-      id: '1',
-      title: 'Риболовля на Дніпрі',
-      location: 'Київ',
-      dateTime: DateTime.now().add(const Duration(days: 3)),
-      photos: ['https://example.com/fishing.jpg'],
-      tags: ['Риболовля', 'Природа', 'Активний відпочинок'],
-      description: 'Риболовля на Дніпрі з ранку до вечора',
-      participantsCount: 3,
-    ),
-    Event(
-      id: '2',
-      title: 'Вечірка в кав\'ярні',
-      location: 'Львів',
-      dateTime: DateTime.now().add(const Duration(days: 1)),
-      photos: ['https://example.com/cafe.jpg'],
-      tags: ['Кава', 'Спілкування', 'Вечірка'],
-      description: 'Вечірка в стильній кав\'ярні з живою музикою',
-      participantsCount: 8,
-    ),
-    Event(
-      id: '3',
-      title: 'Концерт рок-музики',
-      location: 'Харків',
-      dateTime: DateTime.now().add(const Duration(days: 5)),
-      photos: ['https://example.com/concert.jpg'],
-      tags: ['Музика', 'Концерт', 'Рок'],
-      description: 'Концерт українських рок-гуртів',
-      participantsCount: 15,
-    ),
-  ];
+  // 🟢 Сервіс
+  final _matchesService = MatchesService();
+  
+  bool _isLoading = true;
+  
+  // Список моїх подій
+  List<Event> _myEvents = [];
+  
+  // Мапа: ID події -> Список людей, які її лайкнули
+  Map<String, List<UserProfile>> _eventLikes = {};
 
-  final Map<String, List<UserProfile>> _eventLikes = {
-    '1': [
-      UserProfile(
-        id: 'user1',
-        name: 'Анна',
-        age: 25,
-        description: 'Люблю риболовлю та активний відпочинок',
-        photos: ['https://example.com/photo1.jpg'],
-        location: 'Київ',
-        hobbies: ['Риболовля', 'Походи', 'Музика'],
-      ),
-      UserProfile(
-        id: 'user2',
-        name: 'Марія',
-        age: 28,
-        description: 'Шукаю компанію для походів у гори',
-        photos: ['https://example.com/photo2.jpg'],
-        location: 'Львів',
-        hobbies: ['Походи', 'Фотографія', 'Книги'],
-      ),
-    ],
-    '2': [
-      UserProfile(
-        id: 'user3',
-        name: 'Олена',
-        age: 23,
-        description: 'Люблю кав\'ярні та нові знайомства',
-        photos: ['https://example.com/photo3.jpg'],
-        location: 'Харків',
-        hobbies: ['Кава', 'Книги', 'Подорожі'],
-      ),
-    ],
-    '3': [
-      UserProfile(
-        id: 'user4',
-        name: 'Ірина',
-        age: 27,
-        description: 'Шукаю компанію для концертів',
-        photos: ['https://example.com/photo4.jpg'],
-        location: 'Одеса',
-        hobbies: ['Музика', 'Концерти', 'Танці'],
-      ),
-    ],
-  };
+  @override
+  void initState() {
+    super.initState();
+    _loadData();
+  }
 
-  final Map<String, String> _userMessages = {
-    'user1': 'Дуже хочу приєднатися до риболовлі!',
-    'user3': 'Чудова ідея для вечірки!',
-  };
+  // 🟢 Завантаження реальних даних з Supabase
+  Future<void> _loadData() async {
+    setState(() => _isLoading = true);
+    try {
+      // 1. Отримуємо список лайків (структура: {eventId: [users...]})
+      final likesMap = await _matchesService.getEventLikes();
+      
+      // 2. Отримуємо список самих подій
+      final events = await _matchesService.getMyEvents();
+      
+      if (mounted) {
+        setState(() {
+          _myEvents = events;
+          _eventLikes = likesMap;
+          _isLoading = false;
+        });
+      }
+    } catch (e) {
+      debugPrint("Помилка завантаження лайків подій: $e");
+      if (mounted) setState(() => _isLoading = false);
+    }
+  }
+
+  // 👇 Хелпер для фото (захист від помилок 404)
+  ImageProvider _getImageProvider(List<String>? photos) {
+    if (photos == null || photos.isEmpty) {
+      return const NetworkImage('https://ui-avatars.com/api/?name=User&background=random');
+    }
+    
+    final String path = photos.first;
+    
+    // Якщо це лінк на інтернет
+    if (path.startsWith('http')) {
+      return NetworkImage(path);
+    }
+    
+    // Якщо це старий placeholder, який викликав помилку
+    if (path.contains('placeholder')) {
+       return const NetworkImage('https://ui-avatars.com/api/?name=User&background=random');
+    }
+
+    // Локальний асет
+    return AssetImage(path);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -111,15 +90,20 @@ class _EventLikesScreenState extends State<EventLikesScreen> {
             children: [
               _buildTopBar(),
               Expanded(
-                child: _myEvents.isEmpty
-                    ? _buildEmptyState()
-                    : ListView.builder(
-                        padding: const EdgeInsets.all(20),
-                        itemCount: _myEvents.length,
-                        itemBuilder: (context, index) {
-                          return _buildEventCard(_myEvents[index]);
-                        },
-                      ),
+                child: _isLoading 
+                    ? const Center(child: CircularProgressIndicator())
+                    : _myEvents.isEmpty
+                        ? _buildEmptyState()
+                        : RefreshIndicator(
+                            onRefresh: _loadData,
+                            child: ListView.builder(
+                              padding: const EdgeInsets.all(20),
+                              itemCount: _myEvents.length,
+                              itemBuilder: (context, index) {
+                                return _buildEventCard(_myEvents[index]);
+                              },
+                            ),
+                          ),
               ),
             ],
           ),
@@ -145,12 +129,15 @@ class _EventLikesScreenState extends State<EventLikesScreen> {
             ),
           ),
           const SizedBox(width: 16),
-          Text(
-            'Лайки до моїх подій',
-            style: const TextStyle(
-              fontSize: 20,
-              fontWeight: FontWeight.bold,
-              color: Colors.black87,
+          const Expanded(
+            child: Text(
+              'Лайки до моїх подій',
+              style: TextStyle(
+                fontSize: 20,
+                fontWeight: FontWeight.bold,
+                color: Colors.black87,
+              ),
+              overflow: TextOverflow.ellipsis,
             ),
           ),
         ],
@@ -159,6 +146,7 @@ class _EventLikesScreenState extends State<EventLikesScreen> {
   }
 
   Widget _buildEventCard(Event event) {
+    // Отримуємо список людей, які лайкнули ЦЮ конкретну подію
     final likes = _eventLikes[event.id] ?? [];
     
     return Container(
@@ -176,12 +164,12 @@ class _EventLikesScreenState extends State<EventLikesScreen> {
       ),
       child: Column(
         children: [
-          // Заголовок події
+          // Заголовок події (Кольорова шапка)
           Container(
             padding: const EdgeInsets.all(16),
-            decoration: BoxDecoration(
-              borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
-              gradient: const LinearGradient(
+            decoration: const BoxDecoration(
+              borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+              gradient: LinearGradient(
                 colors: [Color(0xFFE91E63), Color(0xFF9C27B0)],
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
@@ -204,31 +192,13 @@ class _EventLikesScreenState extends State<EventLikesScreen> {
                       const SizedBox(height: 4),
                       Row(
                         children: [
-                          Icon(
-                            Icons.location_on,
-                            color: Colors.white.withOpacity(0.8),
-                            size: 16,
-                          ),
+                          Icon(Icons.location_on, color: Colors.white.withOpacity(0.8), size: 16),
                           const SizedBox(width: 4),
-                          Text(
-                            event.location,
-                            style: TextStyle(
-                              color: Colors.white.withOpacity(0.8),
-                              fontSize: 14,
-                            ),
-                          ),
-                          const SizedBox(width: 16),
-                          Icon(
-                            Icons.calendar_today,
-                            color: Colors.white.withOpacity(0.8),
-                            size: 16,
-                          ),
-                          const SizedBox(width: 4),
-                          Text(
-                            '${event.dateTime.day}.${event.dateTime.month}.${event.dateTime.year}',
-                            style: TextStyle(
-                              color: Colors.white.withOpacity(0.8),
-                              fontSize: 14,
+                          Expanded(
+                            child: Text(
+                              event.location,
+                              style: TextStyle(color: Colors.white.withOpacity(0.8), fontSize: 14),
+                              overflow: TextOverflow.ellipsis,
                             ),
                           ),
                         ],
@@ -255,22 +225,23 @@ class _EventLikesScreenState extends State<EventLikesScreen> {
             ),
           ),
 
-          // Список користувачів
+          // Список користувачів або повідомлення "Немає лайків"
           if (likes.isNotEmpty) ...[
             Padding(
               padding: const EdgeInsets.all(16),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
-                    'Користувачі, які лайкнули:',
-                    style: const TextStyle(
+                  const Text(
+                    'Користувачі, які хочуть піти:',
+                    style: TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.w600,
                       color: Colors.black87,
                     ),
                   ),
                   const SizedBox(height: 12),
+                  // Генеруємо картки користувачів
                   ...likes.map((user) => _buildUserCard(user, event.id)),
                 ],
               ),
@@ -303,8 +274,6 @@ class _EventLikesScreenState extends State<EventLikesScreen> {
   }
 
   Widget _buildUserCard(UserProfile user, String eventId) {
-    final hasMessage = _userMessages.containsKey(user.id);
-    
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
       padding: const EdgeInsets.all(12),
@@ -324,11 +293,8 @@ class _EventLikesScreenState extends State<EventLikesScreen> {
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(25),
               image: DecorationImage(
-                image: NetworkImage(user.photos.first),
+                image: _getImageProvider(user.photos),
                 fit: BoxFit.cover,
-                onError: (exception, stackTrace) {
-                  // Fallback до placeholder
-                },
               ),
             ),
           ),
@@ -339,35 +305,13 @@ class _EventLikesScreenState extends State<EventLikesScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Row(
-                  children: [
-                    Text(
-                      '${user.name}, ${user.age}',
-                      style: const TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w600,
-                        color: Colors.black87,
-                      ),
-                    ),
-                    if (hasMessage) ...[
-                      const SizedBox(width: 8),
-                      Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-                        decoration: BoxDecoration(
-                          color: const Color(0xFF4CAF50),
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                        child: const Text(
-                          'Є повідомлення',
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 10,
-                            fontWeight: FontWeight.w500,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ],
+                Text(
+                  '${user.name}, ${user.age}',
+                  style: const TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w600,
+                    color: Colors.black87,
+                  ),
                 ),
                 const SizedBox(height: 4),
                 Text(
@@ -377,29 +321,12 @@ class _EventLikesScreenState extends State<EventLikesScreen> {
                     color: Colors.grey.withOpacity(0.7),
                   ),
                 ),
-                if (hasMessage) ...[
-                  const SizedBox(height: 8),
-                  Container(
-                    padding: const EdgeInsets.all(8),
-                    decoration: BoxDecoration(
-                      color: const Color(0xFF4CAF50).withOpacity(0.1),
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    child: Text(
-                      _userMessages[user.id]!,
-                      style: const TextStyle(
-                        fontSize: 12,
-                        color: Color(0xFF4CAF50),
-                        fontStyle: FontStyle.italic,
-                      ),
-                    ),
-                  ),
-                ],
               ],
             ),
           ),
           
-          // Кнопки дій
+          // Кнопки дій (Прийняти / Відхилити)
+          // Поки що вони просто візуальні або видаляють зі списку локально
           Column(
             children: [
               _buildActionButton(
@@ -467,16 +394,16 @@ class _EventLikesScreenState extends State<EventLikesScreen> {
                 color: Colors.white.withOpacity(0.8),
                 borderRadius: BorderRadius.circular(50),
               ),
-              child: Icon(
+              child: const Icon(
                 Icons.event,
                 size: 48,
-                color: const Color(0xFFE91E63),
+                color: Color(0xFFE91E63),
               ),
             ),
             const SizedBox(height: 24),
-            Text(
+            const Text(
               'У вас поки що немає подій',
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 20,
                 fontWeight: FontWeight.bold,
                 color: Colors.black87,
@@ -484,9 +411,9 @@ class _EventLikesScreenState extends State<EventLikesScreen> {
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 8),
-            Text(
+            const Text(
               'Створіть подію, щоб почати отримувати лайки',
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 16,
                 color: Colors.black54,
               ),
@@ -494,9 +421,10 @@ class _EventLikesScreenState extends State<EventLikesScreen> {
             ),
             const SizedBox(height: 24),
             ElevatedButton(
-              onPressed: () {
+              onPressed: () async {
                 // Навігація до створення події
-                Navigator.pushNamed(context, '/create-event');
+                await Navigator.pushNamed(context, '/create-event');
+                _loadData(); // Оновити після повернення
               },
               style: ElevatedButton.styleFrom(
                 backgroundColor: const Color(0xFFE91E63),
@@ -520,24 +448,26 @@ class _EventLikesScreenState extends State<EventLikesScreen> {
     );
   }
 
+  // --- Дії (Тимчасова локальна логіка) ---
+  
   void _handleAccept(UserProfile user, String eventId) {
-    // Логіка прийняття користувача
     setState(() {
+      // Видаляємо користувача зі списку "нових лайків", ніби ми його обробили
       final likes = _eventLikes[eventId] ?? [];
       likes.remove(user);
       _eventLikes[eventId] = likes;
     });
     
+    // Тут можна додати логіку запису в базу (наприклад, зміна статусу на 'approved')
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text('${user.name} додано до події'),
+        content: Text('${user.name} прийнято до події!'),
         backgroundColor: const Color(0xFF4CAF50),
       ),
     );
   }
 
   void _handleReject(UserProfile user, String eventId) {
-    // Логіка відхилення користувача
     setState(() {
       final likes = _eventLikes[eventId] ?? [];
       likes.remove(user);
@@ -546,9 +476,9 @@ class _EventLikesScreenState extends State<EventLikesScreen> {
     
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text('${user.name} відхилено'),
+        content: Text('Заявку від ${user.name} відхилено'),
         backgroundColor: Colors.red,
       ),
     );
   }
-} 
+}

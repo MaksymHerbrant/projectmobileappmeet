@@ -1,9 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
+import 'package:intl/intl.dart';
 import 'main_navigation_screen.dart';
-import '../models/registration_model.dart';
-import '../providers/locale_provider.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import '../service/auth_service.dart';
 
 class RegistrationScreen extends StatefulWidget {
   const RegistrationScreen({super.key});
@@ -13,723 +11,332 @@ class RegistrationScreen extends StatefulWidget {
 }
 
 class _RegistrationScreenState extends State<RegistrationScreen> {
+  final _authService = AuthService();
   final PageController _pageController = PageController();
-  final RegistrationModel _registrationModel = RegistrationModel();
+  
   int _currentStep = 0;
-  
-  // Контролери для SMS полів
-  final List<TextEditingController> _smsControllers = List.generate(
-    6, 
-    (index) => TextEditingController()
-  );
-  final List<FocusNode> _smsFocusNodes = List.generate(
-    6, 
-    (index) => FocusNode()
-  );
-  
-  // Контролери для полів введення
+  bool _isLoading = false;
+  bool _isPasswordVisible = false;
+
+  // Контролери
   final TextEditingController _phoneController = TextEditingController();
-  final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
   final TextEditingController _confirmPasswordController = TextEditingController();
   final TextEditingController _nameController = TextEditingController();
+  final TextEditingController _birthdayController = TextEditingController();
   
-  // Змінні для керування видимістю паролів
-  bool _isPasswordVisible = false;
-  bool _isConfirmPasswordVisible = false;
+  // SMS контролер та фокус
+  final TextEditingController _smsController = TextEditingController();
+  final FocusNode _smsFocusNode = FocusNode();
+
+  DateTime? _selectedDate;
 
   @override
-  Widget build(BuildContext context) {
-    return Consumer<LocaleProvider>(
-      builder: (context, localeProvider, child) {
-        return Scaffold(
-          backgroundColor: Colors.white,
-          body: SafeArea(
-            child: Stack(
-              children: [
-                // Стрілка назад (завжди видима)
-                Positioned(
-                  top: 20,
-                  left: 10,
-                  child: IconButton(
-                    onPressed: _currentStep > 0 ? () => _previousStep() : () => Navigator.of(context).pop(),
-                    icon: const Icon(Icons.arrow_back, color: Colors.black, size: 28),
-                  ),
-                ),
-                
-                Column(
-                  children: [
-                    // Прогрес бар (без стрілки назад)
-                    _buildProgressBarWithoutBackButton(),
-                    
-                    // Контент
-                    Expanded(
-                      child: PageView(
-                        controller: _pageController,
-                        physics: const NeverScrollableScrollPhysics(),
-                        children: [
-                          // Крок 1: Номер телефону
-                          _buildPhoneStep(),
-                          
-                          // Крок 2: SMS код
-                          _buildSmsStep(),
-                          
-                          // Крок 3: Email
-                          _buildEmailStep(),
-                          
-                          // Крок 4: Пароль
-                          _buildPasswordStep(),
-                          
-                          // Крок 5: Ім'я
-                          _buildNameStep(),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
-              ],
-            ),
+  void dispose() {
+    _phoneController.dispose();
+    _passwordController.dispose();
+    _confirmPasswordController.dispose();
+    _nameController.dispose();
+    _birthdayController.dispose();
+    _smsController.dispose();
+    _smsFocusNode.dispose();
+    super.dispose();
+  }
+
+  // --- ГОЛОВНА ЛОГІКА ПЕРЕВІРКИ ТА ПЕРЕХОДУ ---
+
+  Future<void> _handleNext() async {
+    // 1. Примусово ховаємо клавіатуру перед будь-якою дією
+    FocusScope.of(context).unfocus();
+    
+    setState(() => _isLoading = true);
+
+    try {
+      if (_currentStep == 0) {
+        // КРОК 1: ТЕЛЕФОН
+        final phone = _phoneController.text.trim();
+        if (phone.length < 9) throw Exception('Введіть коректний номер');
+
+        // 🟢 ЖОРСТКА ПЕРЕВІРКА: чи є номер у таблиці profiles
+        final bool exists = await _authService.checkUserExists(phone);
+        
+        if (exists) {
+          // Якщо акаунт є — СТОП. Не шлемо SMS, не пускаємо далі.
+          setState(() => _isLoading = false);
+          _showUserExistsDialog();
+          return; 
+        }
+
+        // Якщо номера немає — шлемо SMS і тільки тоді йдемо далі
+        await _authService.signInWithPhone(phone);
+        _goToNextPage();
+        
+        // Активуємо фокус на SMS після переходу
+        Future.delayed(const Duration(milliseconds: 400), () {
+          if (mounted) _smsFocusNode.requestFocus();
+        });
+
+      } else if (_currentStep == 1) {
+        // КРОК 2: SMS
+        if (_smsController.text.length < 6) throw Exception('Введіть код повністю');
+        await _authService.verifyOtp(_phoneController.text, _smsController.text);
+        _goToNextPage();
+
+      } else if (_currentStep == 2) {
+        // КРОК 3: ПАРОЛЬ
+        if (_passwordController.text.length < 6) throw Exception('Пароль занадто короткий');
+        if (_passwordController.text != _confirmPasswordController.text) throw Exception('Паролі не збігаються');
+        _goToNextPage();
+
+      } else if (_currentStep == 3) {
+        // КРОК 4: ІМ'Я
+        if (_nameController.text.trim().isEmpty) throw Exception('Введіть ваше ім\'я');
+        _goToNextPage();
+
+      } else if (_currentStep == 4) {
+        // КРОК 5: ДАТА
+        if (_selectedDate == null) throw Exception('Вкажіть дату народження');
+        await _completeRegistration();
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(e.toString().replaceAll('Exception:', '')), 
+            backgroundColor: Colors.red
           ),
         );
-      },
-    );
+      }
+    } finally {
+      if (mounted) setState(() => _isLoading = false);
+    }
   }
 
-  Widget _buildProgressBarWithoutBackButton() {
-    return Container(
-      padding: const EdgeInsets.only(left: 20, right: 20, bottom: 20, top: 40),
-      child: Row(
-        children: [
-          const Spacer(),
-          
-          // Прогрес текст
-          Text(
-            '${AppLocalizations.of(context)!.step} ${_currentStep + 1} ${AppLocalizations.of(context)!.of_text} ${RegistrationModel.totalSteps}',
-            style: const TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.w500,
-              color: Colors.grey,
-            ),
+  void _showUserExistsDialog() {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        title: const Text('Акаунт уже існує'),
+        content: const Text('Ви вже зареєстровані в системі. Будь ласка, увійдіть у свій профіль або скористайтеся іншим номером.'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Змінити номер'),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              Navigator.pop(context); // Закрити діалог
+              Navigator.pop(context); // Повернутися на екран входу (Login)
+            },
+            style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF5C72FF)),
+            child: const Text('Увійти', style: TextStyle(color: Colors.white)),
           ),
         ],
       ),
     );
   }
 
-  Widget _buildPhoneStep() {
-    return Padding(
-      padding: const EdgeInsets.all(20),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const SizedBox(height: 40),
-          
-          // Заголовок
-          Text(
-            AppLocalizations.of(context)!.phone_number,
-            style: const TextStyle(
-              fontSize: 24,
-              fontWeight: FontWeight.bold,
-              color: Colors.black,
-            ),
-          ),
-          
-          const SizedBox(height: 8),
-          
-          // Підзаголовок
-          Text(
-            AppLocalizations.of(context)!.enter_phone_for_sms,
-            style: TextStyle(
-              fontSize: 16,
-              color: Colors.grey.shade600,
-            ),
-          ),
-          
-          const SizedBox(height: 40),
-          
-          // Поле для номера телефону
-          Container(
-            decoration: BoxDecoration(
-              border: Border.all(color: Colors.grey.shade300),
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: Row(
-              children: [
-                // Прапорець країни
-                Container(
-                  padding: const EdgeInsets.all(16),
-                  child: Row(
-                    children: [
-                      Image.asset(
-                        'assets/icons/ukraine.png',
-                        width: 24,
-                        height: 24,
-                      ),
-                      const SizedBox(width: 8),
-                      const Text(
-                        '+380',
-                        style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.w500,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                
-                // Розділювач
-                Container(
-                  width: 1,
-                  height: 40,
-                  color: Colors.grey.shade300,
-                ),
-                
-                // Поле для номера
-                Expanded(
-                  child: TextField(
-                    controller: _phoneController,
-                    keyboardType: TextInputType.phone,
-                    maxLength: 9,
-                    decoration: InputDecoration(
-                      hintText: AppLocalizations.of(context)!.phone_number,
-                      border: InputBorder.none,
-                      contentPadding: const EdgeInsets.all(16),
-                      counterText: '', // Приховуємо лічильник символів
-                    ),
-                    onChanged: (value) {
-                      // Обмежуємо введення тільки цифрами
-                      final digitsOnly = value.replaceAll(RegExp(r'[^0-9]'), '');
-                      if (digitsOnly.length <= 9) {
-                        _phoneController.text = digitsOnly;
-                        _phoneController.selection = TextSelection.fromPosition(
-                          TextPosition(offset: digitsOnly.length),
-                        );
-                        _registrationModel.phoneNumber = digitsOnly;
-                        setState(() {});
-                      }
-                    },
-                  ),
-                ),
-              ],
-            ),
-          ),
-          
-          const Spacer(),
-          
-          // Кнопка продовжити
-          SizedBox(
-            width: double.infinity,
-            child: ElevatedButton(
-              onPressed: _registrationModel.isStep1Valid() ? _nextStep : null,
-              style: ElevatedButton.styleFrom(
-                backgroundColor: _registrationModel.isStep1Valid() 
-                  ? const Color(0xFF5C72FF) 
-                  : Colors.grey.shade300,
-                foregroundColor: Colors.white,
-                padding: const EdgeInsets.symmetric(vertical: 16),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
-              ),
-              child: Text(
-                AppLocalizations.of(context)!.continue_text,
-                style: const TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-            ),
-          ),
-        ],
-      ),
+  Future<void> _completeRegistration() async {
+    await _authService.completeRegistration(
+      name: _nameController.text,
+      birthDate: _selectedDate!,
+      password: _passwordController.text,
     );
-  }
-
-  Widget _buildSmsStep() {
-    return Padding(
-      padding: const EdgeInsets.all(20),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const SizedBox(height: 20), // Зменшено з 40 до 20
-          
-          // Заголовок
-          Text(
-            AppLocalizations.of(context)!.sms_code,
-            style: const TextStyle(
-              fontSize: 24,
-              fontWeight: FontWeight.bold,
-              color: Colors.black,
-            ),
-          ),
-          
-          const SizedBox(height: 8),
-          
-          // Підзаголовок
-          Text(
-            '${AppLocalizations.of(context)!.enter_code_sent_to} ${_phoneController.text}',
-            style: TextStyle(
-              fontSize: 16,
-              color: Colors.grey.shade600,
-            ),
-          ),
-          
-          const SizedBox(height: 20), // Зменшено з 40 до 20
-          
-          // SMS поля
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            children: List.generate(6, (index) {
-              return SizedBox(
-                width: 45,
-                child: TextField(
-                  controller: _smsControllers[index],
-                  focusNode: _smsFocusNodes[index],
-                  keyboardType: TextInputType.number,
-                  textAlign: TextAlign.center,
-                  maxLength: 1,
-                  decoration: InputDecoration(
-                    counterText: '',
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(8),
-                      borderSide: BorderSide(color: Colors.grey.shade300),
-                    ),
-                    focusedBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(8),
-                      borderSide: const BorderSide(color: Color(0xFF5C72FF)),
-                    ),
-                  ),
-                  onChanged: (value) {
-                    // Обмежуємо введення тільки цифрами
-                    final digitsOnly = value.replaceAll(RegExp(r'[^0-9]'), '');
-                    if (digitsOnly.length <= 1) {
-                      _smsControllers[index].text = digitsOnly;
-                      _smsControllers[index].selection = TextSelection.fromPosition(
-                        TextPosition(offset: digitsOnly.length),
-                      );
-                      
-                      if (digitsOnly.isNotEmpty && index < 5) {
-                        _smsFocusNodes[index + 1].requestFocus();
-                      }
-                      _registrationModel.smsCode = _getSmsCode();
-                      setState(() {});
-                    }
-                  },
-                ),
-              );
-            }),
-          ),
-          
-          const SizedBox(height: 20),
-          
-          // Кнопка повторного надсилання
-          Center(
-            child: TextButton(
-              onPressed: () {
-                // Логіка повторного надсилання SMS
-              },
-              child: Text(
-                AppLocalizations.of(context)!.send_code_again,
-                style: const TextStyle(
-                  color: Color(0xFF5C72FF),
-                  fontSize: 16,
-                ),
-              ),
-            ),
-          ),
-          
-          const Spacer(),
-          
-          // Кнопка продовжити
-          SizedBox(
-            width: double.infinity,
-            child: ElevatedButton(
-              onPressed: _registrationModel.isStep2Valid() ? _nextStep : null,
-              style: ElevatedButton.styleFrom(
-                backgroundColor: _registrationModel.isStep2Valid() 
-                  ? const Color(0xFF5C72FF) 
-                  : Colors.grey.shade300,
-                foregroundColor: Colors.white,
-                padding: const EdgeInsets.symmetric(vertical: 16),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
-              ),
-              child: Text(
-                AppLocalizations.of(context)!.continue_text,
-                style: const TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  String _getSmsCode() {
-    return _smsControllers.map((controller) => controller.text).join();
-  }
-
-  Widget _buildEmailStep() {
-    return Padding(
-      padding: const EdgeInsets.all(20),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const SizedBox(height: 20), // Зменшено з 40 до 20
-          
-          // Заголовок
-          Text(
-            AppLocalizations.of(context)!.email,
-            style: const TextStyle(
-              fontSize: 24,
-              fontWeight: FontWeight.bold,
-              color: Colors.black,
-            ),
-          ),
-          
-          const SizedBox(height: 8),
-          
-          // Підзаголовок
-          Text(
-            AppLocalizations.of(context)!.enter_your_email,
-            style: TextStyle(
-              fontSize: 16,
-              color: Colors.grey.shade600,
-            ),
-          ),
-          
-          const SizedBox(height: 20), // Зменшено з 40 до 20
-          
-          // Поле для email
-          Container(
-            decoration: BoxDecoration(
-              border: Border.all(color: Colors.grey.shade300),
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: TextField(
-              controller: _emailController,
-              keyboardType: TextInputType.emailAddress,
-              decoration: InputDecoration(
-                hintText: AppLocalizations.of(context)!.email,
-                border: InputBorder.none,
-                contentPadding: const EdgeInsets.all(16),
-              ),
-              onChanged: (value) {
-                _registrationModel.email = value;
-                setState(() {});
-              },
-            ),
-          ),
-          
-          const Spacer(),
-          
-          // Кнопка продовжити
-          SizedBox(
-            width: double.infinity,
-            child: ElevatedButton(
-              onPressed: _registrationModel.isStep3Valid() ? _nextStep : null,
-              style: ElevatedButton.styleFrom(
-                backgroundColor: _registrationModel.isStep3Valid() 
-                  ? const Color(0xFF5C72FF) 
-                  : Colors.grey.shade300,
-                foregroundColor: Colors.white,
-                padding: const EdgeInsets.symmetric(vertical: 16),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
-              ),
-              child: Text(
-                AppLocalizations.of(context)!.continue_text,
-                style: const TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildPasswordStep() {
-    return Padding(
-      padding: const EdgeInsets.all(20),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const SizedBox(height: 20), // Зменшено з 40 до 20
-          
-          // Заголовок
-          Text(
-            AppLocalizations.of(context)!.password,
-            style: const TextStyle(
-              fontSize: 24,
-              fontWeight: FontWeight.bold,
-              color: Colors.black,
-            ),
-          ),
-          
-          const SizedBox(height: 8),
-          
-          // Підзаголовок
-          Text(
-            AppLocalizations.of(context)!.create_strong_password,
-            style: TextStyle(
-              fontSize: 16,
-              color: Colors.grey.shade600,
-            ),
-          ),
-          
-          const SizedBox(height: 20), // Зменшено з 40 до 20
-          
-          // Поле для пароля
-          Container(
-            decoration: BoxDecoration(
-              border: Border.all(color: Colors.grey.shade300),
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: TextField(
-              controller: _passwordController,
-              obscureText: !_isPasswordVisible,
-              decoration: InputDecoration(
-                hintText: AppLocalizations.of(context)!.password,
-                border: InputBorder.none,
-                contentPadding: const EdgeInsets.all(16),
-                suffixIcon: IconButton(
-                  onPressed: () {
-                    setState(() {
-                      _isPasswordVisible = !_isPasswordVisible;
-                    });
-                  },
-                  icon: Icon(
-                    _isPasswordVisible ? Icons.visibility : Icons.visibility_off,
-                    color: Colors.grey.shade600,
-                  ),
-                ),
-              ),
-              onChanged: (value) {
-                _registrationModel.password = value;
-                setState(() {});
-              },
-            ),
-          ),
-          
-          const SizedBox(height: 15), // Зменшено з 20 до 15
-          
-          // Поле для підтвердження пароля
-          Container(
-            decoration: BoxDecoration(
-              border: Border.all(color: Colors.grey.shade300),
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: TextField(
-              controller: _confirmPasswordController,
-              obscureText: !_isConfirmPasswordVisible,
-              decoration: InputDecoration(
-                hintText: AppLocalizations.of(context)!.confirm_password,
-                border: InputBorder.none,
-                contentPadding: const EdgeInsets.all(16),
-                suffixIcon: IconButton(
-                  onPressed: () {
-                    setState(() {
-                      _isConfirmPasswordVisible = !_isConfirmPasswordVisible;
-                    });
-                  },
-                  icon: Icon(
-                    _isConfirmPasswordVisible ? Icons.visibility : Icons.visibility_off,
-                    color: Colors.grey.shade600,
-                  ),
-                ),
-              ),
-              onChanged: (value) {
-                _registrationModel.confirmPassword = value;
-                setState(() {});
-              },
-            ),
-          ),
-          
-          const Spacer(),
-          
-          // Кнопка продовжити
-          SizedBox(
-            width: double.infinity,
-            child: ElevatedButton(
-              onPressed: _registrationModel.isStep4Valid() ? _nextStep : null,
-              style: ElevatedButton.styleFrom(
-                backgroundColor: _registrationModel.isStep4Valid() 
-                  ? const Color(0xFF5C72FF) 
-                  : Colors.grey.shade300,
-                foregroundColor: Colors.white,
-                padding: const EdgeInsets.symmetric(vertical: 16),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
-              ),
-              child: Text(
-                AppLocalizations.of(context)!.continue_text,
-                style: const TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildNameStep() {
-    return Padding(
-      padding: const EdgeInsets.all(20),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const SizedBox(height: 20), // Зменшено з 40 до 20
-          
-          // Заголовок
-          Text(
-            AppLocalizations.of(context)!.name,
-            style: const TextStyle(
-              fontSize: 24,
-              fontWeight: FontWeight.bold,
-              color: Colors.black,
-            ),
-          ),
-          
-          const SizedBox(height: 8),
-          
-          // Підзаголовок
-          Text(
-            AppLocalizations.of(context)!.what_is_your_name,
-            style: TextStyle(
-              fontSize: 16,
-              color: Colors.grey.shade600,
-            ),
-          ),
-          
-          const SizedBox(height: 20), // Зменшено з 40 до 20
-          
-          // Поле для імені
-          Container(
-            decoration: BoxDecoration(
-              border: Border.all(color: Colors.grey.shade300),
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: TextField(
-              controller: _nameController,
-              decoration: InputDecoration(
-                hintText: AppLocalizations.of(context)!.name,
-                border: InputBorder.none,
-                contentPadding: const EdgeInsets.all(16),
-              ),
-              onChanged: (value) {
-                _registrationModel.name = value;
-                setState(() {});
-              },
-            ),
-          ),
-          
-          const SizedBox(height: 20), // Зменшено з 40 до 20
-          
-          // Кнопка завершити
-          SizedBox(
-            width: double.infinity,
-            child: ElevatedButton(
-              onPressed: _registrationModel.isStep5Valid() 
-                ? () => _completeRegistration() 
-                : null,
-              style: ElevatedButton.styleFrom(
-                backgroundColor: _registrationModel.isStep5Valid() 
-                  ? const Color(0xFF5C72FF) 
-                  : Colors.grey.shade300,
-                foregroundColor: Colors.white,
-                padding: const EdgeInsets.symmetric(vertical: 16),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
-              ),
-              child: Text(
-                AppLocalizations.of(context)!.register,
-                style: const TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  void _nextStep() {
-    if (_currentStep < RegistrationModel.totalSteps - 1) {
-      setState(() {
-        _currentStep++;
-      });
-      _pageController.nextPage(
-        duration: const Duration(milliseconds: 300),
-        curve: Curves.easeInOut,
+    if (mounted) {
+      Navigator.of(context).pushAndRemoveUntil(
+        MaterialPageRoute(builder: (context) => const MainNavigationScreen()),
+        (route) => false,
       );
     }
+  }
+
+  void _goToNextPage() {
+    setState(() => _currentStep++);
+    _pageController.nextPage(duration: const Duration(milliseconds: 300), curve: Curves.easeInOut);
   }
 
   void _previousStep() {
-    if (_currentStep > 0) {
-      // Очищаємо дані поточного кроку
-      _registrationModel.clearCurrentStepData(_currentStep + 1);
-      
-      // Очищаємо контролери відповідно до кроку
-      switch (_currentStep) {
-        case 1: // SMS крок
-          for (var controller in _smsControllers) {
-            controller.clear();
-          }
-          break;
-        case 2: // Email крок
-          _emailController.clear();
-          break;
-        case 3: // Пароль крок
-          _passwordController.clear();
-          _confirmPasswordController.clear();
-          _isPasswordVisible = false;
-          _isConfirmPasswordVisible = false;
-          break;
-        case 4: // Ім'я крок
-          _nameController.clear();
-          break;
-      }
-      
-      setState(() {
-        _currentStep--;
-      });
-      _pageController.previousPage(
-        duration: const Duration(milliseconds: 300),
-        curve: Curves.easeInOut,
-      );
-    }
+    FocusScope.of(context).unfocus();
+    setState(() => _currentStep--);
+    _pageController.previousPage(duration: const Duration(milliseconds: 300), curve: Curves.easeInOut);
   }
 
-  void _completeRegistration() {
-    // TODO: Відправити дані на сервер
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text('${AppLocalizations.of(context)!.registration} ${AppLocalizations.of(context)!.success}!'),
-        backgroundColor: const Color(0xFF5C72FF),
+  // --- UI БУДІВНИЦТВО ---
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: Colors.white,
+      appBar: AppBar(
+        backgroundColor: Colors.white,
+        elevation: 0,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back, color: Colors.black),
+          onPressed: _isLoading ? null : (_currentStep > 0 ? _previousStep : () => Navigator.pop(context)),
+        ),
+        title: Text('Крок ${_currentStep + 1} з 5', style: const TextStyle(color: Colors.grey, fontSize: 14)),
       ),
-    );
-    
-    // Перехід до головного екрану
-    Navigator.of(context).pushReplacement(
-      MaterialPageRoute(
-        builder: (context) => const MainNavigationScreen(),
+      body: PageView(
+        controller: _pageController,
+        physics: const NeverScrollableScrollPhysics(),
+        children: [
+          _buildStep(title: 'Ваш номер телефону', subtitle: 'Ми перевіримо, чи вільний цей номер', content: _buildPhoneInput()),
+          _buildStep(title: 'Підтвердження SMS', subtitle: 'Введіть 6 цифр, що надійшли на номер', content: _buildSmsInput()),
+          _buildStep(title: 'Захистіть акаунт', subtitle: 'Придумайте надійний пароль', content: _buildPasswordInput()),
+          _buildStep(title: 'Знайомство', subtitle: 'Як до вас звертатися?', content: _buildNameInput()),
+          _buildStep(title: 'Вік', subtitle: 'Тільки для повнолітніх (18+)', content: _buildBirthdayInput()),
+        ],
       ),
     );
   }
-} 
+
+  Widget _buildStep({required String title, required String subtitle, required Widget content}) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 24),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const SizedBox(height: 20),
+          Text(title, style: const TextStyle(fontSize: 26, fontWeight: FontWeight.bold)),
+          const SizedBox(height: 8),
+          Text(subtitle, style: const TextStyle(fontSize: 16, color: Colors.grey)),
+          const SizedBox(height: 40),
+          content,
+          const Spacer(),
+          SizedBox(
+            width: double.infinity,
+            child: ElevatedButton(
+              onPressed: _isLoading ? null : _handleNext,
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color(0xFF5C72FF),
+                padding: const EdgeInsets.symmetric(vertical: 16),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+              ),
+              child: _isLoading 
+                ? const SizedBox(height: 20, width: 20, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2))
+                : const Text('Продовжити', style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold)),
+            ),
+          ),
+          const SizedBox(height: 20),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildPhoneInput() {
+    return TextField(
+      controller: _phoneController,
+      keyboardType: TextInputType.phone,
+      enabled: !_isLoading,
+      autofocus: true,
+      decoration: InputDecoration(
+        prefixText: '+380 ',
+        prefixStyle: const TextStyle(fontSize: 18, color: Colors.black, fontWeight: FontWeight.bold),
+        border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+        hintText: 'XX XXX XXXX',
+      ),
+    );
+  }
+
+  Widget _buildSmsInput() {
+    return Column(
+      children: [
+        GestureDetector(
+          onTap: () => _smsFocusNode.requestFocus(),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: List.generate(6, (index) {
+              String char = "";
+              if (_smsController.text.length > index) char = _smsController.text[index];
+              bool isFocused = _smsController.text.length == index;
+              return Container(
+                width: 45, height: 55,
+                alignment: Alignment.center,
+                decoration: BoxDecoration(
+                  color: Colors.grey.shade50,
+                  border: Border.all(color: isFocused ? const Color(0xFF5C72FF) : Colors.grey.shade300, width: 2),
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: Text(char, style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold)),
+              );
+            }),
+          ),
+        ),
+        SizedBox(
+          height: 0, width: 0,
+          child: TextField(
+            controller: _smsController,
+            focusNode: _smsFocusNode,
+            keyboardType: TextInputType.number,
+            maxLength: 6,
+            onChanged: (v) {
+              setState(() {});
+              if (v.length == 6) _handleNext(); // Авто-перевірка при заповненні
+            },
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildPasswordInput() {
+    return Column(
+      children: [
+        TextField(
+          controller: _passwordController,
+          obscureText: !_isPasswordVisible,
+          decoration: InputDecoration(
+            labelText: 'Пароль',
+            border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+            suffixIcon: IconButton(
+              icon: Icon(_isPasswordVisible ? Icons.visibility : Icons.visibility_off),
+              onPressed: () => setState(() => _isPasswordVisible = !_isPasswordVisible),
+            ),
+          ),
+        ),
+        const SizedBox(height: 16),
+        TextField(
+          controller: _confirmPasswordController,
+          obscureText: !_isPasswordVisible,
+          decoration: InputDecoration(labelText: 'Підтвердіть пароль', border: OutlineInputBorder(borderRadius: BorderRadius.circular(12))),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildNameInput() {
+    return TextField(
+      controller: _nameController,
+      textCapitalization: TextCapitalization.words,
+      decoration: InputDecoration(hintText: 'Ваше ім\'я', border: OutlineInputBorder(borderRadius: BorderRadius.circular(12))),
+    );
+  }
+
+  Widget _buildBirthdayInput() {
+    return TextField(
+      controller: _birthdayController,
+      readOnly: true,
+      onTap: () async {
+        final picked = await showDatePicker(
+          context: context,
+          initialDate: DateTime(2005),
+          firstDate: DateTime(1950),
+          lastDate: DateTime.now(),
+        );
+        if (picked != null) {
+          setState(() {
+            _selectedDate = picked;
+            _birthdayController.text = DateFormat('dd.MM.yyyy').format(picked);
+          });
+        }
+      },
+      decoration: InputDecoration(
+        hintText: 'Оберіть дату народження',
+        suffixIcon: const Icon(Icons.calendar_today),
+        border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+      ),
+    );
+  }
+}
