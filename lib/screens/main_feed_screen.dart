@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:ui'; // Для ефекту блюру
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -8,6 +9,7 @@ import '../models/user_profile.dart';
 import '../providers/locale_provider.dart';
 import '../service/matches_service.dart';
 import '../service/error_reporter.dart';
+import '../service/location_service.dart';
 import 'profile_detail_screen.dart';
 import 'events_screen.dart';
 import 'package:dating_app/l10n/gen/app_localizations.dart';
@@ -21,6 +23,7 @@ class MainFeedScreen extends StatefulWidget {
 
 class _MainFeedScreenState extends State<MainFeedScreen> {
   final MatchesService _matchesService = MatchesService();
+  final LocationService _locationService = LocationService();
   final CardSwiperController _cardSwiperController = CardSwiperController();
   final TextEditingController _searchController = TextEditingController();
   final FocusNode _searchFocusNode = FocusNode();
@@ -29,7 +32,11 @@ class _MainFeedScreenState extends State<MainFeedScreen> {
   int _selectedTab = 0; 
   bool _isLoading = true;
   bool _isFinished = false;
-  bool _isSearchActive = false; 
+  bool _isSearchActive = false;
+
+  /// Радіус пошуку в кілометрах. Зберігається між сеансами.
+  int _radiusKm = 50;
+  bool _hasLocation = true;
   
   List<UserProfile> users = [];
   Timer? _debounce; 
@@ -40,7 +47,7 @@ class _MainFeedScreenState extends State<MainFeedScreen> {
   @override
   void initState() {
     super.initState();
-    _loadUsers();
+    _restoreRadiusAndLoad();
     
     _searchFocusNode.addListener(() {
       setState(() {
@@ -63,6 +70,24 @@ class _MainFeedScreenState extends State<MainFeedScreen> {
 
   // --- ЗАВАНТАЖЕННЯ ДАНИХ ---
 
+  Future<void> _restoreRadiusAndLoad() async {
+    final prefs = await SharedPreferences.getInstance();
+    _radiusKm = prefs.getInt('feed_radius_km') ?? 50;
+
+    // Позиція оновлюється при кожному відкритті, інакше радіус рахувався б
+    // від місця, де людина була востаннє при редагуванні профілю.
+    _hasLocation = await _locationService.refreshMyLocation();
+    if (!mounted) return;
+    await _loadUsers();
+  }
+
+  Future<void> _setRadius(int km) async {
+    setState(() => _radiusKm = km);
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setInt('feed_radius_km', km);
+    await _loadUsers();
+  }
+
   Future<void> _loadUsers() async {
     setState(() {
       _isLoading = true;
@@ -70,7 +95,7 @@ class _MainFeedScreenState extends State<MainFeedScreen> {
     });
 
     try {
-      final newUsers = await _matchesService.getSmartMatches();
+      final newUsers = await _matchesService.getFeed(radiusKm: _radiusKm);
       if (mounted) {
         setState(() {
           users = newUsers;
@@ -82,8 +107,12 @@ class _MainFeedScreenState extends State<MainFeedScreen> {
         if (users.length > 1) _preloadImages(context, users[1]);
       }
     } catch (e) {
-      debugPrint("Помилка завантаження: $e");
-      if (mounted) setState(() => _isLoading = false);
+      if (mounted) {
+        setState(() => _isLoading = false);
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(ErrorReporter.toFailure(e).message)),
+        );
+      }
     }
   }
   
@@ -180,6 +209,7 @@ class _MainFeedScreenState extends State<MainFeedScreen> {
               child: Column(
                 children: [
                   _buildTopBar(),
+                  if (!_isSearchActive) _buildRadiusControl(),
                   Expanded(
                     child: Stack(
                       children: [
@@ -316,6 +346,58 @@ class _MainFeedScreenState extends State<MainFeedScreen> {
     );
   }
 
+  static const List<int> _radiusSteps = [5, 10, 25, 50, 100, 200];
+
+  int _nextRadius(int current) {
+    for (final step in _radiusSteps) {
+      if (step > current) return step;
+    }
+    return _radiusSteps.last;
+  }
+
+  /// Керування радіусом. Без нього «друзі поруч» — просто список усіх, кого
+  /// повернув сервер.
+  Widget _buildRadiusControl() {
+    if (!_hasLocation) return const SizedBox.shrink();
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 20),
+      child: Row(
+        children: [
+          const Icon(Icons.place_outlined, size: 18, color: Colors.black54),
+          const SizedBox(width: 6),
+          Text(
+            '$_radiusKm км',
+            style: const TextStyle(
+              fontSize: 13,
+              fontWeight: FontWeight.w600,
+              color: Colors.black87,
+            ),
+          ),
+          Expanded(
+            child: SliderTheme(
+              data: SliderTheme.of(context).copyWith(
+                trackHeight: 2,
+                thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 7),
+                overlayShape: const RoundSliderOverlayShape(overlayRadius: 14),
+              ),
+              child: Slider(
+                value: _radiusSteps.indexOf(_radiusKm).toDouble().clamp(0, (_radiusSteps.length - 1).toDouble()),
+                min: 0,
+                max: (_radiusSteps.length - 1).toDouble(),
+                divisions: _radiusSteps.length - 1,
+                activeColor: Colors.black87,
+                inactiveColor: Colors.black12,
+                onChanged: (v) => setState(() => _radiusKm = _radiusSteps[v.round()]),
+                onChangeEnd: (v) => _setRadius(_radiusSteps[v.round()]),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   Widget _buildEmptyState() {
     return Center(
       child: Padding(
@@ -329,16 +411,32 @@ class _MainFeedScreenState extends State<MainFeedScreen> {
               child: const Icon(Icons.sentiment_dissatisfied, size: 60, color: Colors.grey),
             ),
             const SizedBox(height: 24),
-            const Text('Отакої!', style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Colors.black87)),
+            const Text('Поки що порожньо', style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Colors.black87)),
             const SizedBox(height: 12),
-            const Text('Користувачі не знайдені.', textAlign: TextAlign.center, style: TextStyle(fontSize: 16, color: Colors.grey)),
-            const SizedBox(height: 30),
-            ElevatedButton.icon(
-              onPressed:  _loadUsers,
-              icon: const Icon(Icons.refresh),
-              label: const Text('Оновити'),
-              style: ElevatedButton.styleFrom(backgroundColor: Colors.black, foregroundColor: Colors.white, padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 15), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30))),
+            Text(
+              _hasLocation
+                  ? 'У радіусі $_radiusKm км нікого не знайшли.'
+                  : 'Ми не знаємо, де ви — тому показуємо всіх підряд.\n'
+                    'Увімкніть геолокацію, щоб бачити людей поруч.',
+              textAlign: TextAlign.center,
+              style: const TextStyle(fontSize: 16, color: Colors.grey),
             ),
+            const SizedBox(height: 30),
+            // Порожній стан має пропонувати дію, а не просто повідомляти факт.
+            if (_hasLocation && _radiusKm < 200)
+              ElevatedButton.icon(
+                onPressed: () => _setRadius(_nextRadius(_radiusKm)),
+                icon: const Icon(Icons.travel_explore),
+                label: Text('Шукати в радіусі ${_nextRadius(_radiusKm)} км'),
+                style: ElevatedButton.styleFrom(backgroundColor: Colors.black, foregroundColor: Colors.white, padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 15), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30))),
+              )
+            else
+              ElevatedButton.icon(
+                onPressed: _loadUsers,
+                icon: const Icon(Icons.refresh),
+                label: const Text('Оновити'),
+                style: ElevatedButton.styleFrom(backgroundColor: Colors.black, foregroundColor: Colors.white, padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 15), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30))),
+              ),
           ],
         ),
       ),

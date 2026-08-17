@@ -72,53 +72,30 @@ class MatchesService {
     }
   }
 
-  Future<List<UserProfile>> getSmartMatches() async {
-    final userId = _userId;
-    if (userId == null) return [];
-
+  /// Стрічка людей у заданому радіусі.
+  ///
+  /// Ранжування рахує сервер: спорідненість інтересів із поправкою на їх
+  /// рідкість, реальна відстань у метрах, свіжість активності та взаємність.
+  /// Радіус — справжній фільтр по просторовому індексу, а не сортування
+  /// постфактум.
+  Future<List<UserProfile>> getFeed({
+    int radiusKm = 50,
+    int limit = 20,
+    int offset = 0,
+  }) async {
+    if (_userId == null) return [];
     try {
-      // Свої embedding і координати — через RPC: у таблиці ці колонки закриті,
-      // щоб ніхто не міг вивантажити точні позиції всіх користувачів.
-      final ctx = await _supabase.rpc('get_my_match_context');
-      final currentUserData = ctx == null
-          ? <String, dynamic>{}
-          : Map<String, dynamic>.from(ctx as Map);
-
-      if (currentUserData['embedding'] == null) {
-          return await getPotentialMatches();
-      }
-
-      final interactions = await _supabase.from('likes').select('receiver_id').eq('sender_id', userId);
-      final ignoredIds = (interactions as List).map((e) => e['receiver_id']).toList();
-
-      final double userLat = (currentUserData['lat'] as num?)?.toDouble() ?? 0;
-      final double userLong = (currentUserData['long'] as num?)?.toDouble() ?? 0;
-      
-      final String embeddingStr = currentUserData['embedding']; 
-
-      final response = await _supabase.rpc(
-        'get_smart_recommendations',
-        params: {
-          'query_embedding': embeddingStr,
-          'user_lat': userLat,
-          'user_long': userLong,
-          'match_threshold': 0.0, 
-          'match_count': 20,
-          'ignored_ids': ignoredIds,
-        },
-      );
-
-      final List<dynamic> data = response as List<dynamic>;
-
-      if (data.isEmpty) {
-        return await getPotentialMatches();
-      }
-
-      return data.map((d) => UserProfile.fromMap(d)).toList();
-      
+      final response = await _supabase.rpc('get_feed', params: {
+        'p_radius_km': radiusKm,
+        'p_limit': limit,
+        'p_offset': offset,
+      });
+      return List<Map<String, dynamic>>.from(response as List)
+          .map(UserProfile.fromMap)
+          .toList();
     } catch (e, st) {
-      ErrorReporter.report(e, st, context: 'getSmartMatches');
-      return await getPotentialMatches();
+      ErrorReporter.report(e, st, context: 'getFeed');
+      rethrow;
     }
   }
 
@@ -233,55 +210,26 @@ class MatchesService {
     }
   }
 
-  Future<List<Event>> getSmartEvents() async {
-    final userId = _userId;
-    if (userId == null) return [];
-
+  /// Стрічка подій. Додатково враховує, наскільки скоро подія і скільки людей
+  /// уже приєдналось.
+  Future<List<Event>> getEventFeed({
+    int radiusKm = 50,
+    int limit = 20,
+    int offset = 0,
+  }) async {
+    if (_userId == null) return [];
     try {
-      final ctx = await _supabase.rpc('get_my_match_context');
-      final currentUserData = ctx == null
-          ? <String, dynamic>{}
-          : Map<String, dynamic>.from(ctx as Map);
-
-      if (currentUserData['embedding'] == null) {
-        return await getPotentialEvents();
-      }
-
-      final String userEmbeddingStr = currentUserData['embedding'];
-      
-      final double userLat = (currentUserData['lat'] as num?)?.toDouble() ?? 0;
-      final double userLong = (currentUserData['long'] as num?)?.toDouble() ?? 0;
-
-      final interactions = await _supabase
-          .from('event_likes')
-          .select('event_id')
-          .eq('user_id', userId);
-      
-      final ignoredIds = (interactions as List).map((e) => e['event_id'].toString()).toList();
-
-      final response = await _supabase.rpc(
-        'get_smart_event_recommendations',
-        params: {
-          'query_embedding': userEmbeddingStr,
-          'user_lat': userLat,
-          'user_long': userLong,
-          'match_threshold': 0.0,
-          'match_count': 20,
-          'ignored_ids': ignoredIds,
-        },
-      );
-      
-      final List<dynamic> data = response as List<dynamic>;
-      
-      if (data.isEmpty) {
-        return await getPotentialEvents();
-      }
-
-      return data.map((d) => Event.fromMap(d)).toList();
-
+      final response = await _supabase.rpc('get_event_feed', params: {
+        'p_radius_km': radiusKm,
+        'p_limit': limit,
+        'p_offset': offset,
+      });
+      return List<Map<String, dynamic>>.from(response as List)
+          .map(Event.fromMap)
+          .toList();
     } catch (e, st) {
-      ErrorReporter.report(e, st, context: 'getSmartEvents');
-      return await getPotentialEvents();
+      ErrorReporter.report(e, st, context: 'getEventFeed');
+      rethrow;
     }
   }
 

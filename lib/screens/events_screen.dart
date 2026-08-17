@@ -1,3 +1,4 @@
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_card_swiper/flutter_card_swiper.dart';
 import 'package:provider/provider.dart';
@@ -18,6 +19,9 @@ class EventsScreen extends StatefulWidget {
 class _EventsScreenState extends State<EventsScreen> {
   final CardSwiperController controller = CardSwiperController();
   final MatchesService _matchesService = MatchesService();
+
+  /// Той самий радіус, що і в стрічці людей — користувач налаштовує його раз.
+  int _radiusKm = 50;
   
   // Стан
   List<Event> events = [];
@@ -32,6 +36,13 @@ class _EventsScreenState extends State<EventsScreen> {
   @override
   void initState() {
     super.initState();
+    SharedPreferences.getInstance().then((prefs) {
+      final saved = prefs.getInt('feed_radius_km') ?? 50;
+      if (mounted && saved != _radiusKm) {
+        setState(() => _radiusKm = saved);
+        _loadEvents();
+      }
+    });
     _loadEvents();
   }
 
@@ -42,7 +53,7 @@ class _EventsScreenState extends State<EventsScreen> {
     });
     
     try {
-      final newEvents = await _matchesService.getSmartEvents();
+      final newEvents = await _matchesService.getEventFeed(radiusKm: _radiusKm);
       if (mounted) {
         setState(() {
           events = newEvents;
