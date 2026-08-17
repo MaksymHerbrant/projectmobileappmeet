@@ -313,25 +313,23 @@ class MatchesService {
     if (userId == null) throw Exception('Користувач не авторизований');
     final vector = VectorUtils.tagsToVector(event.tags);
     try {
-      final response = await _supabase.from('events').insert({
-        'creator_id': userId,
-        'title': event.title,
-        'description': event.description,
-        'location': event.location,
-        'event_date': event.dateTime.toIso8601String(),
-        'photos': event.photos,
-        'tags': event.tags,
-        'participants_count': event.participantsCount,
-        'is_private': event.isPrivate,
-        'private_location': event.privateLocation,
-        'meeting_point': event.meetingPoint,
-        'additional_info': event.additionalInfo,
-        'embedding': vector.toString(),
-      }).select('id').single();
-
-      final String newEventId = response['id'];
-      final String? groupPhoto = event.photos.isNotEmpty ? event.photos.first : null;
-      await ChatService().createEventGroupChat(newEventId, event.title, groupPhoto);
+      // Подія і її груповий чат створюються однією транзакцією на сервері.
+      // Окремі виклики тут не працювали: клієнт не може прочитати щойно
+      // створену кімнату, бо ще не є її учасником.
+      await _supabase.rpc('create_event_with_chat', params: {
+        'p_title': event.title,
+        'p_description': event.description,
+        'p_location': event.location,
+        'p_event_date': event.dateTime.toUtc().toIso8601String(),
+        'p_photos': event.photos,
+        'p_tags': event.tags,
+        'p_participants_count': event.participantsCount,
+        'p_is_private': event.isPrivate,
+        'p_private_location': event.privateLocation,
+        'p_meeting_point': event.meetingPoint,
+        'p_additional_info': event.additionalInfo,
+        'p_embedding': vector.toString(),
+      });
     } catch (e, st) {
       ErrorReporter.report(e, st, context: 'createEvent');
       rethrow;

@@ -77,30 +77,12 @@ class ChatService {
     }
   }
 
-  Future<String> createPrivateChat(String otherUserId) async {
-    final myId = _supabase.auth.currentUser!.id;
-    try {
-      final existingRoomId = await _supabase.rpc('find_existing_chat', params: {
-        'user1': myId, 'user2': otherUserId
-      });
-      if (existingRoomId != null) return existingRoomId.toString();
-    } catch (e, st) {
-      ErrorReporter.report(e, st, context: 'findExistingChat');
-    }
-
-    final roomResponse = await _supabase.from('rooms').insert({
-      'type': 'private',
-      'last_message': 'Новий матч! Привітайся 👋',
-      'last_message_time': DateTime.now().toUtc().toIso8601String(),
-    }).select().single();
-
-    final roomId = roomResponse['id'];
-
-    await _supabase.from('room_participants').insert([
-      {'room_id': roomId, 'profile_id': myId},
-      {'room_id': roomId, 'profile_id': otherUserId}
-    ]);
-
+  /// Приватний чат створює сервер: клієнт не має права вставляти в `rooms`
+  /// і читати результат тим самим запитом.
+  Future<String> openPrivateChat(String otherUserId) async {
+    final roomId = await _supabase.rpc('get_or_create_private_chat', params: {
+      'p_other': otherUserId,
+    });
     return roomId.toString();
   }
 
@@ -153,32 +135,6 @@ class ChatService {
     }
   }
 
-  Future<void> createEventGroupChat(String eventId, String eventName, String? photoUrl) async {
-    final myId = _supabase.auth.currentUser!.id;
-
-    try {
-      final roomData = await _supabase.from('rooms').insert({
-        'is_group': true,
-        'name': eventName,
-        'avatar_url': photoUrl,
-        'event_id': eventId,
-        'last_message': 'Груповий чат створено 🥳', 
-        'last_message_time': DateTime.now().toUtc().toIso8601String(),
-      }).select('id').single();
-
-      final roomId = roomData['id'];
-
-      await _supabase.from('room_participants').insert({
-        'room_id': roomId,
-        'profile_id': myId,
-      });
-      
-    } catch (e, st) {
-      await ErrorReporter.report(e, st, context: 'createEventGroupChat');
-      rethrow;
-    }
-  }
-
   Future<void> addUserToEventChat(String eventId, String userId) async {
     try {
       final room = await _supabase.from('rooms').select('id').eq('event_id', eventId).maybeSingle();
@@ -221,19 +177,4 @@ class ChatService {
     }
   }
 
-  Future<void> createEventGroup(String eventName, String eventPhoto) async {
-     final myId = _supabase.auth.currentUser!.id;
-     final roomResponse = await _supabase.from('rooms').insert({
-      'type': 'group',
-      'name': eventName,
-      'photo': eventPhoto,
-      'last_message': 'Групу створено',
-      'last_message_time': DateTime.now().toUtc().toIso8601String(),
-    }).select().single();
-    
-    await _supabase.from('room_participants').insert({
-      'room_id': roomResponse['id'], 
-      'profile_id': myId
-    });
-  }
 }
