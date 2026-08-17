@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../service/chat_service.dart';
+import '../service/error_reporter.dart';
 
 class ConversationScreen extends StatefulWidget {
   final String roomId;
@@ -122,9 +123,12 @@ class _ConversationScreenState extends State<ConversationScreen> {
       await ChatService().sendMessage(widget.roomId, text);
 
     } catch (e) {
-      debugPrint("Помилка відправки: $e");
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Помилка: $e")));
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(ErrorReporter.toFailure(e).message)),
+        );
+        // Текст не втрачається — повертаємо його в поле, щоб не набирати знову.
+        _messageController.text = text;
       }
     }
   }

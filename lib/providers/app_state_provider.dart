@@ -4,6 +4,7 @@ import '../models/user_profile.dart';
 import '../models/event.dart';
 import '../service/matches_service.dart';
 import '../service/chat_service.dart';
+import '../service/error_reporter.dart';
 
 class AppStateProvider extends ChangeNotifier {
   // Сервіси
@@ -94,8 +95,9 @@ class AppStateProvider extends ChangeNotifier {
       await _matchesService.acceptLike(likeId);
       // Якщо успіх - нічого не робимо, бо ми вже оновили UI
     } catch (e) {
-      // Якщо помилка - повертаємо назад (відкочуємо зміни) і показуємо помилку
-      _errorMessage = "Не вдалося прийняти лайк";
+      // Відкочуємо оптимістичне оновлення і показуємо справжню причину:
+      // «зачекайте» при вичерпаному ліміті читається інакше, ніж «помилка».
+      _errorMessage = ErrorReporter.toFailure(e).message;
       await refreshIncomingRequests(); // Перезавантажуємо список чесно
       notifyListeners();
     }

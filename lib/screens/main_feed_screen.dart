@@ -7,6 +7,7 @@ import 'package:cached_network_image/cached_network_image.dart'; // 🔥 1. Ім
 import '../models/user_profile.dart';
 import '../providers/locale_provider.dart';
 import '../service/matches_service.dart';
+import '../service/error_reporter.dart';
 import 'profile_detail_screen.dart';
 import 'events_screen.dart';
 import 'package:dating_app/l10n/gen/app_localizations.dart';
@@ -127,12 +128,26 @@ class _MainFeedScreenState extends State<MainFeedScreen> {
     final swipedUser = users[previousIndex];
     
     if (direction == CardSwiperDirection.right) {
-      _matchesService.recordSwipe(swipedUser.id, true);
+      _submitSwipe(swipedUser.id, true);
     } else if (direction == CardSwiperDirection.left) {
-      _matchesService.recordSwipe(swipedUser.id, false);
+      _submitSwipe(swipedUser.id, false);
     }
-    
+
     return true;
+  }
+
+  /// Свайп навмисно не блокує анімацію картки — але помилку показати треба,
+  /// інакше при вичерпаному ліміті свайпи мовчки перестають зберігатись.
+  Future<void> _submitSwipe(String userId, bool isLike) async {
+    try {
+      await _matchesService.recordSwipe(userId, isLike);
+    } catch (e) {
+      if (!mounted) return;
+      final failure = ErrorReporter.toFailure(e);
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(failure.message)),
+      );
+    }
   }
 
   // --- ХЕЛПЕРИ UI ---
