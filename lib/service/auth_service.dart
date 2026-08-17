@@ -59,12 +59,13 @@ class AuthService {
   Future<bool> checkUserExists(String phone) async {
     try {
       final fullPhone = _normalizePhone(phone);
-      final response = await _supabase
-          .from('profiles')
-          .select('id')
-          .eq('phone', fullPhone)
-          .maybeSingle();
-      return response != null;
+      // RPC, а не запит до таблиці: колонка phone більше не читається клієнтом,
+      // і відповідь тут — рівно так/ні, без можливості перебирати користувачів.
+      final exists = await _supabase.rpc(
+        'phone_is_registered',
+        params: {'p_phone': fullPhone},
+      );
+      return exists == true;
     } catch (e) {
       if (kDebugMode) debugPrint('Помилка пошуку в БД');
       return false;
@@ -117,12 +118,10 @@ class AuthService {
     if (user == null) return null;
 
     try {
-      final data = await _supabase
-          .from('profiles')
-          .select()
-          .eq('id', user.id)
-          .single(); // single() означає, що ми чекаємо 1 запис
-      return data;
+      // Свій профіль цілком (з телефоном) віддає тільки ця RPC — у таблиці
+      // приватні колонки закриті для клієнта.
+      final data = await _supabase.rpc('get_my_profile');
+      return data == null ? null : Map<String, dynamic>.from(data as Map);
     } catch (e) {
       // Якщо профілю ще немає або помилка мережі
       return null;

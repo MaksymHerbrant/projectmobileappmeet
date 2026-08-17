@@ -24,6 +24,14 @@ class VectorUtils {
   }
 }
 
+/// Колонки профілю, які дозволено бачити іншим користувачам.
+///
+/// Голий `.select()` більше не працює: `phone`, `email` і `fcm_token` відкликані
+/// на рівні прав доступу, тому `select *` впаде з permission denied. Свій
+/// власний профіль читається через RPC `get_my_profile`.
+const String kPublicProfileFields =
+    'id, full_name, birth_date, age, bio, photos, location, hobbies';
+
 class MatchesService {
   final _supabase = Supabase.instance.client;
   final NotificationService _notificationService = NotificationService();
@@ -48,7 +56,7 @@ class MatchesService {
           .toList();
       ignoredIds.add(userId);
 
-      var query = _supabase.from('profiles').select();
+      var query = _supabase.from('profiles').select(kPublicProfileFields);
       if (ignoredIds.isNotEmpty) {
         query = query.not('id', 'in', ignoredIds);
       }
@@ -68,11 +76,12 @@ class MatchesService {
     if (userId == null) return [];
 
     try {
-      final currentUserData = await _supabase
-          .from('profiles')
-          .select('embedding, location_point')
-          .eq('id', userId)
-          .single();
+      // Свої embedding і координати — через RPC: у таблиці ці колонки закриті,
+      // щоб ніхто не міг вивантажити точні позиції всіх користувачів.
+      final ctx = await _supabase.rpc('get_my_match_context');
+      final currentUserData = ctx == null
+          ? <String, dynamic>{}
+          : Map<String, dynamic>.from(ctx as Map);
 
       if (currentUserData['embedding'] == null) {
           return await getPotentialMatches();
@@ -81,17 +90,8 @@ class MatchesService {
       final interactions = await _supabase.from('likes').select('receiver_id').eq('sender_id', userId);
       final ignoredIds = (interactions as List).map((e) => e['receiver_id']).toList();
 
-      double userLat = 0;
-      double userLong = 0;
-      final pointStr = currentUserData['location_point'] as String?;
-      
-      if (pointStr != null) {
-         final coords = pointStr.replaceAll(RegExp(r'[()]'), '').split(',');
-         if (coords.length >= 2) {
-           userLat = double.tryParse(coords[0]) ?? 0;
-           userLong = double.tryParse(coords[1]) ?? 0;
-         }
-      }
+      final double userLat = (currentUserData['lat'] as num?)?.toDouble() ?? 0;
+      final double userLong = (currentUserData['long'] as num?)?.toDouble() ?? 0;
       
       final String embeddingStr = currentUserData['embedding']; 
 
@@ -121,50 +121,35 @@ class MatchesService {
     }
   }
 
-  Future<void> recordSwipe(String receiverId, bool isLike) async {
-    final userId = _userId;
-    if (userId == null) return;
-
-    if (!isLike) {
-       await _supabase.from('likes').insert({
-        'sender_id': userId, 'receiver_id': receiverId, 'is_like': false, 'is_accepted': false,
-      });
-      return;
-    }
+  /// Свайп цілком виконується однією транзакцією на сервері: запис лайка,
+  /// перевірка взаємності, створення чату. Раніше це були чотири окремі
+  /// запити, і два одночасні свайпи назустріч давали подвійний метч і два чати.
+  ///
+  /// Повертає true, якщо метч стався.
+  Future<bool> recordSwipe(String receiverId, bool isLike) async {
+    if (_userId == null) return false;
 
     try {
-      final incomingLike = await _supabase
-          .from('likes')
-          .select().eq('sender_id', receiverId).eq('receiver_id', userId).eq('is_like', true).maybeSingle();
+      final result = await _supabase.rpc('record_swipe', params: {
+        'p_receiver': receiverId,
+        'p_is_like': isLike,
+      });
 
-      if (incomingLike != null) {
-        await _supabase.from('likes').update({'is_accepted': true}).eq('id', incomingLike['id']);
-        await _supabase.from('likes').insert({
-          'sender_id': userId, 'receiver_id': receiverId, 'is_like': true, 'is_accepted': true,
-        });
+      final matched = (result is Map && result['matched'] == true);
 
-        final ChatService chatService = ChatService();
-        await chatService.createPrivateChat(receiverId);
-        
+      if (isLike) {
         await _notificationService.sendPush(
           receiverId: receiverId,
-          title: "Це взаємно! 🔥",
-          body: "У тебе новий метч, мерщій зазирни в чати!",
-        );
-
-      } else {
-        await _supabase.from('likes').insert({
-          'sender_id': userId, 'receiver_id': receiverId, 'is_like': true, 'is_accepted': false,
-        });
-        
-        await _notificationService.sendPush(
-          receiverId: receiverId, 
-          title: "Новий інтерес! 👋", 
-          body: "Хтось хоче з тобою закентуватись. Можливо, це твій новий бро?"
+          title: matched ? "Це взаємно! 🔥" : "Новий інтерес! 👋",
+          body: matched
+              ? "У тебе новий метч, мерщій зазирни в чати!"
+              : "Хтось хоче з тобою закентуватись. Можливо, це твій новий бро?",
         );
       }
+      return matched;
     } catch (e) {
       if (kDebugMode) debugPrint('recordSwipe: $e');
+      rethrow;
     }
   }
   
@@ -174,7 +159,7 @@ class MatchesService {
     try {
       final response = await _supabase
           .from('likes')
-          .select('*, sender:profiles!sender_id(*)')
+          .select('*, sender:profiles!sender_id($kPublicProfileFields)')
           .eq('receiver_id', userId)
           .eq('is_like', true)
           .eq('is_accepted', false);
@@ -201,7 +186,7 @@ class MatchesService {
     try {
       final response = await _supabase
           .from('profiles')
-          .select()
+          .select(kPublicProfileFields)
           .ilike('full_name', '%$query%')
           .neq('id', userId)
           .limit(20);
@@ -252,11 +237,10 @@ class MatchesService {
     if (userId == null) return [];
 
     try {
-      final currentUserData = await _supabase
-          .from('profiles')
-          .select('embedding, location_point')
-          .eq('id', userId)
-          .single();
+      final ctx = await _supabase.rpc('get_my_match_context');
+      final currentUserData = ctx == null
+          ? <String, dynamic>{}
+          : Map<String, dynamic>.from(ctx as Map);
 
       if (currentUserData['embedding'] == null) {
         return await getPotentialEvents();
@@ -264,16 +248,8 @@ class MatchesService {
 
       final String userEmbeddingStr = currentUserData['embedding'];
       
-      double userLat = 0;
-      double userLong = 0;
-      final pointStr = currentUserData['location_point'] as String?;
-      if (pointStr != null) {
-         final coords = pointStr.replaceAll(RegExp(r'[()]'), '').split(',');
-         if (coords.length >= 2) {
-           userLat = double.tryParse(coords[0]) ?? 0;
-           userLong = double.tryParse(coords[1]) ?? 0;
-         }
-      }
+      final double userLat = (currentUserData['lat'] as num?)?.toDouble() ?? 0;
+      final double userLong = (currentUserData['long'] as num?)?.toDouble() ?? 0;
 
       final interactions = await _supabase
           .from('event_likes')
@@ -391,7 +367,7 @@ class MatchesService {
       final eventIds = myEvents.map((e) => e.id).toList();
       final response = await _supabase
           .from('event_likes')
-          .select('event_id, profiles(*)')
+          .select('event_id, profiles($kPublicProfileFields)')
           .inFilter('event_id', eventIds)
           .eq('is_like', true);
 
@@ -413,7 +389,7 @@ class MatchesService {
     try {
       final response = await _supabase
           .from('event_participants')
-          .select('*, user:profiles!user_id(*)')
+          .select('*, user:profiles!user_id($kPublicProfileFields)')
           .eq('event_id', eventId)
           .eq('status', 'pending');
 
@@ -440,7 +416,7 @@ class MatchesService {
           .select('''
             *,
             event:events(*),
-            inviter:profiles!inviter_id(*)
+            inviter:profiles!inviter_id($kPublicProfileFields)
           ''')
           .eq('user_id', userId)
           .eq('status', status);
@@ -470,28 +446,25 @@ class MatchesService {
   // ДІЇ (ACTIONS)
   // ------------------------------------------
 
+  /// Прийняти запит — це те саме, що лайкнути у відповідь, тому виконується
+  /// тією ж атомарною транзакцією.
   Future<void> acceptLike(String likeId) async {
-    final userId = _userId;
-    if (userId == null) return;
+    if (_userId == null) return;
     try {
-      final likeData = await _supabase.from('likes').select('sender_id').eq('id', likeId).single();
+      final likeData = await _supabase
+          .from('likes')
+          .select('sender_id')
+          .eq('id', likeId)
+          .single();
       final String otherUserId = likeData['sender_id'];
+
+      await _supabase.rpc('accept_like', params: {'p_like_id': likeId});
 
       await _notificationService.sendPush(
         receiverId: otherUserId,
         title: "Твій запит прийнято! 🎉",
         body: "Тепер ви друзі. Почніть спілкування зараз!",
       );
-
-      await _supabase.from('likes').update({'is_accepted': true}).eq('id', likeId);
-      await _supabase.from('likes').upsert({
-        'sender_id': userId,
-        'receiver_id': otherUserId,
-        'is_like': true,
-        'is_accepted': true,
-      });
-
-      await ChatService().createPrivateChat(otherUserId);
     } catch (e) {
       if (kDebugMode) debugPrint('acceptLike: $e');
       rethrow;

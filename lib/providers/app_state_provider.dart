@@ -117,7 +117,11 @@ class AppStateProvider extends ChangeNotifier {
 
   Future<void> _fetchUserProfile(String userId) async {
     try {
-      final data = await _supabase.from('profiles').select().eq('id', userId).single();
+      final data = await _supabase
+          .from('profiles')
+          .select(kPublicProfileFields)
+          .eq('id', userId)
+          .single();
       _currentUserProfile = UserProfile.fromMap(data);
       notifyListeners();
     } catch (e) {
