@@ -778,15 +778,18 @@ class _CreateEventScreenState extends State<CreateEventScreen> with TickerProvid
       final supabase = Supabase.instance.client;
       final userId = supabase.auth.currentUser!.id;
 
-      for (File imageFile in _selectedLocalPhotos) {
+      for (var i = 0; i < _selectedLocalPhotos.length; i++) {
+        final imageFile = _selectedLocalPhotos[i];
         final fileExt = imageFile.path.split('.').last;
-        final fileName = '${DateTime.now().millisecondsSinceEpoch}_$userId.$fileExt';
-        
-        // Завантажуємо в бакет "event_photos"
-        await supabase.storage.from('event_photos').upload(fileName, imageFile);
-        
-        // Отримуємо публічне посилання
-        final imageUrl = supabase.storage.from('event_photos').getPublicUrl(fileName);
+        // Тека користувача — обов'язкова: політика сховища дозволяє запис лише
+        // в теку, названу власним uid. Індекс у назві не дає двом фото
+        // затерти одне одного в межах тієї ж мілісекунди.
+        final filePath =
+            '$userId/${DateTime.now().millisecondsSinceEpoch}_$i.$fileExt';
+
+        await supabase.storage.from('event_photos').upload(filePath, imageFile);
+
+        final imageUrl = supabase.storage.from('event_photos').getPublicUrl(filePath);
         uploadedPhotoUrls.add(imageUrl);
       }
 

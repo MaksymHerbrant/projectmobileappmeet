@@ -17,4 +17,15 @@ class AppConfig {
     'PLACEHOLDER_AVATAR_URL',
     defaultValue: 'https://ui-avatars.com/api/?name=User',
   );
+
+  /// Порожній за замовчуванням — без DSN Sentry просто не вмикається,
+  /// і застосунок працює як раніше. Для збірок:
+  ///   flutter build apk --dart-define=SENTRY_DSN=https://...
+  static const String sentryDsn = String.fromEnvironment('SENTRY_DSN');
+
+  /// Окремі середовища в Sentry, щоб помилки з дебагу не змішувались із продом.
+  static const String environment = String.fromEnvironment(
+    'APP_ENV',
+    defaultValue: 'development',
+  );
 }

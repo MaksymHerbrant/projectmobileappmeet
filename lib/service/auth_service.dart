@@ -3,6 +3,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 
 import '../config/app_config.dart';
+import '../service/error_reporter.dart';
 
 class AuthService {
   final SupabaseClient _supabase = Supabase.instance.client;
@@ -66,9 +67,9 @@ class AuthService {
         params: {'p_phone': fullPhone},
       );
       return exists == true;
-    } catch (e) {
-      if (kDebugMode) debugPrint('Помилка пошуку в БД');
-      return false;
+    } catch (e, st) {
+      await ErrorReporter.report(e, st, context: 'checkUserExists');
+      rethrow;
     }
   }
 
@@ -174,8 +175,9 @@ class AuthService {
           if (kDebugMode) debugPrint('🚀 FCM токен оновлено');
         }
       }
-    } catch (e) {
-      if (kDebugMode) debugPrint('❌ Помилка оновлення FCM токена');
+    } catch (e, st) {
+      // Пуші — не критичний шлях: без токена застосунок працює далі.
+      ErrorReporter.report(e, st, context: 'updateFcmToken');
     }
   }
 }

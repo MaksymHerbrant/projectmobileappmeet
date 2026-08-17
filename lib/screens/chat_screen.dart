@@ -6,6 +6,7 @@ import '../providers/locale_provider.dart';
 import 'package:dating_app/l10n/gen/app_localizations.dart';
 import 'conversation_screen.dart';
 import '../service/chat_service.dart';
+import '../service/error_reporter.dart';
 
 class ChatScreen extends StatefulWidget {
   const ChatScreen({super.key});
@@ -120,7 +121,25 @@ class _ChatScreenState extends State<ChatScreen> {
                           return const Center(child: CircularProgressIndicator());
                         }
                         if (snapshot.hasError) {
-                          return const Center(child: Text('Помилка завантаження...'));
+                          final failure =
+                              ErrorReporter.toFailure(snapshot.error!);
+                          return Center(
+                            child: Column(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Text(
+                                  failure.message,
+                                  textAlign: TextAlign.center,
+                                  style: const TextStyle(color: Colors.grey),
+                                ),
+                                const SizedBox(height: 12),
+                                TextButton(
+                                  onPressed: () => setState(() {}),
+                                  child: const Text('Спробувати ще раз'),
+                                ),
+                              ],
+                            ),
+                          );
                         }
 
                         final conversations = snapshot.data ?? [];

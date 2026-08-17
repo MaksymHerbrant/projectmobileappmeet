@@ -4,6 +4,7 @@ import '../models/user_profile.dart';
 import '../models/event.dart';
 import '../service/chat_service.dart';
 import '../service/notification_service.dart';
+import '../service/error_reporter.dart';
 
 class VectorUtils {
   static const List<String> allInterests = [
@@ -65,8 +66,8 @@ class MatchesService {
       return List<Map<String, dynamic>>.from(response)
           .map((data) => UserProfile.fromMap(data))
           .toList();
-    } catch (e) {
-      if (kDebugMode) debugPrint('getPotentialMatches: $e');
+    } catch (e, st) {
+      ErrorReporter.report(e, st, context: 'getPotentialMatches');
       return [];
     }
   }
@@ -115,8 +116,8 @@ class MatchesService {
 
       return data.map((d) => UserProfile.fromMap(d)).toList();
       
-    } catch (e) {
-      if (kDebugMode) debugPrint('getSmartMatches: $e');
+    } catch (e, st) {
+      ErrorReporter.report(e, st, context: 'getSmartMatches');
       return await getPotentialMatches();
     }
   }
@@ -147,8 +148,8 @@ class MatchesService {
         );
       }
       return matched;
-    } catch (e) {
-      if (kDebugMode) debugPrint('recordSwipe: $e');
+    } catch (e, st) {
+      ErrorReporter.report(e, st, context: 'recordSwipe');
       rethrow;
     }
   }
@@ -174,8 +175,8 @@ class MatchesService {
           'like_id': item['id'],
         };
       }).toList();
-    } catch (e) {
-      if (kDebugMode) debugPrint('getIncomingRequests: $e');
+    } catch (e, st) {
+      ErrorReporter.report(e, st, context: 'getIncomingRequests');
       return [];
     }
   }
@@ -194,8 +195,8 @@ class MatchesService {
       return List<Map<String, dynamic>>.from(response)
           .map((data) => UserProfile.fromMap(data))
           .toList();
-    } catch (e) {
-      if (kDebugMode) debugPrint('searchUsersByName: $e');
+    } catch (e, st) {
+      ErrorReporter.report(e, st, context: 'searchUsersByName');
       return [];
     }
   }
@@ -226,8 +227,8 @@ class MatchesService {
       return List<Map<String, dynamic>>.from(response)
           .map((data) => Event.fromMap(data))
           .toList();
-    } catch (e) {
-      if (kDebugMode) debugPrint('getPotentialEvents: $e');
+    } catch (e, st) {
+      ErrorReporter.report(e, st, context: 'getPotentialEvents');
       return [];
     }
   }
@@ -278,8 +279,8 @@ class MatchesService {
 
       return data.map((d) => Event.fromMap(d)).toList();
 
-    } catch (e) {
-      if (kDebugMode) debugPrint('getSmartEvents: $e');
+    } catch (e, st) {
+      ErrorReporter.report(e, st, context: 'getSmartEvents');
       return await getPotentialEvents();
     }
   }
@@ -301,8 +302,8 @@ class MatchesService {
           'message': message,
         });
       }
-    } catch (e) {
-      if (kDebugMode) debugPrint('recordEventSwipe: $e');
+    } catch (e, st) {
+      ErrorReporter.report(e, st, context: 'recordEventSwipe');
       rethrow;
     }
   }
@@ -331,8 +332,8 @@ class MatchesService {
       final String newEventId = response['id'];
       final String? groupPhoto = event.photos.isNotEmpty ? event.photos.first : null;
       await ChatService().createEventGroupChat(newEventId, event.title, groupPhoto);
-    } catch (e) {
-      if (kDebugMode) debugPrint('createEvent: $e');
+    } catch (e, st) {
+      ErrorReporter.report(e, st, context: 'createEvent');
       rethrow;
     }
   }
@@ -350,8 +351,8 @@ class MatchesService {
       return List<Map<String, dynamic>>.from(response)
           .map((e) => Event.fromMap(e))
           .toList();
-    } catch (e) {
-      if (kDebugMode) debugPrint('getMyEvents: $e');
+    } catch (e, st) {
+      ErrorReporter.report(e, st, context: 'getMyEvents');
       return [];
     }
   }
@@ -379,8 +380,8 @@ class MatchesService {
         result.putIfAbsent(eventId, () => []).add(UserProfile.fromMap(profileData));
       }
       return result;
-    } catch (e) {
-      if (kDebugMode) debugPrint('getEventLikes: $e');
+    } catch (e, st) {
+      ErrorReporter.report(e, st, context: 'getEventLikes');
       return {};
     }
   }
@@ -401,8 +402,8 @@ class MatchesService {
           'request_id': item['id'],
         };
       }).toList();
-    } catch (e) {
-      if (kDebugMode) debugPrint('getRequestsForEvent: $e');
+    } catch (e, st) {
+      ErrorReporter.report(e, st, context: 'getRequestsForEvent');
       return [];
     }
   }
@@ -432,8 +433,8 @@ class MatchesService {
           'acceptedAt': item['created_at'] != null ? DateTime.parse(item['created_at']) : null,
         };
       }).toList();
-    } catch (e) {
-      if (kDebugMode) debugPrint('getEventInvitations: $e');
+    } catch (e, st) {
+      ErrorReporter.report(e, st, context: 'getEventInvitations');
       return [];
     }
   }
@@ -465,8 +466,8 @@ class MatchesService {
         title: "Твій запит прийнято! 🎉",
         body: "Тепер ви друзі. Почніть спілкування зараз!",
       );
-    } catch (e) {
-      if (kDebugMode) debugPrint('acceptLike: $e');
+    } catch (e, st) {
+      ErrorReporter.report(e, st, context: 'acceptLike');
       rethrow;
     }
   }
@@ -474,8 +475,8 @@ class MatchesService {
   Future<void> rejectLike(String likeId) async {
     try {
       await _supabase.from('likes').delete().eq('id', likeId);
-    } catch (e) {
-      if (kDebugMode) debugPrint('rejectLike: $e');
+    } catch (e, st) {
+      ErrorReporter.report(e, st, context: 'rejectLike');
       rethrow;
     }
   }
@@ -505,8 +506,8 @@ class MatchesService {
   Future<void> updateInvitationStatus(String invitationId, String status) async {
     try {
       await _supabase.from('event_participants').update({'status': status}).eq('id', invitationId);
-    } catch (e) {
-      if (kDebugMode) debugPrint('updateInvitationStatus: $e');
+    } catch (e, st) {
+      ErrorReporter.report(e, st, context: 'updateInvitationStatus');
       rethrow;
     }
   }

@@ -4,7 +4,8 @@ import 'package:provider/provider.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:firebase_core/firebase_core.dart'; 
 import 'firebase_options.dart'; 
-import 'package:firebase_messaging/firebase_messaging.dart'; 
+import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:sentry_flutter/sentry_flutter.dart';
 
 import 'l10n/gen/app_localizations.dart';
 import 'providers/locale_provider.dart';
@@ -25,7 +26,7 @@ Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
   debugPrint("Фонове повідомлення: ${message.messageId}");
 }
 
-void main() async {
+Future<void> _bootstrap() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   await Firebase.initializeApp(
@@ -47,6 +48,27 @@ void main() async {
       ],
       child: const MyApp(), // Ось тут викликається MyApp
     ),
+  );
+}
+
+void main() async {
+  // Без SENTRY_DSN застосунок стартує звичайним шляхом — інтеграція вмикається
+  // лише тоді, коли ключ передали через --dart-define.
+  if (AppConfig.sentryDsn.isEmpty) {
+    await _bootstrap();
+    return;
+  }
+
+  await SentryFlutter.init(
+    (options) {
+      options.dsn = AppConfig.sentryDsn;
+      options.environment = AppConfig.environment;
+      // Трасування лише частини сесій: повне з'їдає квоту за дні.
+      options.tracesSampleRate = 0.2;
+      // У профілі є телефон і фото — жодних тіл запитів і PII у звітах.
+      options.sendDefaultPii = false;
+    },
+    appRunner: _bootstrap,
   );
 }
 

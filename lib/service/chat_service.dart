@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:flutter/foundation.dart';
 import '../service/notification_service.dart';
+import '../service/error_reporter.dart';
 
 class ChatService {
   final _supabase = Supabase.instance.client;
@@ -22,9 +23,9 @@ class ChatService {
     try {
       final response = await _supabase.rpc('get_my_chats');
       return List<Map<String, dynamic>>.from(response as List);
-    } catch (e) {
-      debugPrint("⚠️ Помилка завантаження чатів: $e");
-      return [];
+    } catch (e, st) {
+      ErrorReporter.report(e, st, context: 'fetchMyChats');
+      rethrow;
     }
   }
   void subscribeToPresence(String userId, Function(Set<String>) onUpdate) {
@@ -83,8 +84,8 @@ class ChatService {
         'user1': myId, 'user2': otherUserId
       });
       if (existingRoomId != null) return existingRoomId.toString();
-    } catch (e) {
-      debugPrint("RPC error: $e");
+    } catch (e, st) {
+      ErrorReporter.report(e, st, context: 'findExistingChat');
     }
 
     final roomResponse = await _supabase.from('rooms').insert({
@@ -145,8 +146,10 @@ class ChatService {
           body: content,
         );
       }
-    } catch (e) {
-      debugPrint("❌ ПОМИЛКА В sendMessage: $e"); 
+    } catch (e, st) {
+      // Повідомлення, яке не дійшло, не можна ховати: далі його показує UI.
+      await ErrorReporter.report(e, st, context: 'sendMessage');
+      throw ErrorReporter.toFailure(e);
     }
   }
 
@@ -170,8 +173,9 @@ class ChatService {
         'profile_id': myId,
       });
       
-    } catch (e) {
-      debugPrint("❌ Помилка створення групового чату: $e");
+    } catch (e, st) {
+      await ErrorReporter.report(e, st, context: 'createEventGroupChat');
+      rethrow;
     }
   }
 
@@ -194,8 +198,9 @@ class ChatService {
           'profile_id': userId,
         });
       }
-    } catch (e) {
-      debugPrint("❌ Помилка додавання в груповий чат: $e");
+    } catch (e, st) {
+      await ErrorReporter.report(e, st, context: 'addUserToEventChat');
+      rethrow;
     }
   }
 
@@ -210,8 +215,9 @@ class ChatService {
           .eq('room_id', roomId)
           .neq('sender_id', myId)
           .eq('is_read', false);
-    } catch (e) {
-      debugPrint('Error marking messages as read: $e');
+    } catch (e, st) {
+      // Некритично: прочитаність оновиться при наступному відкритті чату.
+      ErrorReporter.report(e, st, context: 'markMessagesAsRead');
     }
   }
 
