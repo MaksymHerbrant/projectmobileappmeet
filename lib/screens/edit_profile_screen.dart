@@ -1,4 +1,4 @@
-import 'dart:io';
+import '../models/picked_photo.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -34,7 +34,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
 
   // Фото
   List<String> _existingPhotoUrls = []; 
-  List<File> _newPhotoFiles = [];       
+  List<PickedPhoto> _newPhotoFiles = [];       
   bool _isUploading = false;            
 
   // Хобі
@@ -102,9 +102,9 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     );
 
     if (image != null) {
-      setState(() {
-        _newPhotoFiles.add(File(image.path));
-      });
+      final photo = await PickedPhoto.fromXFile(image);
+      if (!mounted) return;
+      setState(() => _newPhotoFiles.add(photo));
     }
   }
 
@@ -114,7 +114,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     });
   }
 
-  void _removeNewPhoto(File file) {
+  void _removeNewPhoto(PickedPhoto file) {
     setState(() {
       _newPhotoFiles.remove(file);
     });
@@ -126,15 +126,19 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
 
     for (var i = 0; i < _newPhotoFiles.length; i++) {
       try {
-        final file = _newPhotoFiles[i];
-        final fileExt = file.path.split('.').last;
-        final fileName = '${DateTime.now().millisecondsSinceEpoch}_$i.$fileExt';
+        final photo = _newPhotoFiles[i];
+        final fileName =
+            '${DateTime.now().millisecondsSinceEpoch}_$i.${photo.extension}';
         final filePath = '$userId/$fileName';
 
-        await _supabase.storage.from('avatars').upload(
+        await _supabase.storage.from('avatars').uploadBinary(
           filePath,
-          file,
-          fileOptions: const FileOptions(cacheControl: '3600', upsert: false),
+          photo.bytes,
+          fileOptions: FileOptions(
+            cacheControl: '3600',
+            upsert: false,
+            contentType: photo.mimeType,
+          ),
         );
 
         final imageUrl = _supabase.storage.from('avatars').getPublicUrl(filePath);
@@ -342,7 +346,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
           spacing: 10, runSpacing: 10,
           children: [
             ..._existingPhotoUrls.map((url) => _buildPhotoItem(image: Image.network(url, fit: BoxFit.cover), onRemove: () => _removeExistingPhoto(url))),
-            ..._newPhotoFiles.map((file) => _buildPhotoItem(image: Image.file(file, fit: BoxFit.cover), onRemove: () => _removeNewPhoto(file))),
+            ..._newPhotoFiles.map((file) => _buildPhotoItem(image: Image.memory(file.bytes, fit: BoxFit.cover), onRemove: () => _removeNewPhoto(file))),
             if ((_existingPhotoUrls.length + _newPhotoFiles.length) < 6)
               GestureDetector(
                 onTap: _pickImage,

@@ -6,7 +6,19 @@ import { JWT } from "npm:google-auth-library@9.6.3";
 // Функція приймає receiver_id, а не готовий токен. Токен читається тут, під
 // service_role, і ніколи не потрапляє на клієнт. Викликач мусить передати свій
 // user JWT — анонімного ключа недостатньо.
+// Веб-збірка ходить сюди з іншого походження, тому без preflight і заголовків
+// браузер блокує виклик ще до того, як функція запуститься.
+const CORS = {
+  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
+  "Access-Control-Allow-Methods": "POST, OPTIONS",
+};
+
 serve(async (req) => {
+  if (req.method === "OPTIONS") {
+    return new Response("ok", { headers: CORS });
+  }
+
   try {
     if (req.method !== "POST") {
       return json({ error: "Method not allowed" }, 405);
@@ -123,6 +135,6 @@ serve(async (req) => {
 function json(payload: unknown, status: number) {
   return new Response(JSON.stringify(payload), {
     status,
-    headers: { "Content-Type": "application/json" },
+    headers: { ...CORS, "Content-Type": "application/json" },
   });
 }

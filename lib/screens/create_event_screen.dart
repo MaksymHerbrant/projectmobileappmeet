@@ -1,4 +1,4 @@
-import 'dart:io';
+import '../models/picked_photo.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:image_picker/image_picker.dart';
@@ -46,7 +46,7 @@ class _CreateEventScreenState extends State<CreateEventScreen> with TickerProvid
   
   // Локальні фотографії
   final ImagePicker _picker = ImagePicker();
-  List<File> _selectedLocalPhotos = [];
+  List<PickedPhoto> _selectedLocalPhotos = [];
 
   final List<String> _availableTags = [
     'Музика', 'Танці', 'Спорт', 'Подорожі', 'Освіта', 'Вечірка',
@@ -103,9 +103,9 @@ class _CreateEventScreenState extends State<CreateEventScreen> with TickerProvid
       );
       
       if (image != null) {
-        setState(() {
-          _selectedLocalPhotos.add(File(image.path));
-        });
+        final photo = await PickedPhoto.fromXFile(image);
+        if (!mounted) return;
+        setState(() => _selectedLocalPhotos.add(photo));
       }
     } catch (e) {
       debugPrint("Помилка вибору фото: $e");
@@ -559,7 +559,7 @@ class _CreateEventScreenState extends State<CreateEventScreen> with TickerProvid
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(16),
                       image: DecorationImage(
-                        image: FileImage(_selectedLocalPhotos[index]),
+                        image: MemoryImage(_selectedLocalPhotos[index].bytes),
                         fit: BoxFit.cover,
                       ),
                     ),
@@ -779,15 +779,18 @@ class _CreateEventScreenState extends State<CreateEventScreen> with TickerProvid
       final userId = supabase.auth.currentUser!.id;
 
       for (var i = 0; i < _selectedLocalPhotos.length; i++) {
-        final imageFile = _selectedLocalPhotos[i];
-        final fileExt = imageFile.path.split('.').last;
+        final photo = _selectedLocalPhotos[i];
         // Тека користувача — обов'язкова: політика сховища дозволяє запис лише
         // в теку, названу власним uid. Індекс у назві не дає двом фото
         // затерти одне одного в межах тієї ж мілісекунди.
         final filePath =
-            '$userId/${DateTime.now().millisecondsSinceEpoch}_$i.$fileExt';
+            '$userId/${DateTime.now().millisecondsSinceEpoch}_$i.${photo.extension}';
 
-        await supabase.storage.from('event_photos').upload(filePath, imageFile);
+        await supabase.storage.from('event_photos').uploadBinary(
+              filePath,
+              photo.bytes,
+              fileOptions: FileOptions(contentType: photo.mimeType),
+            );
 
         final imageUrl = supabase.storage.from('event_photos').getPublicUrl(filePath);
         uploadedPhotoUrls.add(imageUrl);
