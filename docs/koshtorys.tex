@@ -1,0 +1,508 @@
+% =============================================================================
+%  Кошторис Meet — обсяг робіт, терміни, витрати
+%
+%  Компілювати XeLaTeX:
+%      tectonic docs/koshtorys.tex
+%      # або:  xelatex docs/koshtorys.tex   (двічі, заради змісту)
+%
+%  Шрифти беруться з дистрибутиву TeX (Noto Sans), а не з системи,
+%  тож файл однаково збирається на macOS, Linux та в Overleaf.
+% =============================================================================
+
+\documentclass[11pt,a4paper]{article}
+
+\usepackage{fontspec}
+\usepackage{polyglossia}
+\setdefaultlanguage{ukrainian}
+
+\setmainfont{NotoSans-Regular.ttf}[
+  BoldFont       = NotoSans-Bold.ttf,
+  ItalicFont     = NotoSans-Italic.ttf,
+  BoldItalicFont = NotoSans-BoldItalic.ttf,
+  Ligatures      = TeX,
+]
+\setmonofont{NotoSansMono-Regular.ttf}[Scale=0.86]
+
+\usepackage[a4paper,top=22mm,bottom=22mm,left=20mm,right=20mm]{geometry}
+\usepackage[table]{xcolor}
+\usepackage{booktabs}
+\usepackage{tabularx}
+\usepackage{array}
+\usepackage{ragged2e}
+\usepackage{enumitem}
+\usepackage{titlesec}
+\usepackage[most]{tcolorbox}
+\usepackage{fancyhdr}
+\usepackage{hyperref}
+\usepackage{longtable}
+\usepackage{xltabular}
+
+% ---------- палітра (та сама, що й у веб-версії) ----------
+\definecolor{ink}{HTML}{121A18}
+\definecolor{ink2}{HTML}{33413D}
+\definecolor{muted}{HTML}{64716D}
+\definecolor{line}{HTML}{CDD5D1}
+\definecolor{linesoft}{HTML}{DDE3E0}
+\definecolor{surface}{HTML}{F5F7F6}
+\definecolor{accent}{HTML}{2C6A5B}
+\definecolor{accentsoft}{HTML}{E4EEEA}
+\definecolor{critical}{HTML}{9E2A2A}
+\definecolor{criticalsoft}{HTML}{F5E4E1}
+\definecolor{warn}{HTML}{806011}
+
+\hypersetup{
+  colorlinks = true, linkcolor = accent, urlcolor = accent,
+  pdftitle   = {Кошторис Meet},
+  pdfsubject = {Обсяг робіт, терміни та витрати до релізу},
+}
+
+\color{ink2}
+
+% ---------- заголовки ----------
+\titleformat{\section}
+  {\color{ink}\bfseries\Large}{\thesection.}{0.5em}{}
+\titlespacing*{\section}{0pt}{18pt}{6pt}
+
+\titleformat{\subsection}
+  {\color{ink}\bfseries\large}{}{0em}{}
+\titlespacing*{\subsection}{0pt}{14pt}{4pt}
+
+\titleformat{\subsubsection}
+  {\color{ink}\bfseries\normalsize}{}{0em}{}
+\titlespacing*{\subsubsection}{0pt}{10pt}{3pt}
+
+% ---------- колонтитули ----------
+\pagestyle{fancy}
+\fancyhf{}
+\renewcommand{\headrulewidth}{0pt}
+\renewcommand{\footrulewidth}{0.4pt}
+\renewcommand{\footrule}{\color{line}\hrule height 0.4pt\vspace{4pt}}
+\fancyfoot[L]{\color{muted}\footnotesize Кошторис Meet · 17 серпня 2026}
+\fancyfoot[R]{\color{muted}\footnotesize \thepage}
+
+% ---------- таблиці ----------
+\renewcommand{\arraystretch}{1.35}
+\arrayrulecolor{linesoft}
+\setlength{\tabcolsep}{6pt}
+
+\newcolumntype{L}[1]{>{\RaggedRight\arraybackslash}p{#1}}
+\newcolumntype{R}[1]{>{\RaggedLeft\arraybackslash}p{#1}}
+\newcolumntype{Y}{>{\RaggedRight\arraybackslash}X}
+% перша колонка таблиць: без переносів, інакше короткі назви ріжуться навпіл
+\newcolumntype{N}[1]{>{\RaggedRight\arraybackslash\hyphenpenalty=10000\exhyphenpenalty=10000}p{#1}}
+
+% шапка таблиці
+\newcommand{\thead}[1]{{\color{muted}\footnotesize\bfseries #1}}
+
+% ---------- позначки типу роботи ----------
+\newcommand{\must}{\colorbox{criticalsoft}{\color{critical}\scriptsize\bfseries\,ТРЕБА\,}}
+\newcommand{\rec}{\colorbox{accentsoft}{\color{accent}\scriptsize\bfseries\,ВАРТО\,}}
+
+% ---------- врізки ----------
+\newtcolorbox{note}[1][]{
+  enhanced, breakable, colback=surface, colframe=line,
+  boxrule=0.4pt, leftrule=2pt, borderline west={2pt}{0pt}{critical},
+  left=10pt, right=10pt, top=8pt, bottom=8pt, arc=0pt, outer arc=0pt,
+  fontupper=\normalsize, #1
+}
+\newtcolorbox{notepos}[1][]{
+  enhanced, breakable, colback=surface, colframe=line,
+  boxrule=0.4pt, borderline west={2pt}{0pt}{accent},
+  left=10pt, right=10pt, top=8pt, bottom=8pt, arc=0pt, outer arc=0pt,
+  fontupper=\normalsize, #1
+}
+\newcommand{\notelbl}[2]{{\color{#1}\footnotesize\bfseries\MakeUppercase{#2}}\par\vspace{3pt}}
+
+\setlist[itemize]{leftmargin=1.2em, itemsep=2pt, topsep=3pt}
+
+\begin{document}
+
+% =============================================================================
+%  Титул
+% =============================================================================
+\begin{center}
+  {\color{muted}\footnotesize\bfseries ОБСЯГ РОБІТ · ТЕРМІНИ · ВИТРАТИ}\\[10pt]
+  {\color{ink}\fontsize{30}{34}\selectfont\bfseries Кошторис Meet}\\[12pt]
+  \begin{minipage}{0.86\textwidth}
+    \centering
+    Що залишається зробити, щоб додаток вийшов у App~Store і Google~Play:
+    обсяг за напрямами, оцінка в робочих днях і повний перелік витрат на
+    сервіси --- разово та щомісяця.
+  \end{minipage}\\[14pt]
+  {\color{muted}\footnotesize 17 серпня 2026 \quad·\quad Оцінка для одного розробника \quad·\quad Ціни в USD}
+\end{center}
+
+\vspace{6pt}
+{\color{ink}\hrule height 1.2pt}
+\vspace{12pt}
+
+% ---------- підсумкові показники ----------
+\begin{center}
+\setlength{\tabcolsep}{10pt}
+\begin{tabular}{ccccc}
+  {\color{ink}\Large\bfseries 23 дн} &
+  {\color{accent}\Large\bfseries 37 дн} &
+  {\color{ink}\Large\bfseries 7--9} &
+  {\color{ink}\Large\bfseries \$136} &
+  {\color{ink}\Large\bfseries \$25+} \\[2pt]
+  {\color{muted}\scriptsize мінімум} &
+  {\color{muted}\scriptsize рекомендовано} &
+  {\color{muted}\scriptsize тижнів} &
+  {\color{muted}\scriptsize разово} &
+  {\color{muted}\scriptsize на місяць} \\
+\end{tabular}
+\end{center}
+
+\vspace{10pt}
+{\color{line}\hrule height 0.4pt}
+
+% =============================================================================
+\section{Що входить у кошторис}
+
+Документ описує \textbf{лише те, що залишається зробити}. Роботи з бекенду,
+безпеки даних, продуктивності та алгоритму підбору вже виконані й у кошторис
+не входять.
+
+Оцінки --- у робочих днях однієї людини на повній зайнятості. Календарні
+терміни довші за суму днів, бо частина процесів чекає на зовнішні сторони:
+перевірку в магазинах і обов'язковий період тестування.
+
+\begin{note}
+\notelbl{critical}{Головне обмеження в графіку}
+Google вимагає від нових особистих акаунтів розробника \textbf{12 тестерів
+протягом 14 днів поспіль} до першого публічного релізу. Це календарний час,
+який не можна прискорити грошима чи людьми --- тестування треба запускати на
+початку останнього етапу, а не в кінці.
+\end{note}
+
+% =============================================================================
+\section{Обсяг за напрямами}
+
+\subsection{Інтерфейс і досвід користувача \quad {\color{accent}12 днів}}
+
+\begin{xltabular}{\textwidth}{N{3.7cm} Y R{1.1cm} L{1.5cm}}
+\toprule
+\thead{Робота} & \thead{Що змінюється і навіщо} & \thead{Днів} & \thead{Тип} \\
+\midrule
+
+\textbf{Онбординг} &
+Обов'язковий крок після реєстрації: фото, інтереси, дозвіл на геолокацію.
+Зараз людина потрапляє одразу в стрічку без жодних даних про себе --- а отже
+отримує найгірші можливі рекомендації рівно в той момент, коли вирішує,
+залишатись чи ні. & 3 & \must \\
+
+\textbf{Єдина тема, темний режим} &
+Кольори зараз прописані в кожному екрані окремо. Це і причина, чому темний
+режим виглядає зламано на сучасних телефонах, і причина, чому будь-яка зміна
+оформлення коштує дорого. & 3 & \rec \\
+
+\textbf{Локалізація} &
+68 рядків жорстко вписані українською просто в екрани, включно з текстами
+сповіщень. Іспанська, польська та португальська недоперекладені ---
+іноземець бачить наполовину українську програму. & 3 & \rec \\
+
+\textbf{Порожні стани та завантаження} &
+Skeleton замість спінера дає відчуття вдвічі швидшого застосунку без жодної
+оптимізації. Кожен порожній екран має пропонувати наступний крок, а не
+повідомляти, що нічого немає. & 2 & \rec \\
+
+\textbf{Розділи-заглушки} &
+«Сповіщення» і «Приватність» у налаштуваннях --- текст-заповнювач. Рев'юер
+магазину це відкриє. & 1 & \must \\
+
+\bottomrule
+\end{xltabular}
+
+\subsection{Довіра, модерація, безпека людей \quad {\color{accent}13 днів}}
+
+Це не побажання, а формальна вимога Apple до будь-якого застосунку з
+користувацьким контентом. Без неї подача буде відхилена.
+
+\begin{xltabular}{\textwidth}{N{3.7cm} Y R{1.1cm} L{1.5cm}}
+\toprule
+\thead{Робота} & \thead{Що змінюється і навіщо} & \thead{Днів} & \thead{Тип} \\
+\midrule
+
+\textbf{Скарги і блокування} &
+Зараз кнопка «Заблокувати» просто відхиляє заявку --- реального блокування не
+існує. Потрібні скарги, блокування та фільтрація заблокованих з усіх списків
+і стрічок. & 3 & \must \\
+
+\textbf{Панель модерації} &
+Проста внутрішня сторінка для розгляду скарг. Apple вимагає реакції протягом
+24 годин, а без інструмента це фізично неможливо. & 2 & \must \\
+
+\textbf{Верифікація профілю} &
+Селфі з бейджем у профілі. Найсильніший захист від ботів і фейків, головний
+аргумент довіри для користувачів і вагомий плюс при перевірці магазином. & 3 & \must \\
+
+\textbf{Вікове обмеження} &
+Дата народження збирається, але перевірки на 18+ немає. Для продукту з
+офлайн-зустрічами це критично і поза магазинами. & 1 & \must \\
+
+\textbf{Безпека зустрічей} &
+Поділитись локацією з другом, тривожна кнопка, підказки про публічні місця.
+Від застосунку, що зводить незнайомців офлайн, це прямо очікують --- і
+користувачі, і рев'юери. & 4 & \rec \\
+
+\bottomrule
+\end{xltabular}
+
+\subsection{Технічна частина \quad {\color{accent}5 днів}}
+
+\begin{xltabular}{\textwidth}{N{3.7cm} Y R{1.1cm} L{1.5cm}}
+\toprule
+\thead{Робота} & \thead{Що змінюється і навіщо} & \thead{Днів} & \thead{Тип} \\
+\midrule
+
+\textbf{Захист фотографій} &
+Зараз фото доступне за прямим посиланням тому, хто його має. Перехід на
+посилання з обмеженим строком дії закриває це остаточно. & 2 & \rec \\
+
+\textbf{Підвантаження стрічки} &
+Зараз стрічка обмежена однією порцією: дійшов до кінця --- і все до
+перезапуску застосунку. Для продукту, що живе з переглядів, це прямо ріже
+утримання. & 1,5 & \must \\
+
+\textbf{Моніторинг помилок} &
+Підключення та перевірка збору збоїв. Механізм готовий, потрібен обліковий
+запис і налаштування. & 0,5 & \must \\
+
+\textbf{Регламентні завдання} &
+Автоматичне оновлення ваг інтересів і очищення службових таблиць за
+розкладом. & 1 & \rec \\
+
+\bottomrule
+\end{xltabular}
+
+\subsection{Випуск у магазини \quad {\color{accent}7 днів}}
+
+\begin{xltabular}{\textwidth}{N{3.7cm} Y R{1.1cm} L{1.5cm}}
+\toprule
+\thead{Робота} & \thead{Що змінюється і навіщо} & \thead{Днів} & \thead{Тип} \\
+\midrule
+
+\textbf{Айдентика застосунку} &
+Назва, іконка, заставка, ідентифікатор. Зараз усе тимчасове: застосунок
+називається «Dating App». & 2 & \must \\
+
+\textbf{Підпис і дозволи} &
+Ключ підпису релізу --- зараз збірка підписана тимчасовим ключем і Google її
+не прийме. Плюс тексти запитів дозволів для iOS, без яких застосунок падає
+при виборі фото. & 1 & \must \\
+
+\textbf{Юридичні сторінки} &
+Політика конфіденційності, умови використання, публічна сторінка видалення
+акаунта. Усі три --- обов'язкові посилання при подачі. & 1 & \must \\
+
+\textbf{Декларації про дані} &
+Анкети про збір даних в обох магазинах: локація, фото, телефон,
+ідентифікатори. Помилка тут --- відхилення або зняття з публікації пізніше. & 1 & \must \\
+
+\textbf{Матеріали і подача} &
+Скріншоти під потрібні розміри екранів, описи, збірки, завантаження,
+супровід перевірки. & 2 & \must \\
+
+\bottomrule
+\end{xltabular}
+
+% =============================================================================
+\section{Два обсяги на вибір}
+
+\vspace{4pt}
+\noindent
+\begin{minipage}[t]{0.475\textwidth}
+\begin{tcolorbox}[enhanced, colback=surface, colframe=line, boxrule=0.4pt,
+                  arc=0pt, outer arc=0pt, left=10pt, right=10pt, top=9pt, bottom=9pt]
+{\color{muted}\footnotesize\bfseries ВАРІАНТ A · МІНІМУМ}\\[6pt]
+{\color{ink}\LARGE\bfseries 23 дні}\\[2pt]
+{\color{muted}\footnotesize $\approx$ 5 робочих тижнів · подача без відхилення}\\[8pt]
+\begin{itemize}[leftmargin=1em]
+  \item Уся модерація і верифікація
+  \item Онбординг
+  \item Підвантаження стрічки
+  \item Заміна розділів-заглушок
+  \item Захист фотографій, моніторинг
+  \item Повний випуск у магазини
+\end{itemize}
+\vspace{4pt}
+{\color{muted}\footnotesize Застосунок пройде перевірку і працюватиме. Без темного
+режиму, без повної локалізації, без функцій безпеки зустрічей.}
+\end{tcolorbox}
+\end{minipage}
+\hfill
+\begin{minipage}[t]{0.475\textwidth}
+\begin{tcolorbox}[enhanced, colback=surface, colframe=line, boxrule=0.4pt,
+                  arc=0pt, outer arc=0pt, left=10pt, right=10pt, top=9pt, bottom=9pt,
+                  borderline north={2pt}{0pt}{accent}]
+{\color{accent}\footnotesize\bfseries ВАРІАНТ B · РЕКОМЕНДОВАНИЙ}\\[6pt]
+{\color{ink}\LARGE\bfseries 37 днів}\\[2pt]
+{\color{muted}\footnotesize $\approx$ 7,5 робочих тижнів · продукт, а не мінімум}\\[8pt]
+\begin{itemize}[leftmargin=1em]
+  \item Усе з варіанта A
+  \item Єдина тема і темний режим
+  \item Повна локалізація 4 мовами
+  \item Порожні стани і skeleton
+  \item Безпека зустрічей: SOS, локація
+  \item Регламентні завдання
+\end{itemize}
+\vspace{4pt}
+{\color{muted}\footnotesize Різниця в 14 днів --- це те, що відрізняє застосунок,
+який пропустили, від застосунку, яким користуються.}
+\end{tcolorbox}
+\end{minipage}
+
+\vspace{10pt}
+
+\begin{notepos}
+\notelbl{accent}{Якщо треба скоротити}
+Найдешевше відкласти \textbf{темний режим} і \textbf{локалізацію} --- це 6 днів,
+і обидва пункти безболісно робляться після запуску. \textbf{Онбординг
+скорочувати не варто ні за яких умов}: це три дні роботи, які найсильніше
+впливають на те, чи залишиться користувач після першого відкриття.
+\end{notepos}
+
+% =============================================================================
+\section{Календарний план}
+
+За рекомендованим обсягом, з урахуванням очікування на зовнішні сторони.
+
+\vspace{6pt}
+\begin{xltabular}{\textwidth}{N{5.2cm} Y L{2.8cm}}
+\toprule
+\thead{Етап} & \thead{Характер} & \thead{Період} \\
+\midrule
+Модерація і довіра        & робота                                & тижні 1--2 \\
+Інтерфейс                 & робота                                & тижні 3--4 \\
+Технічна частина          & робота                                & тиждень 5 \\
+Айдентика і збірки        & робота                                & тижні 5--6 \\
+Тестування Google         & {\color{warn}очікування, 14 днів поспіль} & тижні 6--8 \\
+Перевірка магазинами      & {\color{warn}очікування}              & тиждень 9 \\
+\bottomrule
+\end{xltabular}
+
+\vspace{6pt}
+Обов'язкові 14 днів тестування Google запускаються паралельно зі збірками,
+тому загальний строк --- \textbf{7--9 тижнів}, а не сума всіх етапів.
+
+% =============================================================================
+\section{Витрати на сервіси}
+
+\subsection{Разові платежі}
+
+\begin{xltabular}{\textwidth}{N{5cm} Y R{2.6cm}}
+\toprule
+\thead{Стаття} & \thead{Коментар} & \thead{Вартість} \\
+\midrule
+\textbf{Google Play Console}     & Одноразово, назавжди & \$25 \\
+\textbf{Apple Developer Program} & Щорічно; без нього публікація в App Store неможлива & \$99 / рік \\
+\textbf{Домен}                   & Для юридичних сторінок і сторінки видалення акаунта & $\sim$\$12 / рік \\
+\midrule
+{\color{ink}\bfseries Разом на старті} & & {\color{ink}\bfseries \$136} \\
+\bottomrule
+\end{xltabular}
+
+\subsection{Щомісячні витрати за масштабом}
+
+Три сценарії: закрита бета, перше місто, зростання.
+
+\begin{xltabular}{\textwidth}{Y R{2.5cm} R{2.5cm} R{2.7cm}}
+\toprule
+\thead{Стаття} & \thead{100 активних} & \thead{1 000 активних} & \thead{10 000 активних} \\
+\midrule
+\textbf{База даних і сховище} \newline {\color{muted}\footnotesize Supabase}
+  & \$0 & \$25 & \$25 + трафік \\
+\textbf{Трафік на фото} \newline {\color{muted}\footnotesize понад включений обсяг}
+  & \$0 & \$0--20 & \$80--250 \\
+\textbf{SMS-підтвердження} \newline {\color{muted}\footnotesize головна змінна стаття}
+  & \$5--10 & \$50--90 & \$300--700 \\
+\textbf{Моніторинг помилок} \newline {\color{muted}\footnotesize Sentry}
+  & \$0 & \$0--26 & \$26 \\
+\textbf{Сповіщення} \newline {\color{muted}\footnotesize Firebase}
+  & \$0 & \$0 & \$0 \\
+\midrule
+{\color{ink}\bfseries На місяць}
+  & {\color{ink}\bfseries \$5--10} & {\color{ink}\bfseries \$75--160} & {\color{ink}\bfseries \$430--1000} \\
+\bottomrule
+\end{xltabular}
+
+\vspace{4pt}
+{\color{muted}\footnotesize Ціни зовнішніх сервісів наведено орієнтовно станом на
+дату документа і їх варто звірити при оформленні. «Активний користувач» тут ---
+людина, яка відкриває застосунок кілька разів на місяць.}
+
+\vspace{8pt}
+\begin{note}
+\notelbl{critical}{Найбільший ризик у витратах}
+\textbf{SMS домінують над усім іншим разом узятим} і зростають лінійно з
+реєстраціями. Один код підтвердження коштує помітних грошей, а вартість SMS
+на Україну --- одна з найвищих у Європі.
+
+\vspace{4pt}
+Рішення просте й окупається одразу: додати \textbf{вхід через Google та Apple}
+і залишити SMS запасним варіантом. Більшість людей обирає вхід у два дотики,
+і стаття витрат скорочується в рази. Робота --- \textbf{2 дні}, і вона
+економить більше, ніж усі інші оптимізації разом.
+
+\vspace{4pt}
+Вхід через Apple, до речі, і так стане обов'язковим, щойно в застосунку
+з'явиться будь-який інший сторонній вхід --- це вимога App~Store.
+\end{note}
+
+\subsection{Що не потребує оплати}
+
+Сповіщення, зберігання коду, сторінки політики конфіденційності та видалення
+акаунта, середовище розробки, збірка застосунків. Усе це покривається
+безкоштовними тарифами й не з'явиться в рахунках навіть при зростанні.
+
+\subsection{Чого немає в кошторисі}
+
+\begin{itemize}
+  \item \textbf{Просування} --- залучення перших користувачів планується окремо
+  \item \textbf{Юридичний супровід} --- політику конфіденційності можна зробити
+        за шаблоном, але перевірка юристом коштуватиме окремо
+  \item \textbf{Дизайнер} --- якщо іконку та фірмовий стиль замовляти на стороні,
+        це \$100--400 одноразово
+  \item \textbf{Розумніший підбір за описом профілю} --- можлива наступна
+        ітерація, орієнтовно 4 дні роботи і одиниці доларів на місяць
+\end{itemize}
+
+% =============================================================================
+\section{Припущення і ризики}
+
+\begin{xltabular}{\textwidth}{N{5.4cm} Y}
+\toprule
+\thead{Припущення} & \thead{Що станеться, якщо не справдиться} \\
+\midrule
+\textbf{Один розробник на повній зайнятості} &
+При частковій зайнятості календарний строк зростає пропорційно;
+сума днів не змінюється. \\
+
+\textbf{Перевірка з першого разу} &
+Відхилення App Store додає 3--7 днів на виправлення й повторну подачу.
+Перша подача проходить із першого разу приблизно в половині випадків. \\
+
+\textbf{Юридичні тексти за шаблоном} &
+Якщо потрібен супровід юриста --- плюс кілька днів очікування і окремий
+рахунок. \\
+
+\textbf{Запуск в одному місті} &
+Витрати на SMS і трафік рахувалися для концентрованої аудиторії. Ширший
+запуск підвищує витрати, не підвищуючи щільності --- а саме щільність
+визначає, чи працює продукт. \\
+\bottomrule
+\end{xltabular}
+
+\vspace{12pt}
+
+\begin{notepos}
+\notelbl{accent}{Підсумок}
+\textbf{Рекомендований обсяг:} 37 робочих днів, 7--9 тижнів календарно.\\
+\textbf{Витрати на старті:} \$136 разово, від \$25 на місяць.\\
+\textbf{При тисячі активних користувачів:} \$75--160 на місяць, з яких
+більшість --- SMS.\\
+\textbf{Найкраща інвестиція в кошторисі:} 2 дні на вхід через Google та Apple ---
+вони окуповуються з першої сотні реєстрацій.
+\end{notepos}
+
+\end{document}

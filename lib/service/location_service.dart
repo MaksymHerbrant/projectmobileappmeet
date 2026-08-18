@@ -3,37 +3,94 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 
 import 'error_reporter.dart';
 
+/// Чим саме закінчилась спроба оновити локацію.
+///
+/// Різні причини потребують різних дій від користувача: увімкнути геолокацію
+/// в системі, дати дозвіл, або зайти в налаштування, якщо дозвіл відхилено
+/// назавжди і система більше не питатиме.
+enum LocationOutcome {
+  updated,
+  serviceDisabled,
+  denied,
+  deniedForever,
+  failed,
+}
+
+extension LocationOutcomeMessage on LocationOutcome {
+  String get message => switch (this) {
+        LocationOutcome.updated =>
+          'Локацію оновлено',
+        LocationOutcome.serviceDisabled =>
+          'Геолокація вимкнена в налаштуваннях телефона',
+        LocationOutcome.denied =>
+          'Без дозволу на геолокацію ми не зможемо показати людей поруч',
+        LocationOutcome.deniedForever =>
+          'Дозвіл на геолокацію відхилено. Увімкніть його в налаштуваннях телефона',
+        LocationOutcome.failed =>
+          'Не вдалося визначити місце. Спробуйте ще раз',
+      };
+
+  bool get isSuccess => this == LocationOutcome.updated;
+
+  /// Чи має сенс показувати кнопку «Відкрити налаштування».
+  bool get needsSettings =>
+      this == LocationOutcome.deniedForever ||
+      this == LocationOutcome.serviceDisabled;
+}
+
 /// Оновлення власної позиції.
 ///
-/// Раніше координати записувались лише тоді, коли користувач вручну зберігав
-/// профіль — тобто зазвичай один раз за весь час. Для продукту «друзі поруч»
-/// це означало, що радіус рахувався від місця, де людина була колись.
+/// Координати пишуться через RPC `update_my_location`, а не прямо в таблицю:
+/// вона заповнює і `geo` для просторового пошуку, і `location_point` для
+/// сумісності, і відмічає активність — усе однією операцією.
 class LocationService {
   final _supabase = Supabase.instance.client;
 
-  /// Чи готовий користувач ділитись позицією. Не запитує дозвіл повторно,
-  /// якщо його вже відхилили назавжди.
-  Future<bool> hasPermission() async {
-    if (!await Geolocator.isLocationServiceEnabled()) return false;
+  Future<LocationOutcome> _ensurePermission() async {
+    if (!await Geolocator.isLocationServiceEnabled()) {
+      return LocationOutcome.serviceDisabled;
+    }
+
     var permission = await Geolocator.checkPermission();
     if (permission == LocationPermission.denied) {
       permission = await Geolocator.requestPermission();
     }
+
+    return switch (permission) {
+      LocationPermission.always ||
+      LocationPermission.whileInUse =>
+        LocationOutcome.updated,
+      LocationPermission.deniedForever => LocationOutcome.deniedForever,
+      _ => LocationOutcome.denied,
+    };
+  }
+
+  /// Чи можемо ми взагалі читати позицію — без запиту дозволу наново.
+  Future<bool> hasPermission() async {
+    if (!await Geolocator.isLocationServiceEnabled()) return false;
+    final permission = await Geolocator.checkPermission();
     return permission == LocationPermission.always ||
         permission == LocationPermission.whileInUse;
   }
 
-  /// Зчитує позицію і зберігає її. Викликається при відкритті застосунку.
+  /// Зчитує позицію і зберігає її.
   ///
-  /// Повертає false, якщо дозволу немає — це не помилка, і застосунок має
-  /// працювати далі: стрічка просто збереться без фільтра за відстанню.
-  Future<bool> refreshMyLocation() async {
+  /// [silent] — виклик при відкритті застосунку: дозвіл не випрошується
+  /// повторно, якщо його вже відхилили, щоб не дратувати системним діалогом
+  /// на кожному запуску.
+  Future<LocationOutcome> refreshMyLocation({bool silent = false}) async {
     try {
-      if (!await hasPermission()) {
-        // Без координат хоча б відмічаємо, що людина заходила: свіжість
+      final permission =
+          silent ? (await hasPermission()
+                      ? LocationOutcome.updated
+                      : LocationOutcome.denied)
+                 : await _ensurePermission();
+
+      if (!permission.isSuccess) {
+        // Навіть без координат відмічаємо, що людина заходила: свіжість
         // активності бере участь у ранжуванні окремо від відстані.
         await _supabase.rpc('touch_last_active');
-        return false;
+        return permission;
       }
 
       final position = await Geolocator.getCurrentPosition(
@@ -47,11 +104,29 @@ class LocationService {
         'p_lat': position.latitude,
         'p_long': position.longitude,
       });
-      return true;
+      return LocationOutcome.updated;
     } catch (e, st) {
-      // Не критично: стрічка працює і без свіжих координат.
       ErrorReporter.report(e, st, context: 'refreshMyLocation');
-      return false;
+      return LocationOutcome.failed;
     }
   }
+
+  /// Останні збережені координати — щоб показати їх у профілі.
+  Future<({double lat, double long})?> myCoordinates() async {
+    try {
+      final data = await _supabase.rpc('get_my_match_context');
+      if (data == null) return null;
+      final map = Map<String, dynamic>.from(data as Map);
+      final lat = (map['lat'] as num?)?.toDouble();
+      final long = (map['long'] as num?)?.toDouble();
+      if (lat == null || long == null) return null;
+      return (lat: lat, long: long);
+    } catch (e, st) {
+      ErrorReporter.report(e, st, context: 'myCoordinates');
+      return null;
+    }
+  }
+
+  Future<void> openSettings() => Geolocator.openAppSettings();
+  Future<void> openLocationSettings() => Geolocator.openLocationSettings();
 }

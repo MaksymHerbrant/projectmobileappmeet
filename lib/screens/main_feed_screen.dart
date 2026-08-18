@@ -76,7 +76,10 @@ class _MainFeedScreenState extends State<MainFeedScreen> {
 
     // Позиція оновлюється при кожному відкритті, інакше радіус рахувався б
     // від місця, де людина була востаннє при редагуванні профілю.
-    _hasLocation = await _locationService.refreshMyLocation();
+    // silent: не випрошуємо дозвіл системним діалогом на кожному запуску —
+    // це робить явна кнопка в профілі.
+    final outcome = await _locationService.refreshMyLocation(silent: true);
+    _hasLocation = outcome.isSuccess;
     if (!mounted) return;
     await _loadUsers();
   }

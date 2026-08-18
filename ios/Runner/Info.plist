@@ -27,7 +27,11 @@
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
 	<key>NSLocationWhenInUseUsageDescription</key>
-	<string>Нам потрібна ваша локація, щоб показати її у профілі.</string>
+	<string>Локація потрібна, щоб показувати вам людей і події поблизу та визначати відстань до них. Без неї ми покажемо всіх підряд.</string>
+	<key>NSCameraUsageDescription</key>
+	<string>Камера потрібна, щоб зробити фото для вашого профілю або події.</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>Доступ до фото потрібен, щоб додати знімки у ваш профіль або до події.</string>
 	<key>UIApplicationSceneManifest</key>
 	<dict>
 		<key>UIApplicationSupportsMultipleScenes</key>

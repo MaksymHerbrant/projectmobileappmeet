@@ -4,7 +4,8 @@ import 'package:image_picker/image_picker.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:geocoding/geocoding.dart';
-import '../service/matches_service.dart'; // 👇 ВАЖЛИВО: Імпорт для VectorUtils
+import '../service/matches_service.dart';
+import '../service/location_service.dart'; // 👇 ВАЖЛИВО: Імпорт для VectorUtils
 
 class EditProfileScreen extends StatefulWidget {
   final Map<String, dynamic> profileData;
@@ -18,6 +19,9 @@ class EditProfileScreen extends StatefulWidget {
 class _EditProfileScreenState extends State<EditProfileScreen> {
   // Клієнт Supabase
   final _supabase = Supabase.instance.client;
+  final LocationService _locationService = LocationService();
+  bool _isLocating = false;
+  bool _hasSavedLocation = false;
 
   // Контролери
   late TextEditingController _nameController;
@@ -230,12 +234,18 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
         'location': _locationController.text.trim(), 
       };
 
-      // Якщо координати існують, додаємо їх у СПЕЦІАЛЬНУ колонку location_point
-      if (lat != 0 && long != 0) {
-        updates['location_point'] = '($lat,$long)';
-      }
+      // Координати пишемо не сюди, а через RPC нижче: прямий запис у
+      // location_point залишав geo порожнім, а стрічка шукає саме за geo —
+      // тобто людина ставала невидимою для пошуку поруч.
 
       await _supabase.from('profiles').update(updates).eq('id', userId);
+
+      if (lat != 0 && long != 0) {
+        await _supabase.rpc('update_my_location', params: {
+          'p_lat': lat,
+          'p_long': long,
+        });
+      }
 
       // 6. Повертаємо дані в UI
       final uiData = {
@@ -391,8 +401,21 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
             ),
             const SizedBox(width: 12),
             GestureDetector(
-              onTap: _useGPSLocation,
-              child: Container(padding: const EdgeInsets.all(12), decoration: BoxDecoration(color: Colors.blue, borderRadius: BorderRadius.circular(12)), child: const Icon(Icons.location_on, color: Colors.white, size: 20)),
+              onTap: _isLocating ? null : _useGPSLocation,
+              child: Container(
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: _isLocating ? Colors.blue.shade200 : Colors.blue,
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: _isLocating
+                    ? const SizedBox(
+                        height: 20, width: 20,
+                        child: CircularProgressIndicator(
+                            color: Colors.white, strokeWidth: 2),
+                      )
+                    : const Icon(Icons.my_location, color: Colors.white, size: 20),
+              ),
             ),
           ],
         ),
@@ -449,40 +472,76 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
 
   // --- ДОПОМІЖНІ МЕТОДИ ---
 
+  /// Визначає позицію, зберігає її на сервері й підставляє назву міста.
+  ///
+  /// Розрізняє причини відмови: вимкнена геолокація, відхилений дозвіл і
+  /// відхилений назавжди — в останньому випадку система більше не питатиме,
+  /// тож єдиний вихід це налаштування телефона.
   Future<void> _useGPSLocation() async {
-    setState(() => _isUploading = true);
+    setState(() => _isLocating = true);
     try {
-      LocationPermission permission = await Geolocator.checkPermission();
-      if (permission == LocationPermission.denied) {
-        permission = await Geolocator.requestPermission();
-        if (permission == LocationPermission.denied) {
-          _showErrorDialog('Потрібен дозвіл на геолокацію');
-          return;
+      final outcome = await _locationService.refreshMyLocation();
+
+      if (!mounted) return;
+
+      if (!outcome.isSuccess) {
+        _showLocationProblem(outcome);
+        return;
+      }
+
+      _hasSavedLocation = true;
+
+      final coords = await _locationService.myCoordinates();
+      if (coords != null) {
+        _latitude = coords.lat;
+        _longitude = coords.long;
+
+        try {
+          final placemarks =
+              await placemarkFromCoordinates(coords.lat, coords.long);
+          if (placemarks.isNotEmpty && mounted) {
+            final place = placemarks.first;
+            final city = place.locality ?? '';
+            final country = place.country ?? '';
+            final label = [city, country].where((e) => e.isNotEmpty).join(', ');
+            if (label.isNotEmpty) {
+              setState(() => _locationController.text = label);
+            }
+          }
+        } catch (_) {
+          // Назва міста — приємний бонус. Координати вже збережені, і саме
+          // вони визначають, кого ви побачите у стрічці.
         }
       }
 
-      Position position = await Geolocator.getCurrentPosition(desiredAccuracy: LocationAccuracy.high);
-      
-      // 🟢 Зберігаємо координати в змінні класу
-      _latitude = position.latitude;
-      _longitude = position.longitude;
-
-      List<Placemark> placemarks = await placemarkFromCoordinates(position.latitude, position.longitude);
-
-      if (placemarks.isNotEmpty) {
-        Placemark place = placemarks[0];
-        String city = place.locality ?? '';
-        String country = place.country ?? '';
-        setState(() {
-          _locationController.text = '$city, $country';
-        });
-        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Місцезнаходження знайдено!'), backgroundColor: Colors.green));
-      }
-    } catch (e) {
-      _showErrorDialog('Не вдалося визначити місце: $e');
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(outcome.message),
+          backgroundColor: Colors.green,
+        ),
+      );
     } finally {
-      setState(() => _isUploading = false);
+      if (mounted) setState(() => _isLocating = false);
     }
+  }
+
+  void _showLocationProblem(LocationOutcome outcome) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(outcome.message),
+        duration: const Duration(seconds: 6),
+        action: outcome.needsSettings
+            ? SnackBarAction(
+                label: 'Налаштування',
+                textColor: Colors.white,
+                onPressed: () => outcome == LocationOutcome.serviceDisabled
+                    ? _locationService.openLocationSettings()
+                    : _locationService.openSettings(),
+              )
+            : null,
+      ),
+    );
   }
 
   void _showMaxHobbiesDialog() { showDialog(context: context, builder: (context) => AlertDialog(title: const Text('Обмеження'), content: const Text('Можна вибрати максимум 8 хобі'), actions: [TextButton(onPressed: () => Navigator.of(context).pop(), child: const Text('OK'))])); }
