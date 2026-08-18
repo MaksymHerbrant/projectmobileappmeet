@@ -79,13 +79,13 @@ class _MatchesScreenState extends State<MatchesScreen> with SingleTickerProvider
     // Якщо йде завантаження І немає даних - показуємо спіннер
     if (appState.isLoading && appState.incomingRequests.isEmpty && appState.myEvents.isEmpty) {
       return Scaffold(
-        backgroundColor: const Color(0xFFF3E5F5),
+        backgroundColor: Theme.of(context).colorScheme.surface,
         body: const Center(child: CircularProgressIndicator()),
       );
     }
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF3E5F5),
+      backgroundColor: Theme.of(context).colorScheme.surface,
       body: SafeArea(
         child: Column(
           children: [
@@ -639,7 +639,7 @@ class _MatchesScreenState extends State<MatchesScreen> with SingleTickerProvider
             const SizedBox(height: 24),
             Text(title, style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
             const SizedBox(height: 8),
-            Text(subtitle, textAlign: TextAlign.center, style: const TextStyle(fontSize: 16, color: Colors.black54)),
+            Text(subtitle, textAlign: TextAlign.center, style: TextStyle(fontSize: 16, color: Theme.of(context).colorScheme.onSurfaceVariant)),
           ],
         ),
       ),

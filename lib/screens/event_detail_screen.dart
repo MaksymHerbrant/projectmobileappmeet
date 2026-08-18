@@ -115,7 +115,7 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
                                 return Container(
                                   padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                                   decoration: BoxDecoration(
-                                    color: const Color(0xFFF3E5F5),
+                                    color: Theme.of(context).colorScheme.primaryContainer,
                                     borderRadius: BorderRadius.circular(20),
                                     border: Border.all(color: const Color.fromARGB(255, 147, 163, 216)),
                                   ),

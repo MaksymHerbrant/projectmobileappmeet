@@ -59,7 +59,7 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
         ),
       ),
       bottomNavigationBar: Container(
-        color: const Color(0xFFF3E5F5),
+        color: Theme.of(context).colorScheme.primaryContainer,
         padding: const EdgeInsets.only(top: 20, bottom: 30),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -74,7 +74,7 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
                 duration: const Duration(milliseconds: 200),
                 padding: const EdgeInsets.all(8),
                 decoration: BoxDecoration(
-                  color: _currentIndex == 0 ? Colors.white.withOpacity(0.3) : Colors.transparent,
+                  color: _currentIndex == 0 ? Theme.of(context).colorScheme.onPrimaryContainer.withValues(alpha: 0.18) : Colors.transparent,
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: Image.asset(
@@ -95,7 +95,7 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
                 duration: const Duration(milliseconds: 200),
                 padding: const EdgeInsets.all(8),
                 decoration: BoxDecoration(
-                  color: _currentIndex == 1 ? Colors.white.withOpacity(0.3) : Colors.transparent,
+                  color: _currentIndex == 1 ? Theme.of(context).colorScheme.onPrimaryContainer.withValues(alpha: 0.18) : Colors.transparent,
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: Image.asset(
@@ -116,7 +116,7 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
                 duration: const Duration(milliseconds: 200),
                 padding: const EdgeInsets.all(8),
                 decoration: BoxDecoration(
-                  color: _currentIndex == 2 ? Colors.white.withOpacity(0.3) : Colors.transparent,
+                  color: _currentIndex == 2 ? Theme.of(context).colorScheme.onPrimaryContainer.withValues(alpha: 0.18) : Colors.transparent,
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: Image.asset(
@@ -137,7 +137,7 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
                 duration: const Duration(milliseconds: 200),
                 padding: const EdgeInsets.all(8),
                 decoration: BoxDecoration(
-                  color: _currentIndex == 3 ? Colors.white.withOpacity(0.3) : Colors.transparent,
+                  color: _currentIndex == 3 ? Theme.of(context).colorScheme.onPrimaryContainer.withValues(alpha: 0.18) : Colors.transparent,
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: Image.asset(

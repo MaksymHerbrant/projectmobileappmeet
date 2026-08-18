@@ -99,7 +99,7 @@ class _EventRequestsScreenState extends State<EventRequestsScreen> {
     return Consumer<LocaleProvider>(
       builder: (context, localeProvider, child) {
         return Scaffold(
-          backgroundColor: const Color(0xFFF3E5F5),
+          backgroundColor: Theme.of(context).colorScheme.surface,
           body: Container(
             decoration: BoxDecoration(
               gradient: LinearGradient(
@@ -156,7 +156,7 @@ class _EventRequestsScreenState extends State<EventRequestsScreen> {
                 ),
                 Text(
                   widget.event.title,
-                  style: const TextStyle(fontSize: 14, color: Colors.black54),
+                  style: TextStyle(fontSize: 14, color: Theme.of(context).colorScheme.onSurfaceVariant),
                   overflow: TextOverflow.ellipsis,
                 ),
               ],
@@ -265,7 +265,7 @@ class _EventRequestsScreenState extends State<EventRequestsScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(AppLocalizations.of(context)!.common_interests, style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: Colors.black54)),
+                  Text(AppLocalizations.of(context)!.common_interests, style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: Theme.of(context).colorScheme.onSurfaceVariant)),
                   const SizedBox(height: 8),
                   Wrap(
                     spacing: 8, runSpacing: 4,
@@ -389,7 +389,7 @@ class _EventRequestsScreenState extends State<EventRequestsScreen> {
             const SizedBox(height: 8),
             Text(
               AppLocalizations.of(context)!.no_event_requests_subtitle,
-              style: const TextStyle(fontSize: 16, color: Colors.black54),
+              style: TextStyle(fontSize: 16, color: Theme.of(context).colorScheme.onSurfaceVariant),
               textAlign: TextAlign.center,
             ),
           ],

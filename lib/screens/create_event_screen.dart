@@ -125,7 +125,7 @@ class _CreateEventScreenState extends State<CreateEventScreen> with TickerProvid
     final t = AppLocalizations.of(context)!;
     
     return Scaffold(
-      backgroundColor: const Color(0xFFF8F9FA),
+      backgroundColor: Theme.of(context).colorScheme.surface,
       body: SafeArea(
         child: FadeTransition(
           opacity: _fadeAnimation,
@@ -572,8 +572,8 @@ class _CreateEventScreenState extends State<CreateEventScreen> with TickerProvid
                       onTap: () => _removePhoto(index),
                       child: Container(
                         padding: const EdgeInsets.all(4),
-                        decoration: const BoxDecoration(
-                          color: Colors.black54,
+                        decoration: BoxDecoration(
+                          color: Theme.of(context).colorScheme.onSurfaceVariant,
                           shape: BoxShape.circle,
                         ),
                         child: const Icon(Icons.close, color: Colors.white, size: 16),

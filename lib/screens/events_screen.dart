@@ -550,7 +550,7 @@ class _EventsScreenState extends State<EventsScreen> {
    // ... (BottomNavigationBar без змін) ...
     Widget _buildBottomNavigationBar() {
     return Container(
-      color: const Color(0xFFF3E5F5),
+      color: Theme.of(context).colorScheme.primaryContainer,
       padding: const EdgeInsets.only(top: 20, bottom: 30),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,

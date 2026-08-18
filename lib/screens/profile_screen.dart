@@ -115,7 +115,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
         }
 
         return Scaffold(
-          backgroundColor: const Color(0xFFF3E5F5),
+          backgroundColor: Theme.of(context).colorScheme.surface,
           body: Container(
             child: SafeArea(
               child: Column(
@@ -365,7 +365,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   child: Container(
                     padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                     decoration: BoxDecoration(
-                      color: const Color(0xFFF3E5F5),
+                      color: Theme.of(context).colorScheme.primaryContainer,
                       borderRadius: BorderRadius.circular(20),
                     ),
                     child: Row(
@@ -429,7 +429,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   child: Container(
                     padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                     decoration: BoxDecoration(
-                      color: const Color(0xFFF3E5F5),
+                      color: Theme.of(context).colorScheme.primaryContainer,
                       borderRadius: BorderRadius.circular(20),
                     ),
                     child: Row(

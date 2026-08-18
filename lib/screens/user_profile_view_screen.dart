@@ -42,7 +42,7 @@ class _UserProfileViewScreenState extends State<UserProfileViewScreen> {
     return Consumer<LocaleProvider>(
       builder: (context, localeProvider, child) {
         return Scaffold(
-      backgroundColor: const Color(0xFFF3E5F5),
+      backgroundColor: Theme.of(context).colorScheme.surface,
       body: Container(
         decoration: BoxDecoration(
             gradient: LinearGradient(

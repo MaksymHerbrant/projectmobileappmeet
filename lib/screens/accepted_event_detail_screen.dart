@@ -107,7 +107,7 @@ class _AcceptedEventDetailScreenState extends State<AcceptedEventDetailScreen>
     final t = AppLocalizations.of(context)!;
     
     return Scaffold(
-      backgroundColor: const Color(0xFFF8F9FA),
+      backgroundColor: Theme.of(context).colorScheme.surface,
       body: FadeTransition(
         opacity: _fadeAnimation,
         child: SlideTransition(
@@ -254,7 +254,7 @@ class _AcceptedEventDetailScreenState extends State<AcceptedEventDetailScreen>
                         Shadow(
                           offset: Offset(0, 2),
                           blurRadius: 4,
-                          color: Colors.black54,
+                          color: Theme.of(context).colorScheme.onSurfaceVariant,
                         ),
                       ],
                     ),
@@ -274,7 +274,7 @@ class _AcceptedEventDetailScreenState extends State<AcceptedEventDetailScreen>
                               Shadow(
                                 offset: Offset(0, 1),
                                 blurRadius: 2,
-                                color: Colors.black54,
+                                color: Theme.of(context).colorScheme.onSurfaceVariant,
                               ),
                             ],
                           ),

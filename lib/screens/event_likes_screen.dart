@@ -416,7 +416,7 @@ class _EventLikesScreenState extends State<EventLikesScreen> {
               AppLocalizations.of(context)!.el_create_hint,
               style: TextStyle(
                 fontSize: 16,
-                color: Colors.black54,
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
               ),
               textAlign: TextAlign.center,
             ),

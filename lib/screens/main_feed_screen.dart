@@ -369,7 +369,7 @@ class _MainFeedScreenState extends State<MainFeedScreen> {
       padding: const EdgeInsets.symmetric(horizontal: 20),
       child: Row(
         children: [
-          const Icon(Icons.place_outlined, size: 18, color: Colors.black54),
+          Icon(Icons.place_outlined, size: 18, color: Theme.of(context).colorScheme.onSurfaceVariant),
           const SizedBox(width: 6),
           Text(
             t.radius_km(_radiusKm),
@@ -500,7 +500,7 @@ class _MainFeedScreenState extends State<MainFeedScreen> {
             Positioned.fill(
               // 🔥 2. Додаємо білий фон під фото, щоб при завантаженні не було "дірки"
               child: Container(
-                color: Colors.white, 
+                color: Theme.of(context).colorScheme.surfaceContainerHighest,
                 child: PageView.builder(
                   controller: controller,
                   physics: const NeverScrollableScrollPhysics(),
