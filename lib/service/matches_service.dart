@@ -118,10 +118,7 @@ class MatchesService {
       if (isLike) {
         await _notificationService.sendPush(
           receiverId: receiverId,
-          title: matched ? "Це взаємно! 🔥" : "Новий інтерес! 👋",
-          body: matched
-              ? "У тебе новий метч, мерщій зазирни в чати!"
-              : "Хтось хоче з тобою закентуватись. Можливо, це твій новий бро?",
+          kind: matched ? 'match' : 'new_like',
         );
       }
       return matched;
@@ -409,8 +406,7 @@ class MatchesService {
 
       await _notificationService.sendPush(
         receiverId: otherUserId,
-        title: "Твій запит прийнято! 🎉",
-        body: "Тепер ви друзі. Почніть спілкування зараз!",
+        kind: 'request_accepted',
       );
     } catch (e, st) {
       ErrorReporter.report(e, st, context: 'acceptLike');

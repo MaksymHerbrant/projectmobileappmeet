@@ -14,6 +14,44 @@ const CORS = {
   "Access-Control-Allow-Methods": "POST, OPTIONS",
 };
 
+
+// Тексти сповіщень мовою ОТРИМУВАЧА. Раніше вони формувались на пристрої
+// відправника й були жорстко українськими — тобто польський користувач
+// отримував українські пуші незалежно від того, як добре перекладено сам
+// застосунок, бо телефон відправника не знає мови співрозмовника.
+type Locale = "uk" | "en" | "es" | "pl" | "pt";
+
+const MESSAGES: Record<string, Record<Locale, { title: string; body: string }>> = {
+  match: {
+    uk: { title: "Це взаємно! 🔥", body: "У тебе новий метч, мерщій зазирни в чати!" },
+    en: { title: "It's a match! 🔥", body: "You have a new match — go say hello!" },
+    es: { title: "¡Es mutuo! 🔥", body: "Tienes un nuevo match, ¡ve a saludar!" },
+    pl: { title: "To wzajemne! 🔥", body: "Masz nowe dopasowanie — zajrzyj na czat!" },
+    pt: { title: "É mútuo! 🔥", body: "Tens um novo match — vai dizer olá!" },
+  },
+  new_like: {
+    uk: { title: "Новий інтерес! 👋", body: "Хтось хоче з тобою закентуватись. Можливо, це твій новий бро?" },
+    en: { title: "Someone likes you! 👋", body: "Someone wants to get to know you. Maybe a new friend?" },
+    es: { title: "¡Le gustas a alguien! 👋", body: "Alguien quiere conocerte. ¿Quizá un nuevo amigo?" },
+    pl: { title: "Ktoś Cię polubił! 👋", body: "Ktoś chce Cię poznać. Może nowy znajomy?" },
+    pt: { title: "Alguém gostou de ti! 👋", body: "Alguém quer conhecer-te. Talvez um novo amigo?" },
+  },
+  request_accepted: {
+    uk: { title: "Твій запит прийнято! 🎉", body: "Тепер ви друзі. Почніть спілкування зараз!" },
+    en: { title: "Your request was accepted! 🎉", body: "You're connected now — start chatting!" },
+    es: { title: "¡Tu solicitud fue aceptada! 🎉", body: "Ya estáis conectados, ¡empieza a chatear!" },
+    pl: { title: "Twoja prośba została przyjęta! 🎉", body: "Jesteście już połączeni — zacznij rozmowę!" },
+    pt: { title: "O teu pedido foi aceite! 🎉", body: "Já estão ligados — começa a conversar!" },
+  },
+};
+
+function resolve(kind: string, locale: string, fallbackTitle?: string, fallbackBody?: string) {
+  const set = MESSAGES[kind];
+  if (!set) return { title: fallbackTitle ?? "", body: fallbackBody ?? "" };
+  const loc = (["uk", "en", "es", "pl", "pt"].includes(locale) ? locale : "uk") as Locale;
+  return set[loc];
+}
+
 serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response("ok", { headers: CORS });
@@ -45,10 +83,11 @@ serve(async (req) => {
     }
     const senderId = caller.user.id;
 
-    // 2. Дані запиту
-    const { receiver_id: receiverId, title, body, data } = await req.json();
-    if (!receiverId || !title || !body) {
-      return json({ error: "receiver_id, title and body are required" }, 400);
+    // 2. Дані запиту. `kind` — ключ у словнику перекладів; `title`/`body`
+    //    лишаються для повідомлень чату, де текст пише сама людина.
+    const { receiver_id: receiverId, kind, title, body, data } = await req.json();
+    if (!receiverId || (!kind && (!title || !body))) {
+      return json({ error: "receiver_id and either kind or title+body are required" }, 400);
     }
 
     // 3. Чи має цей користувач взагалі право писати тому користувачу.
@@ -62,7 +101,18 @@ serve(async (req) => {
       return json({ error: "Forbidden" }, 403);
     }
 
-    // 4. Токени пристроїв отримувача (у людини може бути кілька девайсів)
+    // 4. Мова отримувача і кінцевий текст
+    const { data: receiver } = await admin
+      .from("profiles")
+      .select("locale")
+      .eq("id", receiverId)
+      .maybeSingle();
+
+    const text = kind
+      ? resolve(kind, receiver?.locale ?? "uk", title, body)
+      : { title: title as string, body: body as string };
+
+    // 5. Токени пристроїв отримувача (у людини може бути кілька девайсів)
     const { data: devices, error: devicesError } = await admin
       .from("user_devices")
       .select("fcm_token")
@@ -106,7 +156,7 @@ serve(async (req) => {
             body: JSON.stringify({
               message: {
                 token,
-                notification: { title, body },
+                notification: { title: text.title, body: text.body },
                 data: data || {},
                 android: { priority: "high" },
               },

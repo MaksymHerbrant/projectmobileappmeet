@@ -1,3 +1,4 @@
+import 'package:dating_app/l10n/gen/app_localizations.dart';
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
@@ -181,7 +182,7 @@ class _ConversationScreenState extends State<ConversationScreen> {
                     if (messages.isEmpty) {
                       return Center(
                         child: Text(
-                          'Напишіть перше повідомлення 👋',
+                          AppLocalizations.of(context)!.write_first_message,
                           style: TextStyle(color: Colors.grey.shade600),
                         ),
                       );
@@ -316,7 +317,7 @@ class _ConversationScreenState extends State<ConversationScreen> {
                 child: TextField(
                   controller: _messageController,
                   decoration: InputDecoration(
-                    hintText: 'Повідомлення...',
+                    hintText: AppLocalizations.of(context)!.message_hint,
                     filled: true,
                     fillColor: Colors.grey.shade100,
                     border: OutlineInputBorder(

@@ -135,7 +135,7 @@ class _ChatScreenState extends State<ChatScreen> {
                                 const SizedBox(height: 12),
                                 TextButton(
                                   onPressed: () => setState(() {}),
-                                  child: const Text('Спробувати ще раз'),
+                                  child: Text(AppLocalizations.of(context)!.try_again),
                                 ),
                               ],
                             ),

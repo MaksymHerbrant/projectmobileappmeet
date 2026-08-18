@@ -1459,6 +1459,288 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'No tags selected'**
   String get no_tags_selected;
+
+  /// No description provided for @logout_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign out'**
+  String get logout_title;
+
+  /// No description provided for @logout_confirm.
+  ///
+  /// In en, this message translates to:
+  /// **'Are you sure you want to sign out?'**
+  String get logout_confirm;
+
+  /// No description provided for @delete_account_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete account?'**
+  String get delete_account_title;
+
+  /// No description provided for @delete_forever.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete forever'**
+  String get delete_forever;
+
+  /// No description provided for @delete_account_failed.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not delete the account'**
+  String get delete_account_failed;
+
+  /// No description provided for @sign_out.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign out'**
+  String get sign_out;
+
+  /// No description provided for @notification_settings.
+  ///
+  /// In en, this message translates to:
+  /// **'Notification settings'**
+  String get notification_settings;
+
+  /// No description provided for @privacy_settings.
+  ///
+  /// In en, this message translates to:
+  /// **'Privacy settings'**
+  String get privacy_settings;
+
+  /// No description provided for @feed_empty_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing here yet'**
+  String get feed_empty_title;
+
+  /// No description provided for @feed_empty_radius.
+  ///
+  /// In en, this message translates to:
+  /// **'Nobody found within {km} km.'**
+  String feed_empty_radius(int km);
+
+  /// No description provided for @feed_empty_no_location.
+  ///
+  /// In en, this message translates to:
+  /// **'We do not know where you are, so we are showing everyone.\nTurn on location to see people nearby.'**
+  String get feed_empty_no_location;
+
+  /// No description provided for @search_within_km.
+  ///
+  /// In en, this message translates to:
+  /// **'Search within {km} km'**
+  String search_within_km(int km);
+
+  /// No description provided for @radius_km.
+  ///
+  /// In en, this message translates to:
+  /// **'{km} km'**
+  String radius_km(int km);
+
+  /// No description provided for @feed_finished_title.
+  ///
+  /// In en, this message translates to:
+  /// **'That is everyone for today'**
+  String get feed_finished_title;
+
+  /// No description provided for @search_again.
+  ///
+  /// In en, this message translates to:
+  /// **'Search again'**
+  String get search_again;
+
+  /// No description provided for @refresh.
+  ///
+  /// In en, this message translates to:
+  /// **'Refresh'**
+  String get refresh;
+
+  /// No description provided for @try_again.
+  ///
+  /// In en, this message translates to:
+  /// **'Try again'**
+  String get try_again;
+
+  /// No description provided for @request_approved.
+  ///
+  /// In en, this message translates to:
+  /// **'Request approved'**
+  String get request_approved;
+
+  /// No description provided for @match_chat_created.
+  ///
+  /// In en, this message translates to:
+  /// **'It is a match! Chat with {name} created'**
+  String match_chat_created(String name);
+
+  /// No description provided for @awaiting_confirmation.
+  ///
+  /// In en, this message translates to:
+  /// **'Awaiting confirmation'**
+  String get awaiting_confirmation;
+
+  /// No description provided for @chat_create_failed.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not create the chat'**
+  String get chat_create_failed;
+
+  /// No description provided for @participants_count.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} participants'**
+  String participants_count(int count);
+
+  /// No description provided for @send_message.
+  ///
+  /// In en, this message translates to:
+  /// **'Send a message'**
+  String get send_message;
+
+  /// No description provided for @events_finished_title.
+  ///
+  /// In en, this message translates to:
+  /// **'That is all for now'**
+  String get events_finished_title;
+
+  /// No description provided for @events_finished_body.
+  ///
+  /// In en, this message translates to:
+  /// **'Events matching your interests have run out. Try changing the filters or wait for new ones.'**
+  String get events_finished_body;
+
+  /// No description provided for @join_message_hint.
+  ///
+  /// In en, this message translates to:
+  /// **'Hi! I would like to join…'**
+  String get join_message_hint;
+
+  /// No description provided for @add_message_optional.
+  ///
+  /// In en, this message translates to:
+  /// **'Add a message (optional)'**
+  String get add_message_optional;
+
+  /// No description provided for @write_first_message.
+  ///
+  /// In en, this message translates to:
+  /// **'Write the first message 👋'**
+  String get write_first_message;
+
+  /// No description provided for @message_hint.
+  ///
+  /// In en, this message translates to:
+  /// **'Message…'**
+  String get message_hint;
+
+  /// No description provided for @enter_valid_phone.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter a valid number'**
+  String get enter_valid_phone;
+
+  /// No description provided for @wrong_phone_or_password.
+  ///
+  /// In en, this message translates to:
+  /// **'Wrong number or password'**
+  String get wrong_phone_or_password;
+
+  /// No description provided for @account_exists_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Account already exists'**
+  String get account_exists_title;
+
+  /// No description provided for @account_exists_body.
+  ///
+  /// In en, this message translates to:
+  /// **'You are already registered. Please sign in or use a different number.'**
+  String get account_exists_body;
+
+  /// No description provided for @change_number.
+  ///
+  /// In en, this message translates to:
+  /// **'Change number'**
+  String get change_number;
+
+  /// No description provided for @step_of.
+  ///
+  /// In en, this message translates to:
+  /// **'Step {current} of {total}'**
+  String step_of(int current, int total);
+
+  /// No description provided for @recovery_step_of.
+  ///
+  /// In en, this message translates to:
+  /// **'Recovery: step {current} of {total}'**
+  String recovery_step_of(int current, int total);
+
+  /// No description provided for @your_name.
+  ///
+  /// In en, this message translates to:
+  /// **'Your name'**
+  String get your_name;
+
+  /// No description provided for @pick_birth_date.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose your date of birth'**
+  String get pick_birth_date;
+
+  /// No description provided for @change_password_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Change password'**
+  String get change_password_title;
+
+  /// No description provided for @new_password.
+  ///
+  /// In en, this message translates to:
+  /// **'New password'**
+  String get new_password;
+
+  /// No description provided for @confirm_new_password.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirm new password'**
+  String get confirm_new_password;
+
+  /// No description provided for @save_password.
+  ///
+  /// In en, this message translates to:
+  /// **'Save password'**
+  String get save_password;
+
+  /// No description provided for @password_too_short.
+  ///
+  /// In en, this message translates to:
+  /// **'Password must be at least 6 characters'**
+  String get password_too_short;
+
+  /// No description provided for @passwords_do_not_match.
+  ///
+  /// In en, this message translates to:
+  /// **'Passwords do not match'**
+  String get passwords_do_not_match;
+
+  /// No description provided for @password_changed.
+  ///
+  /// In en, this message translates to:
+  /// **'Password changed'**
+  String get password_changed;
+
+  /// No description provided for @create_new_password_hint.
+  ///
+  /// In en, this message translates to:
+  /// **'Create a new strong password for your account.'**
+  String get create_new_password_hint;
+
+  /// No description provided for @no_photos_tap_to_add.
+  ///
+  /// In en, this message translates to:
+  /// **'No photos.\nTap to add'**
+  String get no_photos_tap_to_add;
 }
 
 class _AppLocalizationsDelegate

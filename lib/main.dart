@@ -15,6 +15,7 @@ import 'screens/main_navigation_screen.dart';
 // Зверни увагу: перевір, чи правильний шлях до екрану чату у твоїх папках!
 import 'screens/conversation_screen.dart';
 import 'config/app_config.dart';
+import 'service/error_reporter.dart';
 
 // 1. ГЛОБАЛЬНИЙ КЛЮЧ НАВІГАЦІЇ
 final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
@@ -44,7 +45,7 @@ Future<void> _bootstrap() async {
     MultiProvider(
       providers: [
         ChangeNotifierProvider(create: (_) => AppStateProvider()),
-        ChangeNotifierProvider(create: (_) => LocaleProvider()),
+        ChangeNotifierProvider(create: (_) => LocaleProvider()..syncLocaleToProfile()),
       ],
       child: const MyApp(), // Ось тут викликається MyApp
     ),
@@ -181,18 +182,20 @@ class _AuthGateState extends State<AuthGate> {
     });
   }
 
+  /// Токени живуть у user_devices, а не в профілі: профіль читає кожен
+  /// авторизований користувач, і токен там був доступний усім.
   Future<void> _saveTokenToSupabase(String token) async {
     final user = Supabase.instance.client.auth.currentUser;
-    if (user != null) {
-      try {
-        await Supabase.instance.client
-            .from('profiles')
-            .update({'fcm_token': token})
-            .eq('id', user.id);
-        debugPrint('🚀 FCM Token saved: $token');
-      } catch (e) {
-        debugPrint('❌ Error saving token: $e');
-      }
+    if (user == null) return;
+    try {
+      await Supabase.instance.client.from('user_devices').upsert({
+        'profile_id': user.id,
+        'fcm_token': token,
+        'updated_at': DateTime.now().toUtc().toIso8601String(),
+      });
+      debugPrint('🚀 FCM токен збережено');
+    } catch (e, st) {
+      ErrorReporter.report(e, st, context: 'saveTokenToSupabase');
     }
   }
 

@@ -697,4 +697,163 @@ class AppLocalizationsUk extends AppLocalizations {
 
   @override
   String get no_tags_selected => 'Не вибрано ';
+
+  @override
+  String get logout_title => 'Вихід';
+
+  @override
+  String get logout_confirm => 'Ви впевнені, що хочете вийти з акаунта?';
+
+  @override
+  String get delete_account_title => 'Видалити акаунт?';
+
+  @override
+  String get delete_forever => 'Видалити назавжди';
+
+  @override
+  String get delete_account_failed => 'Не вдалося видалити акаунт';
+
+  @override
+  String get sign_out => 'Вийти';
+
+  @override
+  String get notification_settings => 'Налаштування сповіщень';
+
+  @override
+  String get privacy_settings => 'Налаштування конфіденційності';
+
+  @override
+  String get feed_empty_title => 'Поки що порожньо';
+
+  @override
+  String feed_empty_radius(int km) {
+    return 'У радіусі $km км нікого не знайшли.';
+  }
+
+  @override
+  String get feed_empty_no_location =>
+      'Ми не знаємо, де ви — тому показуємо всіх підряд.\nУвімкніть геолокацію, щоб бачити людей поруч.';
+
+  @override
+  String search_within_km(int km) {
+    return 'Шукати в радіусі $km км';
+  }
+
+  @override
+  String radius_km(int km) {
+    return '$km км';
+  }
+
+  @override
+  String get feed_finished_title => 'На сьогодні все!';
+
+  @override
+  String get search_again => 'Шукати знову';
+
+  @override
+  String get refresh => 'Оновити';
+
+  @override
+  String get try_again => 'Спробувати ще раз';
+
+  @override
+  String get request_approved => 'Заявку схвалено!';
+
+  @override
+  String match_chat_created(String name) {
+    return 'Метч! Чат з $name створено';
+  }
+
+  @override
+  String get awaiting_confirmation => 'Очікує підтвердження';
+
+  @override
+  String get chat_create_failed => 'Помилка створення чату';
+
+  @override
+  String participants_count(int count) {
+    return '$count учасників';
+  }
+
+  @override
+  String get send_message => 'Надіслати повідомлення';
+
+  @override
+  String get events_finished_title => 'Отакої!';
+
+  @override
+  String get events_finished_body =>
+      'Події за вашими інтересами закінчились. Спробуйте змінити фільтри або зачекайте нових.';
+
+  @override
+  String get join_message_hint => 'Привіт! Хочу приєднатися...';
+
+  @override
+  String get add_message_optional => 'Додайте повідомлення (необов’язково)';
+
+  @override
+  String get write_first_message => 'Напишіть перше повідомлення 👋';
+
+  @override
+  String get message_hint => 'Повідомлення...';
+
+  @override
+  String get enter_valid_phone => 'Введіть коректний номер';
+
+  @override
+  String get wrong_phone_or_password => 'Невірний номер або пароль';
+
+  @override
+  String get account_exists_title => 'Акаунт уже існує';
+
+  @override
+  String get account_exists_body =>
+      'Ви вже зареєстровані в системі. Будь ласка, увійдіть у свій профіль або скористайтеся іншим номером.';
+
+  @override
+  String get change_number => 'Змінити номер';
+
+  @override
+  String step_of(int current, int total) {
+    return 'Крок $current з $total';
+  }
+
+  @override
+  String recovery_step_of(int current, int total) {
+    return 'Відновлення: крок $current з $total';
+  }
+
+  @override
+  String get your_name => 'Ваше ім’я';
+
+  @override
+  String get pick_birth_date => 'Оберіть дату народження';
+
+  @override
+  String get change_password_title => 'Зміна пароля';
+
+  @override
+  String get new_password => 'Новий пароль';
+
+  @override
+  String get confirm_new_password => 'Підтвердіть новий пароль';
+
+  @override
+  String get save_password => 'Зберегти пароль';
+
+  @override
+  String get password_too_short => 'Пароль має містити щонайменше 6 символів';
+
+  @override
+  String get passwords_do_not_match => 'Паролі не збігаються';
+
+  @override
+  String get password_changed => 'Пароль успішно змінено!';
+
+  @override
+  String get create_new_password_hint =>
+      'Придумайте новий надійний пароль для вашого акаунта.';
+
+  @override
+  String get no_photos_tap_to_add => 'Немає фото.\nНатисніть, щоб додати';
 }

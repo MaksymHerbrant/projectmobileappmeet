@@ -13,10 +13,16 @@ class NotificationService {
   static const String _functionName = 'send-push';
   static const Duration _invokeTimeout = Duration(seconds: 15);
 
+  /// [kind] — ключ типу сповіщення (`match`, `new_like`, `request_accepted`).
+  /// Текст добирає сервер мовою ОТРИМУВАЧА: телефон відправника не знає, якою
+  /// мовою користується співрозмовник.
+  ///
+  /// [title]/[body] лишаються для повідомлень чату, де текст пише сама людина.
   Future<void> sendPush({
     required String receiverId,
-    required String title,
-    required String body,
+    String? kind,
+    String? title,
+    String? body,
     Map<String, String>? data,
   }) async {
     try {
@@ -25,8 +31,9 @@ class NotificationService {
             _functionName,
             body: {
               'receiver_id': receiverId,
-              'title': title,
-              'body': body,
+              if (kind != null) 'kind': kind,
+              if (title != null) 'title': title,
+              if (body != null) 'body': body,
               'data': data ?? {},
             },
           )

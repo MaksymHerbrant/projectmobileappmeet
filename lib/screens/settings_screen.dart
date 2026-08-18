@@ -174,6 +174,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
   // --- СЕКЦІЯ АКАУНТА (З ВИХОДОМ) ---
   Widget _buildAccountSection() {
+    final t = AppLocalizations.of(context)!;
     return _buildSectionCard(
       title: AppLocalizations.of(context)!.account,
       icon: Icons.account_circle,
@@ -193,7 +194,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
           ),
           // 🟢 КНОПКА ВИХОДУ
           _buildListTile(
-            title: 'Вийти з акаунта',
+            title: t.sign_out,
             subtitle: 'Завершити поточну сесію',
             icon: Icons.logout,
             onTap: _showLogoutDialog,
@@ -213,18 +214,19 @@ class _SettingsScreenState extends State<SettingsScreen> {
   }
 // --- ЛОГІКА ВИДАЛЕННЯ АКАУНТА ---
   void _showDeleteAccountDialog() {
+    final t = AppLocalizations.of(context)!;
     showDialog(
       context: context,
       // ВАЖЛИВО: перейменовуємо контекст діалогу на dialogContext
       builder: (dialogContext) => AlertDialog(
-        title: const Text('Видалити акаунт?'),
-        content: const Text(
-          'Ви впевнені? Цю дію неможливо скасувати. Всі ваші повідомлення, фото, матчі та дані профілю будуть назавжди видалені з системи.',
+        title: Text(t.delete_account_title),
+        content: Text(
+          t.delete_account_confirm,
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(dialogContext), 
-            child: const Text('Скасувати')
+            child: Text(t.cancel)
           ),
           TextButton(
             onPressed: () async {
@@ -245,8 +247,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 if (mounted) {
                   // 4. Використовуємо збережений месенджер (він не null, бо ми його зберегли)
                   scaffoldMessenger.showSnackBar(
-                    const SnackBar(
-                      content: Text('Не вдалося видалити акаунт'), 
+                    SnackBar(
+                      content: Text(t.delete_account_failed), 
                       backgroundColor: Colors.red
                     ),
                   );
@@ -254,7 +256,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
               }
             },
             style: TextButton.styleFrom(foregroundColor: Colors.red),
-            child: const Text('Видалити назавжди'),
+            child: Text(t.delete_forever),
           ),
         ],
       ),
@@ -262,13 +264,14 @@ class _SettingsScreenState extends State<SettingsScreen> {
   }
   // --- ЛОГІКА ВИХОДУ ---
   void _showLogoutDialog() {
+    final t = AppLocalizations.of(context)!;
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Вихід'),
-        content: const Text('Ви впевнені, що хочете вийти з акаунта?'),
+        title: Text(t.logout_title),
+        content: Text(t.logout_confirm),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(context), child: const Text('Скасувати')),
+          TextButton(onPressed: () => Navigator.pop(context), child: Text(t.cancel)),
           TextButton(
             onPressed: () async {
               await _authService.signOut();
@@ -278,7 +281,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
               }
             },
             style: TextButton.styleFrom(foregroundColor: Colors.red),
-            child: const Text('Вийти'),
+            child: Text(t.sign_out),
           ),
         ],
       ),
@@ -319,6 +322,13 @@ class _SettingsScreenState extends State<SettingsScreen> {
   }
 
   // Інші секції
-  Widget _buildNotificationsSection() => _buildSectionCard(title: "Сповіщення", icon: Icons.notifications, child: const Text("Налаштування сповіщень"));
-  Widget _buildPrivacySection() => _buildSectionCard(title: "Приватність", icon: Icons.privacy_tip, child: const Text("Налаштування конфіденційності"));
+  Widget _buildNotificationsSection() => _buildSectionCard(
+      title: AppLocalizations.of(context)!.notifications,
+      icon: Icons.notifications,
+      child: Text(AppLocalizations.of(context)!.notification_settings));
+
+  Widget _buildPrivacySection() => _buildSectionCard(
+      title: AppLocalizations.of(context)!.privacy,
+      icon: Icons.privacy_tip,
+      child: Text(AppLocalizations.of(context)!.privacy_settings));
 }

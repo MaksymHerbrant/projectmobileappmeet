@@ -699,4 +699,163 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get no_tags_selected => 'No tags selected';
+
+  @override
+  String get logout_title => 'Sign out';
+
+  @override
+  String get logout_confirm => 'Are you sure you want to sign out?';
+
+  @override
+  String get delete_account_title => 'Delete account?';
+
+  @override
+  String get delete_forever => 'Delete forever';
+
+  @override
+  String get delete_account_failed => 'Could not delete the account';
+
+  @override
+  String get sign_out => 'Sign out';
+
+  @override
+  String get notification_settings => 'Notification settings';
+
+  @override
+  String get privacy_settings => 'Privacy settings';
+
+  @override
+  String get feed_empty_title => 'Nothing here yet';
+
+  @override
+  String feed_empty_radius(int km) {
+    return 'Nobody found within $km km.';
+  }
+
+  @override
+  String get feed_empty_no_location =>
+      'We do not know where you are, so we are showing everyone.\nTurn on location to see people nearby.';
+
+  @override
+  String search_within_km(int km) {
+    return 'Search within $km km';
+  }
+
+  @override
+  String radius_km(int km) {
+    return '$km km';
+  }
+
+  @override
+  String get feed_finished_title => 'That is everyone for today';
+
+  @override
+  String get search_again => 'Search again';
+
+  @override
+  String get refresh => 'Refresh';
+
+  @override
+  String get try_again => 'Try again';
+
+  @override
+  String get request_approved => 'Request approved';
+
+  @override
+  String match_chat_created(String name) {
+    return 'It is a match! Chat with $name created';
+  }
+
+  @override
+  String get awaiting_confirmation => 'Awaiting confirmation';
+
+  @override
+  String get chat_create_failed => 'Could not create the chat';
+
+  @override
+  String participants_count(int count) {
+    return '$count participants';
+  }
+
+  @override
+  String get send_message => 'Send a message';
+
+  @override
+  String get events_finished_title => 'That is all for now';
+
+  @override
+  String get events_finished_body =>
+      'Events matching your interests have run out. Try changing the filters or wait for new ones.';
+
+  @override
+  String get join_message_hint => 'Hi! I would like to join…';
+
+  @override
+  String get add_message_optional => 'Add a message (optional)';
+
+  @override
+  String get write_first_message => 'Write the first message 👋';
+
+  @override
+  String get message_hint => 'Message…';
+
+  @override
+  String get enter_valid_phone => 'Enter a valid number';
+
+  @override
+  String get wrong_phone_or_password => 'Wrong number or password';
+
+  @override
+  String get account_exists_title => 'Account already exists';
+
+  @override
+  String get account_exists_body =>
+      'You are already registered. Please sign in or use a different number.';
+
+  @override
+  String get change_number => 'Change number';
+
+  @override
+  String step_of(int current, int total) {
+    return 'Step $current of $total';
+  }
+
+  @override
+  String recovery_step_of(int current, int total) {
+    return 'Recovery: step $current of $total';
+  }
+
+  @override
+  String get your_name => 'Your name';
+
+  @override
+  String get pick_birth_date => 'Choose your date of birth';
+
+  @override
+  String get change_password_title => 'Change password';
+
+  @override
+  String get new_password => 'New password';
+
+  @override
+  String get confirm_new_password => 'Confirm new password';
+
+  @override
+  String get save_password => 'Save password';
+
+  @override
+  String get password_too_short => 'Password must be at least 6 characters';
+
+  @override
+  String get passwords_do_not_match => 'Passwords do not match';
+
+  @override
+  String get password_changed => 'Password changed';
+
+  @override
+  String get create_new_password_hint =>
+      'Create a new strong password for your account.';
+
+  @override
+  String get no_photos_tap_to_add => 'No photos.\nTap to add';
 }

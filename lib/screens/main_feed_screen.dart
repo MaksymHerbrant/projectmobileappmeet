@@ -361,6 +361,7 @@ class _MainFeedScreenState extends State<MainFeedScreen> {
   /// Керування радіусом. Без нього «друзі поруч» — просто список усіх, кого
   /// повернув сервер.
   Widget _buildRadiusControl() {
+    final t = AppLocalizations.of(context)!;
     if (!_hasLocation) return const SizedBox.shrink();
 
     return Padding(
@@ -370,7 +371,7 @@ class _MainFeedScreenState extends State<MainFeedScreen> {
           const Icon(Icons.place_outlined, size: 18, color: Colors.black54),
           const SizedBox(width: 6),
           Text(
-            '$_radiusKm км',
+            t.radius_km(_radiusKm),
             style: const TextStyle(
               fontSize: 13,
               fontWeight: FontWeight.w600,
@@ -402,6 +403,7 @@ class _MainFeedScreenState extends State<MainFeedScreen> {
   }
 
   Widget _buildEmptyState() {
+    final t = AppLocalizations.of(context)!;
     return Center(
       child: Padding(
         padding: const EdgeInsets.all(30.0),
@@ -414,13 +416,12 @@ class _MainFeedScreenState extends State<MainFeedScreen> {
               child: const Icon(Icons.sentiment_dissatisfied, size: 60, color: Colors.grey),
             ),
             const SizedBox(height: 24),
-            const Text('Поки що порожньо', style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Colors.black87)),
+            Text(t.feed_empty_title, style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Colors.black87)),
             const SizedBox(height: 12),
             Text(
               _hasLocation
-                  ? 'У радіусі $_radiusKm км нікого не знайшли.'
-                  : 'Ми не знаємо, де ви — тому показуємо всіх підряд.\n'
-                    'Увімкніть геолокацію, щоб бачити людей поруч.',
+                  ? t.feed_empty_radius(_radiusKm)
+                  : t.feed_empty_no_location,
               textAlign: TextAlign.center,
               style: const TextStyle(fontSize: 16, color: Colors.grey),
             ),
@@ -430,14 +431,14 @@ class _MainFeedScreenState extends State<MainFeedScreen> {
               ElevatedButton.icon(
                 onPressed: () => _setRadius(_nextRadius(_radiusKm)),
                 icon: const Icon(Icons.travel_explore),
-                label: Text('Шукати в радіусі ${_nextRadius(_radiusKm)} км'),
+                label: Text(t.search_within_km(_nextRadius(_radiusKm))),
                 style: ElevatedButton.styleFrom(backgroundColor: Colors.black, foregroundColor: Colors.white, padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 15), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30))),
               )
             else
               ElevatedButton.icon(
                 onPressed: _loadUsers,
                 icon: const Icon(Icons.refresh),
-                label: const Text('Оновити'),
+                label: Text(t.refresh),
                 style: ElevatedButton.styleFrom(backgroundColor: Colors.black, foregroundColor: Colors.white, padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 15), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30))),
               ),
           ],
@@ -447,6 +448,7 @@ class _MainFeedScreenState extends State<MainFeedScreen> {
   }
 
   Widget _buildFinishedState() {
+    final t = AppLocalizations.of(context)!;
     return Center(
       child: Padding(
         padding: const EdgeInsets.all(30.0),
@@ -459,12 +461,12 @@ class _MainFeedScreenState extends State<MainFeedScreen> {
               child: const Icon(Icons.check_circle_outline, size: 60, color: Colors.green),
             ),
             const SizedBox(height: 24),
-            const Text('На сьогодні все!', style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
+            Text(t.feed_finished_title, style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
             const SizedBox(height: 30),
             ElevatedButton.icon(
               onPressed: _loadUsers,
               icon: const Icon(Icons.refresh),
-              label: const Text('Шукати знову'),
+              label: Text(t.search_again),
               style: ElevatedButton.styleFrom(backgroundColor: Colors.black, foregroundColor: Colors.white, padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 15)),
             ),
           ],

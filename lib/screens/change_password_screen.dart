@@ -1,3 +1,4 @@
+import 'package:dating_app/l10n/gen/app_localizations.dart';
 import 'package:flutter/material.dart';
 import '../service/auth_service.dart';
 
@@ -32,11 +33,11 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
     final confirmPassword = _confirmPasswordController.text;
 
     if (newPassword.length < 6) {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Пароль має містити щонайменше 6 символів')));
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(AppLocalizations.of(context)!.password_too_short)));
       return;
     }
     if (newPassword != confirmPassword) {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Паролі не збігаються')));
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(AppLocalizations.of(context)!.passwords_do_not_match)));
       return;
     }
 
@@ -48,7 +49,7 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
       
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Пароль успішно змінено!'), backgroundColor: Colors.green),
+          SnackBar(content: Text(AppLocalizations.of(context)!.password_changed), backgroundColor: Colors.green),
         );
         // 👇 ЗАКРИВАЄМО ЕКРАН (АВТОМАТИЧНИЙ РЕДИРЕКТ НАЗАД У SETTINGS)
         Navigator.pop(context);
@@ -86,13 +87,13 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               const SizedBox(height: 20),
-              const Text(
-                'Зміна пароля',
+              Text(
+                AppLocalizations.of(context)!.change_password_title,
                 style: TextStyle(fontSize: 26, fontWeight: FontWeight.bold),
               ),
               const SizedBox(height: 8),
-              const Text(
-                'Придумайте новий надійний пароль для вашого акаунта.',
+              Text(
+                AppLocalizations.of(context)!.create_new_password_hint,
                 style: TextStyle(fontSize: 16, color: Colors.grey),
               ),
               const SizedBox(height: 40),
@@ -102,7 +103,7 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
                 controller: _passwordController,
                 obscureText: !_isPasswordVisible,
                 decoration: InputDecoration(
-                  labelText: 'Новий пароль',
+                  labelText: AppLocalizations.of(context)!.new_password,
                   border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
                   suffixIcon: IconButton(
                     icon: Icon(_isPasswordVisible ? Icons.visibility : Icons.visibility_off),
@@ -117,7 +118,7 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
                 controller: _confirmPasswordController,
                 obscureText: !_isPasswordVisible,
                 decoration: InputDecoration(
-                  labelText: 'Підтвердіть новий пароль',
+                  labelText: AppLocalizations.of(context)!.confirm_new_password,
                   border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
                 ),
               ),
@@ -136,7 +137,7 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
                   ),
                   child: _isLoading 
                     ? const SizedBox(height: 20, width: 20, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2))
-                    : const Text('Зберегти пароль', style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold)),
+                    : Text(AppLocalizations.of(context)!.save_password, style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold)),
                 ),
               ),
               const SizedBox(height: 20),

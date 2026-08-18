@@ -457,80 +457,79 @@ class AppLocalizationsPt extends AppLocalizations {
   String get hobbies_not_found => 'Hobbies não encontrados';
 
   @override
-  String get create_event => 'Create Event';
+  String get create_event => 'Criar evento';
 
   @override
-  String get event_title => 'Event Title';
+  String get event_title => 'Título do evento';
 
   @override
-  String get event_location => 'Event Location';
+  String get event_location => 'Local do evento';
 
   @override
   String get event_description => 'Descrição';
 
   @override
-  String get event_created => 'Event created!';
+  String get event_created => 'Evento criado!';
 
   @override
-  String get create => 'Create';
+  String get create => 'Criar';
 
   @override
   String get my_events => 'Meus eventos';
 
   @override
-  String get joined_events => 'Events I Joined';
+  String get joined_events => 'Eventos em que entrei';
 
   @override
-  String get event_invitations => 'Event Invitations';
+  String get event_invitations => 'Convites para eventos';
 
   @override
-  String get search_people => 'Search People';
+  String get search_people => 'Procurar pessoas';
 
   @override
-  String get invite_to_event => 'Invite to Event';
+  String get invite_to_event => 'Convidar para o evento';
 
   @override
-  String get invitation_sent => 'Invitation sent!';
+  String get invitation_sent => 'Convite enviado!';
 
   @override
-  String get accept_invitation => 'Accept Invitation';
+  String get accept_invitation => 'Aceitar convite';
 
   @override
-  String get decline_invitation => 'Decline Invitation';
+  String get decline_invitation => 'Recusar convite';
 
   @override
-  String get invitation_accepted => 'Invitation accepted!';
+  String get invitation_accepted => 'Convite aceite!';
 
   @override
-  String get invitation_declined => 'Invitation declined';
+  String get invitation_declined => 'Convite recusado';
 
   @override
-  String get leave_event => 'Leave Event';
+  String get leave_event => 'Sair do evento';
 
   @override
-  String get event_left => 'You left the event';
+  String get event_left => 'Saíste do evento';
 
   @override
-  String get remove_from_profile => 'Remove from Profile';
+  String get remove_from_profile => 'Remover do perfil';
 
   @override
-  String get remove_from_messages => 'Remove from Messages';
+  String get remove_from_messages => 'Remover das mensagens';
 
   @override
-  String get event_removed => 'Event removed';
+  String get event_removed => 'Evento removido';
 
   @override
-  String get my_participating_events => 'Events I\'m Participating In';
+  String get my_participating_events => 'Eventos em que participo';
 
   @override
-  String get no_participating_events =>
-      'You\'re not participating in any events';
+  String get no_participating_events => 'Não participas em nenhum evento';
 
   @override
-  String get event_participants => 'Event Participants';
+  String get event_participants => 'Participantes do evento';
 
   @override
-  String get send_event_invitation => 'Send Event Invitation';
+  String get send_event_invitation => 'Enviar convite para o evento';
 
   @override
   String get tags => 'Tags';
@@ -632,70 +631,230 @@ class AppLocalizationsPt extends AppLocalizations {
   String get about_me_section => 'Sobre mim';
 
   @override
-  String get event_filters => 'Event filters';
+  String get event_filters => 'Filtros de eventos';
 
   @override
-  String get filter_by_date => 'Filter by date';
+  String get filter_by_date => 'Filtrar por data';
 
   @override
-  String get filter_by_distance => 'Filter by distance';
+  String get filter_by_distance => 'Filtrar por distância';
 
   @override
-  String get filter_by_tags => 'Filter by tags';
+  String get filter_by_tags => 'Filtrar por etiquetas';
 
   @override
-  String get select_date_range => 'Select date range';
+  String get select_date_range => 'Selecionar intervalo de datas';
 
   @override
-  String get select_distance => 'Select distance';
+  String get select_distance => 'Selecionar distância';
 
   @override
-  String get select_tags => 'Select tags';
+  String get select_tags => 'Selecionar etiquetas';
 
   @override
-  String get apply_filters => 'Apply filters';
+  String get apply_filters => 'Aplicar filtros';
 
   @override
-  String get clear_filters => 'Clear filters';
+  String get clear_filters => 'Limpar filtros';
 
   @override
-  String get today => 'Today';
+  String get today => 'Hoje';
 
   @override
-  String get tomorrow => 'Tomorrow';
+  String get tomorrow => 'Amanhã';
 
   @override
-  String get this_week => 'This week';
+  String get this_week => 'Esta semana';
 
   @override
-  String get this_month => 'This month';
+  String get this_month => 'Este mês';
 
   @override
-  String get next_month => 'Next month';
+  String get next_month => 'Próximo mês';
 
   @override
-  String get within_1_km => 'Within 1 km';
+  String get within_1_km => 'Até 1 km';
 
   @override
-  String get within_5_km => 'Within 5 km';
+  String get within_5_km => 'Até 5 km';
 
   @override
-  String get within_10_km => 'Within 10 km';
+  String get within_10_km => 'Até 10 km';
 
   @override
-  String get within_25_km => 'Within 25 km';
+  String get within_25_km => 'Até 25 km';
 
   @override
-  String get within_50_km => 'Within 50 km';
+  String get within_50_km => 'Até 50 km';
 
   @override
-  String get all_tags => 'All tags';
+  String get all_tags => 'Todas as etiquetas';
 
   @override
   String selected_tags(Object count) {
-    return 'Selected tags: $count';
+    return 'Etiquetas selecionadas: $count';
   }
 
   @override
-  String get no_tags_selected => 'No tags selected';
+  String get no_tags_selected => 'Nenhuma etiqueta selecionada';
+
+  @override
+  String get logout_title => 'Terminar sessão';
+
+  @override
+  String get logout_confirm => 'Tens a certeza de que queres terminar sessão?';
+
+  @override
+  String get delete_account_title => 'Eliminar conta?';
+
+  @override
+  String get delete_forever => 'Eliminar para sempre';
+
+  @override
+  String get delete_account_failed => 'Não foi possível eliminar a conta';
+
+  @override
+  String get sign_out => 'Terminar sessão';
+
+  @override
+  String get notification_settings => 'Definições de notificações';
+
+  @override
+  String get privacy_settings => 'Definições de privacidade';
+
+  @override
+  String get feed_empty_title => 'Ainda não há nada aqui';
+
+  @override
+  String feed_empty_radius(int km) {
+    return 'Não encontrámos ninguém num raio de $km km.';
+  }
+
+  @override
+  String get feed_empty_no_location =>
+      'Não sabemos onde estás, por isso mostramos toda a gente.\nAtiva a localização para veres pessoas por perto.';
+
+  @override
+  String search_within_km(int km) {
+    return 'Procurar num raio de $km km';
+  }
+
+  @override
+  String radius_km(int km) {
+    return '$km km';
+  }
+
+  @override
+  String get feed_finished_title => 'É tudo por hoje';
+
+  @override
+  String get search_again => 'Procurar de novo';
+
+  @override
+  String get refresh => 'Atualizar';
+
+  @override
+  String get try_again => 'Tentar de novo';
+
+  @override
+  String get request_approved => 'Pedido aprovado';
+
+  @override
+  String match_chat_created(String name) {
+    return 'É um match! Conversa com $name criada';
+  }
+
+  @override
+  String get awaiting_confirmation => 'A aguardar confirmação';
+
+  @override
+  String get chat_create_failed => 'Não foi possível criar a conversa';
+
+  @override
+  String participants_count(int count) {
+    return '$count participantes';
+  }
+
+  @override
+  String get send_message => 'Enviar mensagem';
+
+  @override
+  String get events_finished_title => 'É tudo por agora';
+
+  @override
+  String get events_finished_body =>
+      'Acabaram os eventos que combinam com os teus interesses. Muda os filtros ou espera por novos.';
+
+  @override
+  String get join_message_hint => 'Olá! Gostava de participar…';
+
+  @override
+  String get add_message_optional => 'Adiciona uma mensagem (opcional)';
+
+  @override
+  String get write_first_message => 'Escreve a primeira mensagem 👋';
+
+  @override
+  String get message_hint => 'Mensagem…';
+
+  @override
+  String get enter_valid_phone => 'Introduz um número válido';
+
+  @override
+  String get wrong_phone_or_password => 'Número ou palavra-passe incorretos';
+
+  @override
+  String get account_exists_title => 'A conta já existe';
+
+  @override
+  String get account_exists_body =>
+      'Já estás registado. Inicia sessão ou usa outro número.';
+
+  @override
+  String get change_number => 'Mudar número';
+
+  @override
+  String step_of(int current, int total) {
+    return 'Passo $current de $total';
+  }
+
+  @override
+  String recovery_step_of(int current, int total) {
+    return 'Recuperação: passo $current de $total';
+  }
+
+  @override
+  String get your_name => 'O teu nome';
+
+  @override
+  String get pick_birth_date => 'Escolhe a tua data de nascimento';
+
+  @override
+  String get change_password_title => 'Alterar palavra-passe';
+
+  @override
+  String get new_password => 'Nova palavra-passe';
+
+  @override
+  String get confirm_new_password => 'Confirma a nova palavra-passe';
+
+  @override
+  String get save_password => 'Guardar palavra-passe';
+
+  @override
+  String get password_too_short =>
+      'A palavra-passe deve ter pelo menos 6 caracteres';
+
+  @override
+  String get passwords_do_not_match => 'As palavras-passe não coincidem';
+
+  @override
+  String get password_changed => 'Palavra-passe alterada';
+
+  @override
+  String get create_new_password_hint =>
+      'Cria uma nova palavra-passe segura para a tua conta.';
+
+  @override
+  String get no_photos_tap_to_add => 'Sem fotos.\nToca para adicionar';
 }

@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
+
+import '../service/error_reporter.dart';
 
 class LocaleProvider extends ChangeNotifier {
   static const String _languageCodeKey = 'language_code';
@@ -57,8 +60,23 @@ class LocaleProvider extends ChangeNotifier {
       _locale = newLocale;
       debugPrint('Language changed to: ${_locale.languageCode}_${_locale.countryCode}');
       notifyListeners();
+
+      await syncLocaleToProfile();
     } catch (e) {
       debugPrint('Error saving language: $e');
+    }
+  }
+
+  /// Мова зберігається і в профілі, бо тексти пушів добирає сервер: він єдиний,
+  /// хто знає, якою мовою читає отримувач.
+  Future<void> syncLocaleToProfile() async {
+    final client = Supabase.instance.client;
+    if (client.auth.currentUser == null) return;
+    try {
+      await client.rpc('set_my_locale', params: {'p_locale': _locale.languageCode});
+    } catch (e, st) {
+      // Не критично: сервер має запасне значення 'uk'.
+      ErrorReporter.report(e, st, context: 'syncLocaleToProfile');
     }
   }
   

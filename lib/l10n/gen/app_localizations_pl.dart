@@ -30,7 +30,7 @@ class AppLocalizationsPl extends AppLocalizations {
   String get back => 'Wstecz';
 
   @override
-  String get no_chats_yet => 'No chats yet';
+  String get no_chats_yet => 'Nie masz jeszcze czatów';
 
   @override
   String get next => 'Dalej';
@@ -633,70 +633,229 @@ class AppLocalizationsPl extends AppLocalizations {
   String get about_me_section => 'O mnie';
 
   @override
-  String get event_filters => 'Event filters';
+  String get event_filters => 'Filtry wydarzeń';
 
   @override
-  String get filter_by_date => 'Filter by date';
+  String get filter_by_date => 'Filtruj według daty';
 
   @override
-  String get filter_by_distance => 'Filter by distance';
+  String get filter_by_distance => 'Filtruj według odległości';
 
   @override
-  String get filter_by_tags => 'Filter by tags';
+  String get filter_by_tags => 'Filtruj według tagów';
 
   @override
-  String get select_date_range => 'Select date range';
+  String get select_date_range => 'Wybierz zakres dat';
 
   @override
-  String get select_distance => 'Select distance';
+  String get select_distance => 'Wybierz odległość';
 
   @override
-  String get select_tags => 'Select tags';
+  String get select_tags => 'Wybierz tagi';
 
   @override
-  String get apply_filters => 'Apply filters';
+  String get apply_filters => 'Zastosuj filtry';
 
   @override
-  String get clear_filters => 'Clear filters';
+  String get clear_filters => 'Wyczyść filtry';
 
   @override
-  String get today => 'Today';
+  String get today => 'Dziś';
 
   @override
-  String get tomorrow => 'Tomorrow';
+  String get tomorrow => 'Jutro';
 
   @override
-  String get this_week => 'This week';
+  String get this_week => 'W tym tygodniu';
 
   @override
-  String get this_month => 'This month';
+  String get this_month => 'W tym miesiącu';
 
   @override
-  String get next_month => 'Next month';
+  String get next_month => 'W przyszłym miesiącu';
 
   @override
-  String get within_1_km => 'Within 1 km';
+  String get within_1_km => 'Do 1 km';
 
   @override
-  String get within_5_km => 'Within 5 km';
+  String get within_5_km => 'Do 5 km';
 
   @override
-  String get within_10_km => 'Within 10 km';
+  String get within_10_km => 'Do 10 km';
 
   @override
-  String get within_25_km => 'Within 25 km';
+  String get within_25_km => 'Do 25 km';
 
   @override
-  String get within_50_km => 'Within 50 km';
+  String get within_50_km => 'Do 50 km';
 
   @override
-  String get all_tags => 'All tags';
+  String get all_tags => 'Wszystkie tagi';
 
   @override
   String selected_tags(Object count) {
-    return 'Selected tags: $count';
+    return 'Wybrane tagi: $count';
   }
 
   @override
-  String get no_tags_selected => 'No tags selected';
+  String get no_tags_selected => 'Nie wybrano tagów';
+
+  @override
+  String get logout_title => 'Wylogowanie';
+
+  @override
+  String get logout_confirm => 'Czy na pewno chcesz się wylogować?';
+
+  @override
+  String get delete_account_title => 'Usunąć konto?';
+
+  @override
+  String get delete_forever => 'Usuń na zawsze';
+
+  @override
+  String get delete_account_failed => 'Nie udało się usunąć konta';
+
+  @override
+  String get sign_out => 'Wyloguj się';
+
+  @override
+  String get notification_settings => 'Ustawienia powiadomień';
+
+  @override
+  String get privacy_settings => 'Ustawienia prywatności';
+
+  @override
+  String get feed_empty_title => 'Na razie pusto';
+
+  @override
+  String feed_empty_radius(int km) {
+    return 'Nikogo nie znaleziono w promieniu $km km.';
+  }
+
+  @override
+  String get feed_empty_no_location =>
+      'Nie wiemy, gdzie jesteś, więc pokazujemy wszystkich.\nWłącz lokalizację, aby widzieć ludzi w pobliżu.';
+
+  @override
+  String search_within_km(int km) {
+    return 'Szukaj w promieniu $km km';
+  }
+
+  @override
+  String radius_km(int km) {
+    return '$km km';
+  }
+
+  @override
+  String get feed_finished_title => 'To wszystko na dziś';
+
+  @override
+  String get search_again => 'Szukaj ponownie';
+
+  @override
+  String get refresh => 'Odśwież';
+
+  @override
+  String get try_again => 'Spróbuj ponownie';
+
+  @override
+  String get request_approved => 'Prośba zaakceptowana';
+
+  @override
+  String match_chat_created(String name) {
+    return 'To dopasowanie! Czat z $name utworzony';
+  }
+
+  @override
+  String get awaiting_confirmation => 'Oczekuje na potwierdzenie';
+
+  @override
+  String get chat_create_failed => 'Nie udało się utworzyć czatu';
+
+  @override
+  String participants_count(int count) {
+    return '$count uczestników';
+  }
+
+  @override
+  String get send_message => 'Wyślij wiadomość';
+
+  @override
+  String get events_finished_title => 'To na razie wszystko';
+
+  @override
+  String get events_finished_body =>
+      'Skończyły się wydarzenia pasujące do Twoich zainteresowań. Zmień filtry albo poczekaj na nowe.';
+
+  @override
+  String get join_message_hint => 'Cześć! Chcę dołączyć…';
+
+  @override
+  String get add_message_optional => 'Dodaj wiadomość (opcjonalnie)';
+
+  @override
+  String get write_first_message => 'Napisz pierwszą wiadomość 👋';
+
+  @override
+  String get message_hint => 'Wiadomość…';
+
+  @override
+  String get enter_valid_phone => 'Wpisz poprawny numer';
+
+  @override
+  String get wrong_phone_or_password => 'Nieprawidłowy numer lub hasło';
+
+  @override
+  String get account_exists_title => 'Konto już istnieje';
+
+  @override
+  String get account_exists_body =>
+      'Masz już konto. Zaloguj się albo użyj innego numeru.';
+
+  @override
+  String get change_number => 'Zmień numer';
+
+  @override
+  String step_of(int current, int total) {
+    return 'Krok $current z $total';
+  }
+
+  @override
+  String recovery_step_of(int current, int total) {
+    return 'Odzyskiwanie: krok $current z $total';
+  }
+
+  @override
+  String get your_name => 'Twoje imię';
+
+  @override
+  String get pick_birth_date => 'Wybierz datę urodzenia';
+
+  @override
+  String get change_password_title => 'Zmiana hasła';
+
+  @override
+  String get new_password => 'Nowe hasło';
+
+  @override
+  String get confirm_new_password => 'Potwierdź nowe hasło';
+
+  @override
+  String get save_password => 'Zapisz hasło';
+
+  @override
+  String get password_too_short => 'Hasło musi mieć co najmniej 6 znaków';
+
+  @override
+  String get passwords_do_not_match => 'Hasła nie są zgodne';
+
+  @override
+  String get password_changed => 'Hasło zostało zmienione';
+
+  @override
+  String get create_new_password_hint =>
+      'Utwórz nowe, silne hasło do swojego konta.';
+
+  @override
+  String get no_photos_tap_to_add => 'Brak zdjęć.\nDotknij, aby dodać';
 }
