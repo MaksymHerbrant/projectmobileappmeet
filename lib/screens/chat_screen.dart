@@ -1,3 +1,4 @@
+import '../theme/app_theme.dart';
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -100,11 +101,11 @@ class _ChatScreenState extends State<ChatScreen> {
       builder: (context, localeProvider, child) {
         return Scaffold(
           body: Container(
-            decoration: const BoxDecoration(
+            decoration: BoxDecoration(
               gradient: LinearGradient(
                 begin: Alignment.bottomCenter,
                 end: Alignment.topCenter,
-                colors: [Color(0xFFF3E5F5), Colors.white],
+                colors: AppTheme.backgroundGradient(context),
               ),
             ),
             child: SafeArea(

@@ -10,6 +10,8 @@ import 'package:sentry_flutter/sentry_flutter.dart';
 import 'l10n/gen/app_localizations.dart';
 import 'providers/locale_provider.dart';
 import 'providers/app_state_provider.dart';
+import 'providers/theme_provider.dart';
+import 'theme/app_theme.dart';
 import 'screens/landing_screen.dart'; 
 import 'screens/main_navigation_screen.dart';
 // Зверни увагу: перевір, чи правильний шлях до екрану чату у твоїх папках!
@@ -46,6 +48,7 @@ Future<void> _bootstrap() async {
       providers: [
         ChangeNotifierProvider(create: (_) => AppStateProvider()),
         ChangeNotifierProvider(create: (_) => LocaleProvider()..syncLocaleToProfile()),
+        ChangeNotifierProvider(create: (_) => ThemeProvider()),
       ],
       child: const MyApp(), // Ось тут викликається MyApp
     ),
@@ -79,13 +82,14 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Consumer<LocaleProvider>(
-      builder: (context, localeProvider, child) {
+    return Consumer2<LocaleProvider, ThemeProvider>(
+      builder: (context, localeProvider, themeProvider, child) {
         return MaterialApp(
           navigatorKey: navigatorKey, // 🔥 ДОДАЛИ КЛЮЧ СЮДИ
           title: 'Dating App',
           debugShowCheckedModeBanner: false,
-          locale: localeProvider.locale, 
+          // null → мова телефона; MaterialApp сам зведе її до підтримуваної
+          locale: localeProvider.locale,
           supportedLocales: AppLocalizations.supportedLocales,
           localizationsDelegates: const [
             AppLocalizations.delegate,
@@ -93,10 +97,9 @@ class MyApp extends StatelessWidget {
             GlobalWidgetsLocalizations.delegate,
             GlobalCupertinoLocalizations.delegate,
           ],
-          theme: ThemeData(
-            colorScheme: ColorScheme.fromSeed(seedColor: const Color(0xFFF3E5F5)),
-            useMaterial3: true,
-          ),
+          theme: AppTheme.light(),
+          darkTheme: AppTheme.dark(),
+          themeMode: themeProvider.mode,
           home: const AuthGate(), 
           routes: {
             '/landing': (context) => const LandingScreen(),

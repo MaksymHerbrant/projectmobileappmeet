@@ -1,3 +1,4 @@
+import '../theme/app_theme.dart';
 import 'package:flutter/material.dart';
 
 class MessageDialog extends StatefulWidget {
@@ -34,10 +35,10 @@ class _MessageDialogState extends State<MessageDialog> {
         padding: const EdgeInsets.all(24),
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(20),
-          gradient: const LinearGradient(
+          gradient: LinearGradient(
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
-            colors: [Colors.white, Color(0xFFF3E5F5)],
+            colors: AppTheme.backgroundGradient(context),
           ),
         ),
         child: Column(

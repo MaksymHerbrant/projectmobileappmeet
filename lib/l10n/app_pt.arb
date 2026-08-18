@@ -272,5 +272,10 @@
   "passwords_do_not_match": "As palavras-passe não coincidem",
   "password_changed": "Palavra-passe alterada",
   "create_new_password_hint": "Cria uma nova palavra-passe segura para a tua conta.",
-  "no_photos_tap_to_add": "Sem fotos.\nToca para adicionar"
+  "no_photos_tap_to_add": "Sem fotos.\nToca para adicionar",
+  "appearance": "Aspeto",
+  "theme_system": "Igual ao telemóvel",
+  "theme_light": "Clara",
+  "theme_dark": "Escura",
+  "language_system": "Igual ao telemóvel"
 }

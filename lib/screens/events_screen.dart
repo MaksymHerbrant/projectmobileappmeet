@@ -1,3 +1,4 @@
+import '../theme/app_theme.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_card_swiper/flutter_card_swiper.dart';
@@ -103,11 +104,11 @@ class _EventsScreenState extends State<EventsScreen> {
           // resizeToAvoidBottomInset: false дозволяє клавіатурі відкриватися поверх, не ламаючи верстку
           resizeToAvoidBottomInset: false, 
           body: Container(
-            decoration: const BoxDecoration(
+            decoration: BoxDecoration(
               gradient: LinearGradient(
                 begin: Alignment.bottomCenter,
                 end: Alignment.topCenter,
-                colors: [Color(0xFFF3E5F5), Colors.white],
+                colors: AppTheme.backgroundGradient(context),
               ),
             ),
             child: SafeArea(

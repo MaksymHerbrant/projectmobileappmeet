@@ -272,5 +272,10 @@
   "passwords_do_not_match": "Las contraseñas no coinciden",
   "password_changed": "Contraseña cambiada",
   "create_new_password_hint": "Crea una nueva contraseña segura para tu cuenta.",
-  "no_photos_tap_to_add": "Sin fotos.\nToca para añadir"
+  "no_photos_tap_to_add": "Sin fotos.\nToca para añadir",
+  "appearance": "Apariencia",
+  "theme_system": "Igual que el teléfono",
+  "theme_light": "Clara",
+  "theme_dark": "Oscura",
+  "language_system": "Igual que el teléfono"
 }

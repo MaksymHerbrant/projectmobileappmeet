@@ -272,5 +272,10 @@
   "passwords_do_not_match": "Паролі не збігаються",
   "password_changed": "Пароль успішно змінено!",
   "create_new_password_hint": "Придумайте новий надійний пароль для вашого акаунта.",
-  "no_photos_tap_to_add": "Немає фото.\nНатисніть, щоб додати"
+  "no_photos_tap_to_add": "Немає фото.\nНатисніть, щоб додати",
+  "appearance": "Оформлення",
+  "theme_system": "Як у телефоні",
+  "theme_light": "Світла",
+  "theme_dark": "Темна",
+  "language_system": "Як у телефоні"
 }

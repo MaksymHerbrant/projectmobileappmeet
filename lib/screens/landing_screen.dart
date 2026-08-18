@@ -1,3 +1,4 @@
+import '../theme/app_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../providers/locale_provider.dart';
@@ -12,7 +13,7 @@ class LandingScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Consumer<LocaleProvider>(
       builder: (context, localeProvider, child) {
-        debugPrint('Landing screen - Current locale: ${localeProvider.locale.languageCode}_${localeProvider.locale.countryCode}');
+        debugPrint('Landing screen - Current locale: ${localeProvider.effectiveLocale.languageCode}_${localeProvider.effectiveLocale.countryCode}');
         debugPrint('Landing screen - already_have_account: ${AppLocalizations.of(context)!.already_have_account}');
         debugPrint('Landing screen - enter: ${AppLocalizations.of(context)!.enter}');
         final screenWidth = MediaQuery.of(context).size.width;
@@ -24,11 +25,11 @@ class LandingScreen extends StatelessWidget {
     
     return Scaffold(
       body: Container(
-        decoration: const BoxDecoration(
-          gradient: LinearGradient(
+        decoration: BoxDecoration(
+            gradient: LinearGradient(
             begin: Alignment.bottomCenter,
             end: Alignment.topCenter,
-            colors: [Color(0xFFF3E5F5), Colors.white],
+            colors: AppTheme.backgroundGradient(context),
           ),
         ),
         child: Stack(

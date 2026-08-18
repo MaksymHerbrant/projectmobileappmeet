@@ -1,6 +1,8 @@
+import '../theme/app_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../providers/locale_provider.dart';
+import '../providers/theme_provider.dart';
 import 'package:dating_app/l10n/gen/app_localizations.dart';
 import '../service/auth_service.dart'; // Імпортуємо твій сервіс
 import 'change_password_screen.dart';
@@ -26,11 +28,11 @@ class _SettingsScreenState extends State<SettingsScreen> {
       builder: (context, localeProvider, child) {
         return Scaffold(
           body: Container(
-            decoration: const BoxDecoration(
+            decoration: BoxDecoration(
               gradient: LinearGradient(
                 begin: Alignment.bottomCenter,
                 end: Alignment.topCenter,
-                colors: [Color(0xFFF3E5F5), Colors.white],
+                colors: AppTheme.backgroundGradient(context),
               ),
             ),
             child: SafeArea(
@@ -43,9 +45,11 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          // ЗАКОМЕНТОВАНО: Секція мови
-                          // _buildLanguageSection(),
-                          // const SizedBox(height: 24),
+                          _buildLanguageSection(),
+                          const SizedBox(height: 24),
+
+                          _buildAppearanceSection(),
+                          const SizedBox(height: 24),
                           
                           _buildNotificationsSection(),
                           const SizedBox(height: 24),
@@ -80,19 +84,20 @@ class _SettingsScreenState extends State<SettingsScreen> {
             child: Container(
               padding: const EdgeInsets.all(8),
               decoration: BoxDecoration(
-                color: Colors.white.withOpacity(0.8),
+                color: Theme.of(context).colorScheme.surface.withValues(alpha: 0.85),
                 borderRadius: BorderRadius.circular(12),
               ),
-              child: const Icon(Icons.arrow_back, color: Colors.black87),
+              child: Icon(Icons.arrow_back,
+                  color: Theme.of(context).colorScheme.onSurface),
             ),
           ),
           const SizedBox(width: 16),
           Text(
             AppLocalizations.of(context)!.settings,
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 20,
               fontWeight: FontWeight.bold,
-              color: Colors.black87,
+              color: Theme.of(context).colorScheme.onSurface,
             ),
           ),
         ],
@@ -171,6 +176,108 @@ class _SettingsScreenState extends State<SettingsScreen> {
     );
   }
   */
+
+  // --- МОВА ---
+
+  Widget _buildLanguageSection() {
+    final t = AppLocalizations.of(context)!;
+    final provider = context.watch<LocaleProvider>();
+
+    return _buildSectionCard(
+      title: t.language,
+      icon: Icons.language,
+      child: Column(
+        children: [
+          _buildChoiceTile(
+            label: t.language_system,
+            // Показуємо, яку саме мову дав телефон, інакше «як у телефоні»
+            // нічого не пояснює.
+            trailing: LocaleProvider.getLanguageName(
+                LocaleProvider.supportedLocales
+                    .firstWhere(
+                      (l) =>
+                          l.languageCode ==
+                          provider.effectiveLocale.languageCode,
+                      orElse: () => const Locale('en', 'US'),
+                    )
+                    .languageCode),
+            selected: provider.followSystem,
+            onTap: provider.useSystemLanguage,
+          ),
+          const Divider(height: 1),
+          ...LocaleProvider.languageCodes.map((code) {
+            return _buildChoiceTile(
+              label: LocaleProvider.getLanguageName(code),
+              selected: !provider.followSystem &&
+                  provider.effectiveLocale.languageCode == code,
+              onTap: () => provider.changeLanguageByCode(code),
+            );
+          }),
+        ],
+      ),
+    );
+  }
+
+  // --- ОФОРМЛЕННЯ ---
+
+  Widget _buildAppearanceSection() {
+    final t = AppLocalizations.of(context)!;
+    final provider = context.watch<ThemeProvider>();
+
+    final options = <(ThemeMode, String, IconData)>[
+      (ThemeMode.system, t.theme_system, Icons.brightness_auto),
+      (ThemeMode.light, t.theme_light, Icons.light_mode),
+      (ThemeMode.dark, t.theme_dark, Icons.dark_mode),
+    ];
+
+    return _buildSectionCard(
+      title: t.appearance,
+      icon: Icons.palette_outlined,
+      child: Column(
+        children: [
+          for (final (mode, label, icon) in options) ...[
+            _buildChoiceTile(
+              label: label,
+              leading: icon,
+              selected: provider.mode == mode,
+              onTap: () => provider.setMode(mode),
+            ),
+            if (mode != options.last.$1) const Divider(height: 1),
+          ],
+        ],
+      ),
+    );
+  }
+
+  Widget _buildChoiceTile({
+    required String label,
+    required bool selected,
+    required VoidCallback onTap,
+    IconData? leading,
+    String? trailing,
+  }) {
+    final scheme = Theme.of(context).colorScheme;
+    return ListTile(
+      contentPadding: EdgeInsets.zero,
+      leading: leading == null
+          ? null
+          : Icon(leading,
+              color: selected ? scheme.primary : scheme.onSurfaceVariant),
+      title: Text(
+        label,
+        style: TextStyle(
+          fontSize: 16,
+          fontWeight: selected ? FontWeight.w600 : FontWeight.normal,
+          color: selected ? scheme.primary : scheme.onSurface,
+        ),
+      ),
+      subtitle: trailing == null
+          ? null
+          : Text(trailing, style: TextStyle(color: scheme.onSurfaceVariant)),
+      trailing: selected ? Icon(Icons.check, color: scheme.primary) : null,
+      onTap: onTap,
+    );
+  }
 
   // --- СЕКЦІЯ АКАУНТА (З ВИХОДОМ) ---
   Widget _buildAccountSection() {
@@ -295,14 +402,28 @@ class _SettingsScreenState extends State<SettingsScreen> {
       margin: const EdgeInsets.only(bottom: 16),
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: Theme.of(context).colorScheme.surface,
         borderRadius: BorderRadius.circular(16),
-        boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 10)],
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(
+                alpha: Theme.of(context).brightness == Brightness.dark ? 0.30 : 0.05),
+            blurRadius: 10,
+          )
+        ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Row(children: [Icon(icon, color: Colors.blue), const SizedBox(width: 12), Text(title, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold))]),
+          Row(children: [
+            Icon(icon, color: Theme.of(context).colorScheme.primary),
+            const SizedBox(width: 12),
+            Text(title,
+                style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                    color: Theme.of(context).colorScheme.onSurface)),
+          ]),
           const SizedBox(height: 16),
           child,
         ],
@@ -312,9 +433,21 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
   Widget _buildListTile({required String title, required String subtitle, required IconData icon, required VoidCallback onTap, bool isDestructive = false}) {
     return ListTile(
-      leading: Icon(icon, color: isDestructive ? Colors.red : Colors.grey),
-      title: Text(title, style: TextStyle(color: isDestructive ? Colors.red : Colors.black87, fontWeight: FontWeight.w500)),
-      subtitle: Text(subtitle, style: TextStyle(color: isDestructive ? Colors.red.withOpacity(0.7) : Colors.grey)),
+      leading: Icon(icon,
+          color: isDestructive
+              ? Theme.of(context).colorScheme.error
+              : Theme.of(context).colorScheme.onSurfaceVariant),
+      title: Text(title,
+          style: TextStyle(
+              color: isDestructive
+                  ? Theme.of(context).colorScheme.error
+                  : Theme.of(context).colorScheme.onSurface,
+              fontWeight: FontWeight.w500)),
+      subtitle: Text(subtitle,
+          style: TextStyle(
+              color: isDestructive
+                  ? Theme.of(context).colorScheme.error.withValues(alpha: 0.7)
+                  : Theme.of(context).colorScheme.onSurfaceVariant)),
       trailing: const Icon(Icons.arrow_forward_ios, size: 14),
       onTap: onTap,
       contentPadding: EdgeInsets.zero,

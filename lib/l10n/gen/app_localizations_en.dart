@@ -858,4 +858,19 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get no_photos_tap_to_add => 'No photos.\nTap to add';
+
+  @override
+  String get appearance => 'Appearance';
+
+  @override
+  String get theme_system => 'Same as phone';
+
+  @override
+  String get theme_light => 'Light';
+
+  @override
+  String get theme_dark => 'Dark';
+
+  @override
+  String get language_system => 'Same as phone';
 }

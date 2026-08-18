@@ -856,4 +856,19 @@ class AppLocalizationsUk extends AppLocalizations {
 
   @override
   String get no_photos_tap_to_add => 'Немає фото.\nНатисніть, щоб додати';
+
+  @override
+  String get appearance => 'Оформлення';
+
+  @override
+  String get theme_system => 'Як у телефоні';
+
+  @override
+  String get theme_light => 'Світла';
+
+  @override
+  String get theme_dark => 'Темна';
+
+  @override
+  String get language_system => 'Як у телефоні';
 }

@@ -272,5 +272,10 @@
   "passwords_do_not_match": "Hasła nie są zgodne",
   "password_changed": "Hasło zostało zmienione",
   "create_new_password_hint": "Utwórz nowe, silne hasło do swojego konta.",
-  "no_photos_tap_to_add": "Brak zdjęć.\nDotknij, aby dodać"
+  "no_photos_tap_to_add": "Brak zdjęć.\nDotknij, aby dodać",
+  "appearance": "Wygląd",
+  "theme_system": "Jak w telefonie",
+  "theme_light": "Jasny",
+  "theme_dark": "Ciemny",
+  "language_system": "Jak w telefonie"
 }

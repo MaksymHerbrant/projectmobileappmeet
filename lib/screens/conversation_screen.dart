@@ -1,3 +1,4 @@
+import '../theme/app_theme.dart';
 import 'package:dating_app/l10n/gen/app_localizations.dart';
 import 'dart:async';
 import 'package:flutter/material.dart';
@@ -141,11 +142,11 @@ class _ConversationScreenState extends State<ConversationScreen> {
       
       appBar: _buildAppBar(), // Винесли в окремий метод
       body: Container(
-        decoration: const BoxDecoration(
-          gradient: LinearGradient(
+        decoration: BoxDecoration(
+            gradient: LinearGradient(
             begin: Alignment.bottomCenter,
             end: Alignment.topCenter,
-            colors: [Color(0xFFF3E5F5), Colors.white],
+            colors: AppTheme.backgroundGradient(context),
           ),
         ),
         child: SafeArea(

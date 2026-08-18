@@ -857,4 +857,19 @@ class AppLocalizationsPt extends AppLocalizations {
 
   @override
   String get no_photos_tap_to_add => 'Sem fotos.\nToca para adicionar';
+
+  @override
+  String get appearance => 'Aspeto';
+
+  @override
+  String get theme_system => 'Igual ao telemóvel';
+
+  @override
+  String get theme_light => 'Clara';
+
+  @override
+  String get theme_dark => 'Escura';
+
+  @override
+  String get language_system => 'Igual ao telemóvel';
 }
