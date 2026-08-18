@@ -1,3 +1,4 @@
+import '../l10n/interest_labels.dart';
 import '../theme/app_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:dating_app/l10n/gen/app_localizations.dart';
@@ -19,30 +20,7 @@ class _ProfileDetailScreenState extends State<ProfileDetailScreen> {
 
   // Функція для локалізації хобі
   List<String> _getLocalizedHobbies(List<dynamic> hobbies, BuildContext context) {
-    Map<String, String> hobbyTranslations = {
-      'Фентезі книги': AppLocalizations.of(context)!.fantasy_books,
-      'Похід з наметом': AppLocalizations.of(context)!.camping,
-      'Ранкова кава з видом на гори': AppLocalizations.of(context)!.morning_coffee,
-      'Гра на гітарі': AppLocalizations.of(context)!.guitar,
-      'Фотографія': AppLocalizations.of(context)!.photography,
-      'Кулінарія': AppLocalizations.of(context)!.cooking,
-      'Подорожі': AppLocalizations.of(context)!.travel,
-      'Спорт': AppLocalizations.of(context)!.sport,
-      'Читання': AppLocalizations.of(context)!.reading,
-      'Йога': AppLocalizations.of(context)!.yoga,
-      'Медитація': AppLocalizations.of(context)!.meditation,
-      'Велоспорт': AppLocalizations.of(context)!.cycling,
-      'Мистецтво': AppLocalizations.of(context)!.art,
-      'Фітнес': AppLocalizations.of(context)!.fitness,
-      'Гори': AppLocalizations.of(context)!.mountains,
-      'Бокс': AppLocalizations.of(context)!.boxing,
-      'Плавання': AppLocalizations.of(context)!.swimming,
-      'Біг': AppLocalizations.of(context)!.running,
-      'Здорове харчування': AppLocalizations.of(context)!.healthy_nutrition,
-      'Мотивація': AppLocalizations.of(context)!.motivation,
-    };
-    
-    return hobbies.map((hobby) => hobbyTranslations[hobby.toString()] ?? hobby.toString()).toList();
+    return hobbies.map((h) => InterestLabels.of(context, h.toString())).toList();
   }
 
   @override
@@ -80,17 +58,17 @@ class _ProfileDetailScreenState extends State<ProfileDetailScreen> {
                           // Ім'я та вік
                           Text(
                             '${widget.profile['name'] ?? AppLocalizations.of(context)!.unknown}, ${widget.profile['age'] ?? ''}',
-                            style: const TextStyle(
+                            style: TextStyle(
                               fontSize: 28,
                               fontWeight: FontWeight.bold,
-                              color: Colors.black,
+                              color: Theme.of(context).colorScheme.onSurface,
                             ),
                           ),
                           
                           const SizedBox(height: 16),
                           
                           // Локація та відстань
-                          _buildInfoRow(Icons.location_on, 'м.${widget.profile['location'] ?? AppLocalizations.of(context)!.unknown}'),
+                          _buildInfoRow(Icons.location_on, AppLocalizations.of(context)!.city_prefix(widget.profile['location'] ?? AppLocalizations.of(context)!.unknown)),
                           const SizedBox(height: 8),
                           _buildInfoRow(Icons.access_time, widget.profile['distance'] ?? AppLocalizations.of(context)!.distance),
                           
@@ -100,18 +78,18 @@ class _ProfileDetailScreenState extends State<ProfileDetailScreen> {
                           if ((widget.profile['aboutMe'] ?? '').isNotEmpty) ...[
                             Text(
                               AppLocalizations.of(context)!.about_me,
-                              style: const TextStyle(
+                              style: TextStyle(
                                 fontSize: 20,
                                 fontWeight: FontWeight.bold,
-                                color: Colors.black,
+                                color: Theme.of(context).colorScheme.onSurface,
                               ),
                             ),
                             const SizedBox(height: 8),
                             Text(
-                              widget.profile['aboutMe'] ?? 'Опис відсутній',
-                              style: const TextStyle(
+                              widget.profile['aboutMe'] ?? AppLocalizations.of(context)!.no_description,
+                              style: TextStyle(
                                 fontSize: 16,
-                                color: Colors.black87,
+                                color: Theme.of(context).colorScheme.onSurface,
                                 height: 1.5,
                               ),
                             ),
@@ -122,10 +100,10 @@ class _ProfileDetailScreenState extends State<ProfileDetailScreen> {
                           if ((widget.profile['hobbies'] as List<dynamic>?)?.isNotEmpty == true) ...[
                             Text(
                               AppLocalizations.of(context)!.hobbies,
-                              style: const TextStyle(
+                              style: TextStyle(
                                 fontSize: 20,
                                 fontWeight: FontWeight.bold,
-                                color: Colors.black,
+                                color: Theme.of(context).colorScheme.onSurface,
                               ),
                             ),
                             const SizedBox(height: 12),
@@ -177,7 +155,7 @@ class _ProfileDetailScreenState extends State<ProfileDetailScreen> {
           // Кнопка назад
           IconButton(
             onPressed: () => Navigator.of(context).pop(),
-            icon: const Icon(Icons.arrow_back, color: Colors.black),
+            icon: Icon(Icons.arrow_back, color: Theme.of(context).colorScheme.onSurface),
           ),
           
           const Spacer(),
@@ -185,10 +163,10 @@ class _ProfileDetailScreenState extends State<ProfileDetailScreen> {
           // Назва екрану
           Text(
             AppLocalizations.of(context)!.user_profile,
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 18,
               fontWeight: FontWeight.bold,
-              color: Colors.black,
+              color: Theme.of(context).colorScheme.onSurface,
             ),
           ),
           
@@ -258,7 +236,7 @@ class _ProfileDetailScreenState extends State<ProfileDetailScreen> {
       children: [
         Icon(
           icon,
-          color: Colors.grey.shade600,
+          color: Theme.of(context).colorScheme.onSurfaceVariant,
           size: 20,
         ),
         const SizedBox(width: 8),
@@ -267,7 +245,7 @@ class _ProfileDetailScreenState extends State<ProfileDetailScreen> {
             text,
             style: TextStyle(
               fontSize: 16,
-              color: Colors.grey.shade700,
+              color: Theme.of(context).colorScheme.onSurfaceVariant,
             ),
           ),
         ),
@@ -287,7 +265,7 @@ class _ProfileDetailScreenState extends State<ProfileDetailScreen> {
                 Navigator.of(context).pop();
               },
               style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.grey.shade200,
+                backgroundColor: Theme.of(context).colorScheme.outlineVariant,
                 foregroundColor: Colors.black,
                 padding: const EdgeInsets.symmetric(vertical: 16),
                 shape: RoundedRectangleBorder(

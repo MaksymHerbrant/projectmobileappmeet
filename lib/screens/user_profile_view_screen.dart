@@ -1,3 +1,4 @@
+import '../l10n/interest_labels.dart';
 import '../theme/app_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -87,7 +88,7 @@ class _UserProfileViewScreenState extends State<UserProfileViewScreen> {
             child: Container(
               padding: const EdgeInsets.all(8),
               decoration: BoxDecoration(
-                color: Colors.white.withOpacity(0.9),
+                color: Theme.of(context).colorScheme.surface.withOpacity(0.9),
                 borderRadius: BorderRadius.circular(12),
                 boxShadow: [
                   BoxShadow(
@@ -97,17 +98,17 @@ class _UserProfileViewScreenState extends State<UserProfileViewScreen> {
                   ),
                 ],
               ),
-              child: const Icon(Icons.arrow_back, color: Colors.black87),
+              child: Icon(Icons.arrow_back, color: Theme.of(context).colorScheme.onSurface),
             ),
           ),
           const SizedBox(width: 16),
           Expanded(
             child: Text(
               '${AppLocalizations.of(context)!.user_profile} ${widget.user.name}',
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 20,
                 fontWeight: FontWeight.bold,
-                color: Colors.black87,
+                color: Theme.of(context).colorScheme.onSurface,
               ),
             ),
           ),
@@ -120,7 +121,7 @@ class _UserProfileViewScreenState extends State<UserProfileViewScreen> {
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 20),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: Theme.of(context).colorScheme.surface,
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
@@ -189,10 +190,10 @@ class _UserProfileViewScreenState extends State<UserProfileViewScreen> {
                   children: [
                     Text(
                       '${widget.user.name}, ${widget.user.age}',
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 24,
                         fontWeight: FontWeight.bold,
-                        color: Colors.black87,
+                        color: Theme.of(context).colorScheme.onSurface,
                       ),
                     ),
                     const Spacer(),
@@ -241,7 +242,7 @@ class _UserProfileViewScreenState extends State<UserProfileViewScreen> {
       margin: const EdgeInsets.symmetric(horizontal: 20),
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: Theme.of(context).colorScheme.surface,
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
@@ -264,10 +265,10 @@ class _UserProfileViewScreenState extends State<UserProfileViewScreen> {
               const SizedBox(width: 8),
               Text(
                 AppLocalizations.of(context)!.about_me_section,
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.bold,
-                  color: Colors.black87,
+                  color: Theme.of(context).colorScheme.onSurface,
                 ),
               ),
             ],
@@ -275,9 +276,9 @@ class _UserProfileViewScreenState extends State<UserProfileViewScreen> {
           const SizedBox(height: 12),
           Text(
             widget.user.description,
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 16,
-              color: Colors.black87,
+              color: Theme.of(context).colorScheme.onSurface,
               height: 1.5,
             ),
           ),
@@ -291,7 +292,7 @@ class _UserProfileViewScreenState extends State<UserProfileViewScreen> {
       margin: const EdgeInsets.symmetric(horizontal: 20),
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: Theme.of(context).colorScheme.surface,
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
@@ -314,10 +315,10 @@ class _UserProfileViewScreenState extends State<UserProfileViewScreen> {
               const SizedBox(width: 8),
               Text(
                 AppLocalizations.of(context)!.hobbies,
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.bold,
-                  color: Colors.black87,
+                  color: Theme.of(context).colorScheme.onSurface,
                 ),
               ),
             ],
@@ -338,7 +339,7 @@ class _UserProfileViewScreenState extends State<UserProfileViewScreen> {
                   ),
                 ),
                 child: Text(
-                  hobby,
+                  InterestLabels.of(context, hobby),
                   style: const TextStyle(
                     fontSize: 14,
                     color: Color.fromARGB(255, 30, 101, 233),

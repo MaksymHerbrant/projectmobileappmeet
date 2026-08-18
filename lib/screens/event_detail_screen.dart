@@ -57,10 +57,10 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
                           // Назва заходу
                           Text(
                             widget.event.title,
-                            style: const TextStyle(
+                            style: TextStyle(
                               fontSize: 28,
                               fontWeight: FontWeight.bold,
-                              color: Colors.black,
+                              color: Theme.of(context).colorScheme.onSurface,
                             ),
                           ),
                           
@@ -79,18 +79,18 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
                           if (widget.event.description.isNotEmpty) ...[
                             Text(
                               AppLocalizations.of(context)!.event_description,
-                              style: const TextStyle(
+                              style: TextStyle(
                                 fontSize: 20,
                                 fontWeight: FontWeight.bold,
-                                color: Colors.black,
+                                color: Theme.of(context).colorScheme.onSurface,
                               ),
                             ),
                             const SizedBox(height: 8),
                             Text(
                               widget.event.description,
-                              style: const TextStyle(
+                              style: TextStyle(
                                 fontSize: 16,
-                                color: Colors.black87,
+                                color: Theme.of(context).colorScheme.onSurface,
                                 height: 1.5,
                               ),
                             ),
@@ -101,10 +101,10 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
                           if (widget.event.tags.isNotEmpty) ...[
                             Text(
                               AppLocalizations.of(context)!.tags,
-                              style: const TextStyle(
+                              style: TextStyle(
                                 fontSize: 20,
                                 fontWeight: FontWeight.bold,
-                                color: Colors.black,
+                                color: Theme.of(context).colorScheme.onSurface,
                               ),
                             ),
                             const SizedBox(height: 12),
@@ -156,7 +156,7 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
           // Кнопка назад
           IconButton(
             onPressed: () => Navigator.of(context).pop(),
-            icon: const Icon(Icons.arrow_back, color: Colors.black),
+            icon: Icon(Icons.arrow_back, color: Theme.of(context).colorScheme.onSurface),
           ),
           
           const Spacer(),
@@ -164,10 +164,10 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
           // Назва екрану
           Text(
             AppLocalizations.of(context)!.event_details,
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 18,
               fontWeight: FontWeight.bold,
-              color: Colors.black,
+              color: Theme.of(context).colorScheme.onSurface,
             ),
           ),
           
@@ -237,7 +237,7 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
       children: [
         Icon(
           icon,
-          color: Colors.grey.shade600,
+          color: Theme.of(context).colorScheme.onSurfaceVariant,
           size: 20,
         ),
         const SizedBox(width: 8),
@@ -246,7 +246,7 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
             text,
             style: TextStyle(
               fontSize: 16,
-              color: Colors.grey.shade700,
+              color: Theme.of(context).colorScheme.onSurfaceVariant,
             ),
           ),
         ),
@@ -266,7 +266,7 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
                 Navigator.of(context).pop();
               },
               style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.grey.shade200,
+                backgroundColor: Theme.of(context).colorScheme.outlineVariant,
                 foregroundColor: Colors.black,
                 padding: const EdgeInsets.symmetric(vertical: 16),
                 shape: RoundedRectangleBorder(

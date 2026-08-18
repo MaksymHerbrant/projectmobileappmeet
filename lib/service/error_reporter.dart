@@ -1,28 +1,65 @@
 import 'package:flutter/foundation.dart';
+import 'package:flutter/widgets.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
-/// Помилка, яку варто показати користувачу текстом, а не проковтнути.
-class AppFailure implements Exception {
-  final String message;
-  final bool isRateLimit;
+import '../l10n/gen/app_localizations.dart';
 
-  const AppFailure(this.message, {this.isRateLimit = false});
+/// Про що саме помилка.
+///
+/// Сервіси не мають доступу до контексту, тому не можуть перекладати текст.
+/// Вони повертають код, а текст добирає інтерфейс — інакше повідомлення про
+/// помилки назавжди залишились би однією мовою.
+enum FailureKind {
+  rateLimit,
+  forbidden,
+  save,
+  storage,
+  network,
+  notAuthenticated,
+  smsFailed,
+  wrongCode,
+  updatePassword,
+  deleteAccount,
+  unknown,
+}
+
+/// Помилка, яку варто показати користувачу.
+class AppFailure implements Exception {
+  final FailureKind kind;
+
+  /// Технічні подробиці — для журналів, не для показу.
+  final String? details;
+
+  const AppFailure(this.kind, {this.details});
+
+  bool get isRateLimit => kind == FailureKind.rateLimit;
+
+  String localized(BuildContext context) {
+    final t = AppLocalizations.of(context)!;
+    return switch (kind) {
+      FailureKind.rateLimit => t.err_rate_limit,
+      FailureKind.forbidden => t.err_forbidden,
+      FailureKind.save => t.err_save,
+      FailureKind.storage => t.err_storage,
+      FailureKind.network => t.err_network,
+      FailureKind.notAuthenticated => t.err_not_authed,
+      FailureKind.smsFailed => t.err_sms_failed,
+      FailureKind.wrongCode => t.err_wrong_code,
+      FailureKind.updatePassword => t.err_update_password,
+      FailureKind.deleteAccount => t.err_delete_account,
+      FailureKind.unknown => t.err_unknown,
+    };
+  }
 
   @override
-  String toString() => message;
+  String toString() => 'AppFailure(${kind.name}${details == null ? '' : ': $details'})';
 }
 
 /// Єдина точка обробки помилок.
-///
-/// Раніше майже кожен метод сервісу закінчувався `catch { return [] }`:
-/// користувач бачив порожній екран замість причини, а в проді не лишалось
-/// жодного сліду. Тепер помилка потрапляє в Sentry (якщо заданий DSN) і
-/// перетворюється на текст, який можна показати.
 class ErrorReporter {
   const ErrorReporter._();
 
-  /// Надіслати помилку в Sentry. У дебагу — просто в консоль.
   static Future<void> report(
     Object error,
     StackTrace? stack, {
@@ -40,40 +77,35 @@ class ErrorReporter {
     );
   }
 
-  /// Перетворює технічну помилку на повідомлення для користувача.
-  ///
-  /// Окремо розпізнає rate limit: сервер повертає SQLSTATE 53400, і людині
-  /// треба сказати «зачекайте», а не «щось пішло не так».
+  /// Технічна помилка → код, зрозумілий інтерфейсу.
   static AppFailure toFailure(Object error) {
     if (error is AppFailure) return error;
 
     if (error is PostgrestException) {
-      if (error.code == '53400') {
-        return const AppFailure(
-          'Забагато дій поспіль. Спробуйте трохи пізніше.',
-          isRateLimit: true,
-        );
-      }
+      // 53400 — наш ліміт частоти; людині треба сказати «зачекайте»,
+      // а не «щось пішло не так».
+      if (error.code == '53400') return const AppFailure(FailureKind.rateLimit);
       if (error.code == '42501' || error.code == 'PGRST301') {
-        return const AppFailure('Немає доступу до цих даних.');
+        return const AppFailure(FailureKind.forbidden);
       }
-      return const AppFailure('Не вдалося зберегти зміни. Спробуйте ще раз.');
+      return AppFailure(FailureKind.save, details: error.message);
     }
 
     if (error is AuthException) {
-      return AppFailure(error.message);
+      return AppFailure(FailureKind.unknown, details: error.message);
     }
 
     if (error is StorageException) {
-      return const AppFailure(
-        'Не вдалося завантажити фото. Перевірте розмір і формат файлу.',
-      );
+      return AppFailure(FailureKind.storage, details: error.message);
     }
 
-    return const AppFailure("Немає зв'язку з сервером. Перевірте інтернет.");
+    return AppFailure(FailureKind.network, details: error.toString());
   }
 
-  /// Зареєструвати помилку і одразу отримати текст для інтерфейсу.
+  /// Текст помилки для показу, вже перекладений.
+  static String message(BuildContext context, Object error) =>
+      toFailure(error).localized(context);
+
   static Future<AppFailure> handle(
     Object error,
     StackTrace? stack, {

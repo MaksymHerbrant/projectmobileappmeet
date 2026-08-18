@@ -1,3 +1,4 @@
+import 'package:dating_app/l10n/gen/app_localizations.dart';
 import '../theme/app_theme.dart';
 import 'package:flutter/material.dart';
 
@@ -65,18 +66,18 @@ class _MessageDialogState extends State<MessageDialog> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        widget.isEventLike ? 'Лайк події' : 'Лайк користувача',
-                        style: const TextStyle(
+                        widget.isEventLike ? AppLocalizations.of(context)!.md_like_event : AppLocalizations.of(context)!.md_like_user,
+                        style: TextStyle(
                           fontSize: 18,
                           fontWeight: FontWeight.bold,
-                          color: Colors.black87,
+                          color: Theme.of(context).colorScheme.onSurface,
                         ),
                       ),
                       const SizedBox(height: 4),
                       Text(
                         widget.isEventLike 
-                            ? 'Ви лайкнули подію'
-                            : 'Ви лайкнули ${widget.userName}',
+                            ? AppLocalizations.of(context)!.md_liked_event
+                            : AppLocalizations.of(context)!.md_liked_user(widget.userName),
                         style: TextStyle(
                           fontSize: 14,
                           color: Colors.grey.withOpacity(0.7),
@@ -92,11 +93,11 @@ class _MessageDialogState extends State<MessageDialog> {
             
             // Повідомлення
             Text(
-              'Додайте повідомлення (необов\'язково)',
-              style: const TextStyle(
+              AppLocalizations.of(context)!.add_message_optional,
+              style: TextStyle(
                 fontSize: 16,
                 fontWeight: FontWeight.w600,
-                color: Colors.black87,
+                color: Theme.of(context).colorScheme.onSurface,
               ),
             ),
             const SizedBox(height: 12),
@@ -107,8 +108,8 @@ class _MessageDialogState extends State<MessageDialog> {
               maxLength: 200,
               decoration: InputDecoration(
                 hintText: widget.isEventLike 
-                    ? 'Напишіть, чому хочете приєднатися до події...'
-                    : 'Напишіть щось приємне...',
+                    ? AppLocalizations.of(context)!.md_join_hint
+                    : AppLocalizations.of(context)!.md_nice_hint,
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(12),
                   borderSide: BorderSide(color: Colors.grey.withOpacity(0.3)),
@@ -118,7 +119,7 @@ class _MessageDialogState extends State<MessageDialog> {
                   borderSide: const BorderSide(color: Color(0xFFE91E63)),
                 ),
                 filled: true,
-                fillColor: Colors.white,
+                fillColor: Theme.of(context).colorScheme.surface,
               ),
             ),
             
@@ -129,15 +130,15 @@ class _MessageDialogState extends State<MessageDialog> {
               children: [
                 Expanded(
                   child: _buildButton(
-                    text: 'Скасувати',
-                    color: Colors.grey,
+                    text: AppLocalizations.of(context)!.cancel,
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
                     onTap: () => Navigator.of(context).pop(),
                   ),
                 ),
                 const SizedBox(width: 12),
                 Expanded(
                   child: _buildButton(
-                    text: _isLoading ? 'Відправляємо...' : 'Відправити',
+                    text: _isLoading ? AppLocalizations.of(context)!.md_sending : AppLocalizations.of(context)!.send,
                     color: const Color(0xFFE91E63),
                     onTap: _isLoading ? null : _handleSend,
                   ),
@@ -166,8 +167,8 @@ class _MessageDialogState extends State<MessageDialog> {
         child: Center(
           child: Text(
             text,
-            style: const TextStyle(
-              color: Colors.white,
+            style: TextStyle(
+              color: Theme.of(context).colorScheme.onSurface,
               fontSize: 16,
               fontWeight: FontWeight.w600,
             ),

@@ -1,6 +1,9 @@
 import 'package:geolocator/geolocator.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
+import 'package:flutter/widgets.dart';
+
+import '../l10n/gen/app_localizations.dart';
 import 'error_reporter.dart';
 
 /// Чим саме закінчилась спроба оновити локацію.
@@ -17,18 +20,17 @@ enum LocationOutcome {
 }
 
 extension LocationOutcomeMessage on LocationOutcome {
-  String get message => switch (this) {
-        LocationOutcome.updated =>
-          'Локацію оновлено',
-        LocationOutcome.serviceDisabled =>
-          'Геолокація вимкнена в налаштуваннях телефона',
-        LocationOutcome.denied =>
-          'Без дозволу на геолокацію ми не зможемо показати людей поруч',
-        LocationOutcome.deniedForever =>
-          'Дозвіл на геолокацію відхилено. Увімкніть його в налаштуваннях телефона',
-        LocationOutcome.failed =>
-          'Не вдалося визначити місце. Спробуйте ще раз',
-      };
+  /// Текст добирається за контекстом: сервіс не має доступу до перекладів.
+  String localized(BuildContext context) {
+    final t = AppLocalizations.of(context)!;
+    return switch (this) {
+      LocationOutcome.updated => t.loc_updated,
+      LocationOutcome.serviceDisabled => t.loc_disabled,
+      LocationOutcome.denied => t.loc_denied,
+      LocationOutcome.deniedForever => t.loc_denied_forever,
+      LocationOutcome.failed => t.loc_failed,
+    };
+  }
 
   bool get isSuccess => this == LocationOutcome.updated;
 

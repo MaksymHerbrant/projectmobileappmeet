@@ -22,7 +22,7 @@ class AppStateProvider extends ChangeNotifier {
   int _unreadMessageCount = 0; // Лічильник непрочитаних
   
   bool _isLoading = false;
-  String? _errorMessage;
+  AppFailure? _lastFailure;
 
   // --- ГЕТТЕРИ (Щоб читати дані з UI) ---
 
@@ -33,14 +33,16 @@ class AppStateProvider extends ChangeNotifier {
   int get unreadMessageCount => _unreadMessageCount;
   
   bool get isLoading => _isLoading;
-  String? get errorMessage => _errorMessage;
+  /// Код останньої помилки. Текст добирає екран — провайдер не має
+  /// доступу до контексту, а отже й до перекладів.
+  AppFailure? get lastFailure => _lastFailure;
 
   // --- ОСНОВНІ ДІЇ ---
 
   // 1. Головний метод: Завантажити ВСЕ (викликається при старті)
   Future<void> loadAllData() async {
     _setLoading(true);
-    _errorMessage = null;
+    _lastFailure = null;
 
     try {
       final userId = _supabase.auth.currentUser?.id;
@@ -55,7 +57,7 @@ class AppStateProvider extends ChangeNotifier {
       ]);
 
     } catch (e) {
-      _errorMessage = e.toString();
+      _lastFailure = ErrorReporter.toFailure(e);
       debugPrint("❌ AppStateProvider Error: $e");
     } finally {
       _setLoading(false);
@@ -97,7 +99,7 @@ class AppStateProvider extends ChangeNotifier {
     } catch (e) {
       // Відкочуємо оптимістичне оновлення і показуємо справжню причину:
       // «зачекайте» при вичерпаному ліміті читається інакше, ніж «помилка».
-      _errorMessage = ErrorReporter.toFailure(e).message;
+      _lastFailure = ErrorReporter.toFailure(e);
       await refreshIncomingRequests(); // Перезавантажуємо список чесно
       notifyListeners();
     }

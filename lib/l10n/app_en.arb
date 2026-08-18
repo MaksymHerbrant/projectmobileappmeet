@@ -332,5 +332,330 @@
   "theme_system": "Same as phone",
   "theme_light": "Light",
   "theme_dark": "Dark",
-  "language_system": "Same as phone"
+  "language_system": "Same as phone",
+  "interest_it": "IT",
+  "interest_running": "Running",
+  "interest_cycling": "Cycling",
+  "interest_party": "Parties",
+  "interest_gaming": "Gaming",
+  "interest_mountains": "Mountains",
+  "interest_yoga": "Yoga",
+  "interest_coffee": "Coffee",
+  "interest_cooking": "Cooking",
+  "interest_cinema": "Cinema",
+  "interest_drawing": "Drawing",
+  "interest_art": "Art",
+  "interest_music": "Music",
+  "interest_lofi": "Lo-Fi music",
+  "interest_board_games": "Board games",
+  "interest_learning": "Learning",
+  "interest_swimming": "Swimming",
+  "interest_travel": "Travel",
+  "interest_hiking": "Hiking",
+  "interest_camping": "Camping",
+  "interest_nature": "Nature",
+  "interest_programming": "Programming",
+  "interest_sport": "Sport",
+  "interest_dancing": "Dancing",
+  "interest_fantasy_books": "Fantasy books",
+  "interest_photography": "Photography",
+  "interest_fitness": "Fitness",
+  "interest_reading": "Reading",
+  "ev_fill_required": "Please fill in all required fields",
+  "ev_enter_title": "Enter the event name",
+  "ev_title_min": "The name must be at least 3 characters",
+  "ev_add_description": "Add an event description",
+  "ev_desc_min": "The description must be at least 10 characters",
+  "ev_set_location": "Set a location",
+  "ev_set_participants": "Set the number of participants",
+  "ev_min_participants": "At least 2 participants",
+  "ev_max_participants": "Maximum 100 participants",
+  "ev_pick_photo": "Choose at least one photo",
+  "ev_max_tags": "You can pick up to 5 tags",
+  "ev_create_failed": "Could not create the event. Please try again.",
+  "ev_lets_create": "Let's create something special ✨",
+  "ev_fill_info": "Fill in your event details so others can join",
+  "ev_basic_info": "Basic information",
+  "ev_title_label": "Event name",
+  "ev_title_hint": "For example: Party in the city centre",
+  "ev_desc_label": "Event description",
+  "ev_desc_hint": "Tell people more about your event…",
+  "ev_date_time": "Date and time",
+  "ev_pick_datetime": "Choose the date and time",
+  "ev_date": "Date",
+  "ev_time": "Time",
+  "ev_pick_date": "Choose a date",
+  "ev_pick_time": "Choose a time",
+  "ev_type": "Event type",
+  "ev_public": "Public event",
+  "ev_public_hint": "Visible to everyone",
+  "ev_private_party": "Private event",
+  "ev_private_hint": "Extra details are shown only to invited people",
+  "ev_private_info": "Private information",
+  "ev_private_note": "This is shown only after a join request is approved",
+  "ev_general_location": "General area",
+  "ev_area_hint": "District or general area",
+  "ev_exact_address": "Exact address",
+  "ev_exact_hint": "Enter the exact address",
+  "ev_address_example": "1 Main Street, apt. 10",
+  "ev_meeting_point": "Meeting point",
+  "ev_meeting_example": "By the main entrance to the mall",
+  "ev_extra_info": "Additional information",
+  "ev_extra_hint": "What to bring, dress code and so on",
+  "ev_message_title": "Message for participants",
+  "ev_message_hint": "A personal note the invited people will see",
+  "ev_tags": "Tags",
+  "ev_tags_hint": "Choose the tags that best describe your event (up to 5)",
+  "ev_photos": "Photos",
+  "ev_photos_hint": "Add your own photos from the gallery (up to 5)",
+  "ev_max_participants_label": "Maximum participants",
+  "add": "Add",
+  "pr_edit_title": "Edit profile",
+  "pr_your_photos": "Your photos",
+  "pr_name": "Name",
+  "pr_enter_name": "Enter your name",
+  "pr_birth_date": "Date of birth",
+  "pr_pick_birth": "Choose a date",
+  "pr_need_birth": "Please enter your date of birth",
+  "pr_location": "Location",
+  "pr_enter_location": "Enter your location",
+  "pr_enter_city": "Enter a city",
+  "pr_about": "About you",
+  "pr_about_hint": "Tell people about yourself…",
+  "pr_hobbies": "Interests",
+  "pr_search_hobby": "Search interests…",
+  "pr_no_hobbies": "No interests found",
+  "pr_try_other_query": "Try a different search",
+  "pr_save_changes": "Save changes",
+  "pr_saved": "Profile updated",
+  "pr_save_failed": "Could not save the profile",
+  "pr_max_hobbies": "You can pick up to 8 interests",
+  "pr_limit": "Limit",
+  "rg_meet": "Getting to know you",
+  "rg_how_to_call": "What should we call you?",
+  "rg_your_phone": "Your phone number",
+  "rg_check_free": "We will check whether this number is available",
+  "rg_sms_title": "SMS confirmation",
+  "rg_enter_6": "Enter the 6 digits sent to your number",
+  "rg_code_incomplete": "Enter the full code",
+  "rg_age": "Age",
+  "rg_adults_only": "Adults only (18+)",
+  "rg_need_birth": "Enter your date of birth",
+  "rg_protect": "Secure your account",
+  "rg_strong_password": "Create a strong password",
+  "rg_password_short": "Password is too short",
+  "fp_title": "Account recovery",
+  "fp_enter_phone": "Enter the number linked to the account",
+  "fp_not_found": "No account found with this number",
+  "fp_new_strong": "Create a new strong password",
+  "el_title": "Likes on my events",
+  "el_who_wants": "People who want to come:",
+  "el_no_likes": "No likes yet",
+  "el_no_events": "You have no events yet",
+  "el_create_hint": "Create an event to start receiving likes",
+  "decline": "Decline",
+  "likes_count": "{count} likes",
+  "@likes_count": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "user_accepted": "{name} was accepted to the event",
+  "@user_accepted": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "user_declined": "Request from {name} declined",
+  "@user_declined": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "request_sent": "Request sent",
+  "request_sent_msg": "Request sent with your message",
+  "m_pending": "Pending",
+  "m_accepted": "Accepted",
+  "m_no_pending": "No pending requests",
+  "m_no_accepted": "No accepted invitations",
+  "m_requests_here": "Your requests will appear here",
+  "md_like_user": "Like a person",
+  "md_like_event": "Like an event",
+  "md_liked_user": "You liked {name}",
+  "@md_liked_user": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "md_liked_event": "You liked the event",
+  "md_nice_hint": "Write something nice…",
+  "md_join_hint": "Write why you want to join the event…",
+  "md_sending": "Sending…",
+  "ch_now": "Now",
+  "ch_yesterday": "Yesterday",
+  "ch_unknown": "Unknown",
+  "ch_user": "User",
+  "no_name": "No name",
+  "loading_info": "Loading…",
+  "no_description": "No description",
+  "err_rate_limit": "Too many actions in a row. Please try again a bit later.",
+  "err_forbidden": "You do not have access to this data.",
+  "err_save": "Could not save the changes. Please try again.",
+  "err_storage": "Could not upload the photo. Check the file size and format.",
+  "err_network": "No connection to the server. Check your internet.",
+  "err_unknown": "Something went wrong. Please try again.",
+  "err_not_authed": "You are not signed in",
+  "err_sms_failed": "Could not send the SMS",
+  "err_wrong_code": "Wrong code",
+  "err_update_password": "Could not update the password",
+  "err_delete_account": "Could not delete the account",
+  "loc_updated": "Location updated",
+  "loc_disabled": "Location is turned off in your phone settings",
+  "loc_denied": "Without location access we cannot show people nearby",
+  "loc_denied_forever": "Location access was denied. Turn it on in your phone settings",
+  "loc_failed": "Could not determine your location. Please try again",
+  "settings_button": "Settings",
+  "deleted_user": "Deleted",
+  "ae_going": "You are going to this event 🎉",
+  "ae_accepted_on": "Accepted {date}",
+  "@ae_accepted_on": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "ae_about": "About the event",
+  "ae_organizer": "Organiser",
+  "ae_organizer_msg": "Message from the organiser",
+  "ae_participants": "Participants ({count})",
+  "@ae_participants": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "ae_participants_of": "Participants: {joined}/{total}",
+  "@ae_participants_of": {
+    "placeholders": {
+      "joined": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "ae_route": "Directions",
+  "ae_event_chat": "Event chat",
+  "ae_opening_route": "Opening directions to \"{place}\"",
+  "@ae_opening_route": {
+    "placeholders": {
+      "place": {
+        "type": "String"
+      }
+    }
+  },
+  "ae_opening_chat": "Opening the chat for \"{title}\"",
+  "@ae_opening_chat": {
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "ae_sharing": "Sharing \"{title}\"",
+  "@ae_sharing": {
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "ae_remind": "Remind me an hour before",
+  "ae_reminder_set": "Reminder set for an hour before the event 🔔",
+  "ae_leave_review": "Leave a review",
+  "ae_how_was_it": "How was the event?",
+  "ae_thanks_review": "Thanks for your review ⭐",
+  "ae_finished": "Finished",
+  "ae_event_over": "The event has ended",
+  "ae_today": "The event is today",
+  "ae_now": "Now",
+  "ae_days_left": "{days} days left",
+  "@ae_days_left": {
+    "placeholders": {
+      "days": {
+        "type": "int"
+      }
+    }
+  },
+  "ae_in_days": "In {days} d",
+  "@ae_in_days": {
+    "placeholders": {
+      "days": {
+        "type": "int"
+      }
+    }
+  },
+  "ae_in_hours": "In {hours} h",
+  "@ae_in_hours": {
+    "placeholders": {
+      "hours": {
+        "type": "int"
+      }
+    }
+  },
+  "ae_in_minutes": "In {minutes} min",
+  "@ae_in_minutes": {
+    "placeholders": {
+      "minutes": {
+        "type": "int"
+      }
+    }
+  },
+  "ae_days_ago": "{days} days ago",
+  "@ae_days_ago": {
+    "placeholders": {
+      "days": {
+        "type": "int"
+      }
+    }
+  },
+  "ae_members_only": "This is visible only to event participants",
+  "yesterday": "yesterday",
+  "today_lc": "today",
+  "offline": "Offline",
+  "typing_now": "typing…",
+  "st_end_session": "End the current session",
+  "st_delete_data": "Permanently delete your data",
+  "st_update_password": "Update your password",
+  "ev_created_ok": "Event \"{title}\" created 🎉",
+  "@ev_created_ok": {
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "sign_in_title": "Sign in",
+  "ended_badge": "ENDED",
+  "default_bio": "Hi! I am new here…",
+  "default_country": "Ukraine",
+  "city_prefix": "{city}",
+  "@city_prefix": {
+    "placeholders": {
+      "city": {
+        "type": "String"
+      }
+    }
+  }
 }

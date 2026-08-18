@@ -59,7 +59,7 @@ class _ChatScreenState extends State<ChatScreen> {
     final roomId = chat['room_id'].toString();
     final isGroup = chat['type'] == 'group';
 
-    final name = isGroup ? chat['name'] : (chat['other_user_name'] ?? 'Користувач');
+    final name = isGroup ? chat['name'] : (chat['other_user_name'] ?? AppLocalizations.of(context)!.ch_user);
 
     // 👇 РОЗУМНЕ ВИЗНАЧЕННЯ ФОТО (Універсальне для обох типів)
     String photoUrl;
@@ -129,9 +129,9 @@ class _ChatScreenState extends State<ChatScreen> {
                               mainAxisSize: MainAxisSize.min,
                               children: [
                                 Text(
-                                  failure.message,
+                                  failure.localized(context),
                                   textAlign: TextAlign.center,
-                                  style: const TextStyle(color: Colors.grey),
+                                  style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant),
                                 ),
                                 const SizedBox(height: 12),
                                 TextButton(
@@ -145,12 +145,12 @@ class _ChatScreenState extends State<ChatScreen> {
 
                         final conversations = snapshot.data ?? [];
                         final filtered = conversations.where((chat) {
-                          final name = chat['type'] == 'group' ? chat['name'] : chat['other_user_name'] ?? 'Користувач';
+                          final name = chat['type'] == 'group' ? chat['name'] : chat['other_user_name'] ?? AppLocalizations.of(context)!.ch_user;
                           return name.toLowerCase().contains(_searchQuery.toLowerCase());
                         }).toList();
 
                         if (filtered.isEmpty) {
-                          return Center(child: Text(AppLocalizations.of(context)!.no_chats_yet ?? 'Чатів ще немає'));
+                          return Center(child: Text(AppLocalizations.of(context)!.no_chats_yet ?? AppLocalizations.of(context)!.no_chats_yet));
                         }
 
                         return Column(
@@ -227,7 +227,7 @@ class _ChatScreenState extends State<ChatScreen> {
         final isGroup = chat['type'] == 'group';
         
         // 👇 УНІВЕРСАЛЬНЕ ВИЗНАЧЕННЯ ІМЕНІ ТА ФОТО ПРЯМО ТУТ
-        final name = isGroup ? chat['name'] : (chat['other_user_name'] ?? 'Невідомий');
+        final name = isGroup ? chat['name'] : (chat['other_user_name'] ?? AppLocalizations.of(context)!.ch_unknown);
         
         // Вибираємо правильне джерело фото і правильну PNG-заглушку
         String photo;
@@ -273,7 +273,7 @@ class _ChatScreenState extends State<ChatScreen> {
             margin: const EdgeInsets.only(bottom: 12),
             padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
-              color: Colors.white,
+              color: Theme.of(context).colorScheme.surface,
               borderRadius: BorderRadius.circular(12),
               boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 8, offset: const Offset(0, 2))],
             ),
@@ -283,7 +283,7 @@ class _ChatScreenState extends State<ChatScreen> {
                   children: [
                     Container(
                       width: 50, height: 50,
-                      decoration: BoxDecoration(shape: BoxShape.circle, border: Border.all(color: isOnline ? Colors.green : Colors.grey.shade300, width: 2)),
+                      decoration: BoxDecoration(shape: BoxShape.circle, border: Border.all(color: isOnline ? Colors.green : Theme.of(context).colorScheme.outlineVariant, width: 2)),
                       child: ClipRRect(borderRadius: BorderRadius.circular(25), child: Image.network(photo, fit: BoxFit.cover)),
                     ),
                     if (isOnline) Positioned(right: 0, bottom: 0, child: Container(width: 12, height: 12, decoration: BoxDecoration(color: Colors.green, shape: BoxShape.circle, border: Border.all(color: Colors.white, width: 2)))),
@@ -296,10 +296,10 @@ class _ChatScreenState extends State<ChatScreen> {
                     children: [
                       Row(
                         children: [
-                          Expanded(child: Text(name, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600, color: Colors.black))),
+                          Expanded(child: Text(name, style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600, color: Theme.of(context).colorScheme.onSurface))),
                           Text(
                             parsedTime != null ? _formatTime(parsedTime) : '', // ТЕПЕР ПРАЦЮЄ КОРЕКТНО
-                            style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
+                            style: TextStyle(fontSize: 12, color: Theme.of(context).colorScheme.onSurfaceVariant),
                           ),
                         ],
                       ),
@@ -308,8 +308,8 @@ class _ChatScreenState extends State<ChatScreen> {
                         children: [
                           Expanded(
                             child: Text(
-                              isTyping ? '${AppLocalizations.of(context)!.typing ?? "Друкує"}...' : lastMsg,
-                              style: TextStyle(fontSize: 14, color: isTyping ? Colors.blue : Colors.grey.shade600, fontStyle: isTyping ? FontStyle.italic : FontStyle.normal, fontWeight: unread > 0 ? FontWeight.bold : FontWeight.normal),
+                              isTyping ? AppLocalizations.of(context)!.typing_now : lastMsg,
+                              style: TextStyle(fontSize: 14, color: isTyping ? Colors.blue : Theme.of(context).colorScheme.outlineVariant, fontStyle: isTyping ? FontStyle.italic : FontStyle.normal, fontWeight: unread > 0 ? FontWeight.bold : FontWeight.normal),
                               maxLines: 1, overflow: TextOverflow.ellipsis,
                             ),
                           ),
@@ -317,7 +317,7 @@ class _ChatScreenState extends State<ChatScreen> {
                             Container(
                               padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                               decoration: const BoxDecoration(color: Colors.blue, borderRadius: BorderRadius.all(Radius.circular(10))),
-                              child: Text('$unread', style: const TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold)),
+                              child: Text('$unread', style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontSize: 12, fontWeight: FontWeight.bold)),
                             ),
                         ],
                       ),
@@ -338,10 +338,10 @@ class _ChatScreenState extends State<ChatScreen> {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Text(AppLocalizations.of(context)!.chats, style: const TextStyle(fontSize: 28, fontWeight: FontWeight.bold, color: Colors.black)),
+          Text(AppLocalizations.of(context)!.chats, style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold, color: Theme.of(context).colorScheme.onSurface)),
           GestureDetector(
             onTap: _showGroupOptionsDialog,
-            child: Container(padding: const EdgeInsets.all(8), decoration: BoxDecoration(color: Colors.black, borderRadius: BorderRadius.circular(20)), child: const Icon(Icons.add, color: Colors.white, size: 24)),
+            child: Container(padding: const EdgeInsets.all(8), decoration: BoxDecoration(color: Theme.of(context).colorScheme.onSurface, borderRadius: BorderRadius.circular(20)), child: const Icon(Icons.add, color: Colors.white, size: 24)),
           ),
         ],
       ),
@@ -352,11 +352,11 @@ class _ChatScreenState extends State<ChatScreen> {
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 2),
-      decoration: BoxDecoration(color: Colors.grey.shade200, borderRadius: BorderRadius.circular(25)),
+      decoration: BoxDecoration(color: Theme.of(context).colorScheme.outlineVariant, borderRadius: BorderRadius.circular(25)),
       child: TextField(
         controller: _searchController,
         onChanged: (val) => setState(() => _searchQuery = val),
-        decoration: InputDecoration(hintText: AppLocalizations.of(context)!.search_contacts, border: InputBorder.none, icon: const Icon(Icons.search, color: Colors.grey)),
+        decoration: InputDecoration(hintText: AppLocalizations.of(context)!.search_contacts, border: InputBorder.none, icon: Icon(Icons.search, color: Theme.of(context).colorScheme.onSurfaceVariant)),
       ),
     );
   }
@@ -374,7 +374,7 @@ class _ChatScreenState extends State<ChatScreen> {
     
     // Якщо менше 60 сек
     if (difference.inSeconds.abs() < 60) {
-      return AppLocalizations.of(context)?.now ?? 'Зараз';
+      return AppLocalizations.of(context)?.now ?? AppLocalizations.of(context)!.ch_now;
     }
     
     // Сьогодні
@@ -385,7 +385,7 @@ class _ChatScreenState extends State<ChatScreen> {
     // Вчора
     final yesterday = now.subtract(const Duration(days: 1));
     if (time.year == yesterday.year && time.month == yesterday.month && time.day == yesterday.day) {
-      return "Вчора";
+      return AppLocalizations.of(context)!.ch_yesterday;
     }
 
     // Інші дні

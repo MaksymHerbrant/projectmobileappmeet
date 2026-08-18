@@ -122,10 +122,10 @@ class _MatchesScreenState extends State<MatchesScreen> with SingleTickerProvider
       alignment: Alignment.centerLeft,
       child: Text(
         title,
-        style: const TextStyle(
+        style: TextStyle(
           fontSize: 20,
           fontWeight: FontWeight.bold,
-          color: Colors.black87,
+          color: Theme.of(context).colorScheme.onSurface,
         ),
       ),
     );
@@ -213,7 +213,7 @@ class _MatchesScreenState extends State<MatchesScreen> with SingleTickerProvider
     return Container(
       margin: const EdgeInsets.only(bottom: 16),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: Theme.of(context).colorScheme.surface,
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
@@ -246,7 +246,7 @@ class _MatchesScreenState extends State<MatchesScreen> with SingleTickerProvider
                     child: Container(
                       padding: const EdgeInsets.all(6),
                       decoration: BoxDecoration(
-                        color: Colors.white.withOpacity(0.2),
+                        color: Theme.of(context).colorScheme.surface.withOpacity(0.2),
                         borderRadius: BorderRadius.circular(8),
                       ),
                       child: const Icon(Icons.info, color: Colors.white, size: 18),
@@ -267,10 +267,10 @@ class _MatchesScreenState extends State<MatchesScreen> with SingleTickerProvider
                     ),
                     child: Row(
                       children: [
-                        Text('${user.name}, ${user.age}', style: const TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold)),
+                        Text('${user.name}, ${user.age}', style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontSize: 18, fontWeight: FontWeight.bold)),
                         const SizedBox(width: 8),
-                        const Icon(Icons.location_on, size: 16, color: Colors.white70),
-                        Text(user.location, style: const TextStyle(color: Colors.white70, fontSize: 14)),
+                        Icon(Icons.location_on, size: 16, color: Theme.of(context).colorScheme.onSurfaceVariant),
+                        Text(user.location, style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant, fontSize: 14)),
                       ],
                     ),
                   ),
@@ -320,7 +320,7 @@ class _MatchesScreenState extends State<MatchesScreen> with SingleTickerProvider
                     ],
                   ),
                   const SizedBox(height: 6),
-                  Text(message, style: const TextStyle(fontSize: 14, color: Colors.black87)),
+                  Text(message, style: TextStyle(fontSize: 14, color: Theme.of(context).colorScheme.onSurface)),
                 ],
               ),
             ),
@@ -371,7 +371,7 @@ class _MatchesScreenState extends State<MatchesScreen> with SingleTickerProvider
           child: ElevatedButton.icon(
             onPressed: _navigateToCreateEvent,
             icon: const Icon(Icons.add, color: Colors.white),
-            label: Text(t.create_event, style: const TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.w600)),
+            label: Text(t.create_event, style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontSize: 16, fontWeight: FontWeight.w600)),
             style: ElevatedButton.styleFrom(
               backgroundColor: Colors.purple,
               padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
@@ -400,7 +400,7 @@ class _MatchesScreenState extends State<MatchesScreen> with SingleTickerProvider
     return Container(
       margin: const EdgeInsets.only(bottom: 16),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: Theme.of(context).colorScheme.surface,
         borderRadius: BorderRadius.circular(20),
         boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.08), blurRadius: 12, offset: const Offset(0, 4))],
       ),
@@ -421,7 +421,7 @@ class _MatchesScreenState extends State<MatchesScreen> with SingleTickerProvider
                     onTap: () => _showEventInfoDialog(event, t),
                     child: Container(
                       padding: const EdgeInsets.all(6),
-                      decoration: BoxDecoration(color: Colors.white.withOpacity(0.2), borderRadius: BorderRadius.circular(8)),
+                      decoration: BoxDecoration(color: Theme.of(context).colorScheme.surface.withOpacity(0.2), borderRadius: BorderRadius.circular(8)),
                       child: const Icon(Icons.info, color: Colors.white, size: 18),
                     ),
                   ),
@@ -434,15 +434,15 @@ class _MatchesScreenState extends State<MatchesScreen> with SingleTickerProvider
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(event.title, style: const TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold)),
+                        Text(event.title, style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontSize: 18, fontWeight: FontWeight.bold)),
                         const SizedBox(height: 4),
                         Row(
                           children: [
-                            const Icon(Icons.location_on, size: 16, color: Colors.white70),
-                            Text(event.location, style: const TextStyle(color: Colors.white70)),
+                            Icon(Icons.location_on, size: 16, color: Theme.of(context).colorScheme.onSurfaceVariant),
+                            Text(event.location, style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant)),
                             const SizedBox(width: 16),
-                            const Icon(Icons.people, size: 16, color: Colors.white70),
-                            Text('${event.participantsCount}', style: const TextStyle(color: Colors.white70)),
+                            Icon(Icons.people, size: 16, color: Theme.of(context).colorScheme.onSurfaceVariant),
+                            Text('${event.participantsCount}', style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant)),
                           ],
                         ),
                       ],
@@ -459,9 +459,9 @@ class _MatchesScreenState extends State<MatchesScreen> with SingleTickerProvider
               children: [
                 Row(
                   children: [
-                    Icon(Icons.calendar_today, size: 16, color: Colors.grey[600]),
+                    Icon(Icons.calendar_today, size: 16, color: Theme.of(context).colorScheme.onSurfaceVariant),
                     const SizedBox(width: 8),
-                    Text('${event.dateTime.day}.${event.dateTime.month}.${event.dateTime.year}', style: TextStyle(fontSize: 14, color: Colors.grey[600], fontWeight: FontWeight.w500)),
+                    Text('${event.dateTime.day}.${event.dateTime.month}.${event.dateTime.year}', style: TextStyle(fontSize: 14, color: Theme.of(context).colorScheme.onSurfaceVariant, fontWeight: FontWeight.w500)),
                   ],
                 ),
                 const SizedBox(height: 8),
@@ -503,7 +503,7 @@ class _MatchesScreenState extends State<MatchesScreen> with SingleTickerProvider
               Expanded(
                 child: _TabChip(
                   isActive: _invitationsFilter == 0,
-                  label: 'Очікувані',
+                  label: AppLocalizations.of(context)!.m_pending,
                   onTap: () => setState(() => _invitationsFilter = 0),
                   activeColor: Colors.purple,
                 ),
@@ -512,7 +512,7 @@ class _MatchesScreenState extends State<MatchesScreen> with SingleTickerProvider
               Expanded(
                 child: _TabChip(
                   isActive: _invitationsFilter == 1,
-                  label: 'Прийняті',
+                  label: AppLocalizations.of(context)!.m_accepted,
                   onTap: () => setState(() => _invitationsFilter = 1),
                   activeColor: Colors.green,
                 ),
@@ -529,8 +529,8 @@ class _MatchesScreenState extends State<MatchesScreen> with SingleTickerProvider
                     SizedBox(height: MediaQuery.of(context).size.height * 0.3),
                     _buildEmptyState(
                       icon: _invitationsFilter == 0 ? Icons.schedule : Icons.check_circle,
-                      title: _invitationsFilter == 0 ? 'Немає очікуваних запитів' : 'Немає прийнятих запрошень',
-                      subtitle: 'Ваші заявки з\'являться тут',
+                      title: _invitationsFilter == 0 ? AppLocalizations.of(context)!.m_no_pending : AppLocalizations.of(context)!.m_no_accepted,
+                      subtitle: AppLocalizations.of(context)!.m_requests_here,
                     ),
                   ],
                 )
@@ -560,7 +560,7 @@ class _MatchesScreenState extends State<MatchesScreen> with SingleTickerProvider
       margin: const EdgeInsets.only(bottom: 16),
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: Theme.of(context).colorScheme.surface,
         borderRadius: BorderRadius.circular(16),
         boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 10, offset: const Offset(0, 2))],
       ),
@@ -583,7 +583,7 @@ class _MatchesScreenState extends State<MatchesScreen> with SingleTickerProvider
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(event.title, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-                    Text(event.location, style: TextStyle(color: Colors.grey.shade600)),
+                    Text(event.location, style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant)),
                   ],
                 ),
               ),
@@ -599,7 +599,7 @@ class _MatchesScreenState extends State<MatchesScreen> with SingleTickerProvider
                 children: [
                   Icon(Icons.check_circle, color: Colors.green.shade600, size: 20),
                   const SizedBox(width: 8),
-                  Text('Заявку схвалено!', style: TextStyle(color: Colors.green.shade700, fontWeight: FontWeight.w600)),
+                  Text(AppLocalizations.of(context)!.request_approved, style: TextStyle(color: Colors.green.shade700, fontWeight: FontWeight.w600)),
                   const Spacer(),
                   const Icon(Icons.arrow_forward_ios, size: 14, color: Colors.green),
                 ],
@@ -613,7 +613,7 @@ class _MatchesScreenState extends State<MatchesScreen> with SingleTickerProvider
                 children: [
                   Icon(Icons.access_time, color: Colors.orange.shade600, size: 20),
                   const SizedBox(width: 8),
-                  Text('Очікує підтвердження', style: TextStyle(color: Colors.orange.shade700, fontWeight: FontWeight.w600)),
+                  Text(AppLocalizations.of(context)!.awaiting_confirmation, style: TextStyle(color: Colors.orange.shade700, fontWeight: FontWeight.w600)),
                 ],
               ),
             ),
@@ -633,7 +633,7 @@ class _MatchesScreenState extends State<MatchesScreen> with SingleTickerProvider
           children: [
             Container(
               padding: const EdgeInsets.all(24),
-              decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(50), boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.08), blurRadius: 12, offset: const Offset(0, 4))]),
+              decoration: BoxDecoration(color: Theme.of(context).colorScheme.surface, borderRadius: BorderRadius.circular(50), boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.08), blurRadius: 12, offset: const Offset(0, 4))]),
               child: Icon(icon, size: 48, color: const Color(0xFFE91E63)),
             ),
             const SizedBox(height: 24),
@@ -659,11 +659,11 @@ class _MatchesScreenState extends State<MatchesScreen> with SingleTickerProvider
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text("Метч! Чат з ${user.name} створено!"), 
+            content: Text(AppLocalizations.of(context)!.match_chat_created(user.name)), 
             backgroundColor: Colors.green,
             duration: const Duration(seconds: 4),
             action: SnackBarAction(
-              label: 'Ок',
+              label: AppLocalizations.of(context)!.ok,
               textColor: Colors.white,
               onPressed: () {},
             ),
@@ -674,7 +674,7 @@ class _MatchesScreenState extends State<MatchesScreen> with SingleTickerProvider
       debugPrint("Помилка при прийнятті: $e");
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text("Помилка створення чату"), backgroundColor: Colors.red)
+          SnackBar(content: Text(AppLocalizations.of(context)!.chat_create_failed), backgroundColor: Colors.red)
         );
       }
     }
@@ -693,7 +693,7 @@ class _MatchesScreenState extends State<MatchesScreen> with SingleTickerProvider
       }
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Помилка"), backgroundColor: Colors.red)
+        SnackBar(content: Text(AppLocalizations.of(context)!.error), backgroundColor: Colors.red)
       );
     }
   }
@@ -701,7 +701,7 @@ class _MatchesScreenState extends State<MatchesScreen> with SingleTickerProvider
   void _showUserMenu(BuildContext context, UserProfile user, AppLocalizations t) {
     showModalBottomSheet(
       context: context,
-      backgroundColor: Colors.white,
+      backgroundColor: Theme.of(context).colorScheme.surface,
       shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
       builder: (context) {
         return SafeArea(
@@ -766,12 +766,12 @@ class _TabChip extends StatelessWidget {
         decoration: BoxDecoration(
           color: isActive ? selectedColor : Colors.transparent,
           borderRadius: BorderRadius.circular(25),
-          border: Border.all(color: isActive ? selectedColor : Colors.grey.shade300),
+          border: Border.all(color: isActive ? selectedColor : Theme.of(context).colorScheme.outlineVariant),
         ),
         child: Text(
           label,
           textAlign: TextAlign.center,
-          style: TextStyle(color: isActive ? Colors.white : Colors.black, fontWeight: FontWeight.w600, fontSize: 14),
+          style: TextStyle(color: isActive ? Theme.of(context).colorScheme.onPrimary : Theme.of(context).colorScheme.onSurface, fontWeight: FontWeight.w600, fontSize: 14),
         ),
       ),
     );
@@ -797,7 +797,7 @@ class _ActionButton extends StatelessWidget {
           children: [
             Icon(icon, color: Colors.white, size: 20),
             const SizedBox(height: 4),
-            Text(label, style: const TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.w600)),
+            Text(label, style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontSize: 12, fontWeight: FontWeight.w600)),
           ],
         ),
       ),

@@ -873,4 +873,661 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get language_system => 'Igual que el teléfono';
+
+  @override
+  String get interest_it => 'IT';
+
+  @override
+  String get interest_running => 'Correr';
+
+  @override
+  String get interest_cycling => 'Ciclismo';
+
+  @override
+  String get interest_party => 'Fiestas';
+
+  @override
+  String get interest_gaming => 'Videojuegos';
+
+  @override
+  String get interest_mountains => 'Montaña';
+
+  @override
+  String get interest_yoga => 'Yoga';
+
+  @override
+  String get interest_coffee => 'Café';
+
+  @override
+  String get interest_cooking => 'Cocina';
+
+  @override
+  String get interest_cinema => 'Cine';
+
+  @override
+  String get interest_drawing => 'Dibujo';
+
+  @override
+  String get interest_art => 'Arte';
+
+  @override
+  String get interest_music => 'Música';
+
+  @override
+  String get interest_lofi => 'Música lo-fi';
+
+  @override
+  String get interest_board_games => 'Juegos de mesa';
+
+  @override
+  String get interest_learning => 'Aprendizaje';
+
+  @override
+  String get interest_swimming => 'Natación';
+
+  @override
+  String get interest_travel => 'Viajes';
+
+  @override
+  String get interest_hiking => 'Senderismo';
+
+  @override
+  String get interest_camping => 'Acampada';
+
+  @override
+  String get interest_nature => 'Naturaleza';
+
+  @override
+  String get interest_programming => 'Programación';
+
+  @override
+  String get interest_sport => 'Deporte';
+
+  @override
+  String get interest_dancing => 'Baile';
+
+  @override
+  String get interest_fantasy_books => 'Libros de fantasía';
+
+  @override
+  String get interest_photography => 'Fotografía';
+
+  @override
+  String get interest_fitness => 'Fitness';
+
+  @override
+  String get interest_reading => 'Lectura';
+
+  @override
+  String get ev_fill_required => 'Rellena todos los campos obligatorios';
+
+  @override
+  String get ev_enter_title => 'Introduce el nombre del evento';
+
+  @override
+  String get ev_title_min => 'El nombre debe tener al menos 3 caracteres';
+
+  @override
+  String get ev_add_description => 'Añade una descripción del evento';
+
+  @override
+  String get ev_desc_min => 'La descripción debe tener al menos 10 caracteres';
+
+  @override
+  String get ev_set_location => 'Indica una ubicación';
+
+  @override
+  String get ev_set_participants => 'Indica el número de participantes';
+
+  @override
+  String get ev_min_participants => 'Mínimo 2 participantes';
+
+  @override
+  String get ev_max_participants => 'Máximo 100 participantes';
+
+  @override
+  String get ev_pick_photo => 'Elige al menos una foto';
+
+  @override
+  String get ev_max_tags => 'Puedes elegir hasta 5 etiquetas';
+
+  @override
+  String get ev_create_failed =>
+      'No se pudo crear el evento. Inténtalo de nuevo.';
+
+  @override
+  String get ev_lets_create => 'Vamos a crear algo especial ✨';
+
+  @override
+  String get ev_fill_info =>
+      'Completa los datos del evento para que otros puedan unirse';
+
+  @override
+  String get ev_basic_info => 'Información básica';
+
+  @override
+  String get ev_title_label => 'Nombre del evento';
+
+  @override
+  String get ev_title_hint => 'Por ejemplo: Fiesta en el centro';
+
+  @override
+  String get ev_desc_label => 'Descripción del evento';
+
+  @override
+  String get ev_desc_hint => 'Cuenta más sobre tu evento…';
+
+  @override
+  String get ev_date_time => 'Fecha y hora';
+
+  @override
+  String get ev_pick_datetime => 'Elige la fecha y la hora';
+
+  @override
+  String get ev_date => 'Fecha';
+
+  @override
+  String get ev_time => 'Hora';
+
+  @override
+  String get ev_pick_date => 'Elige una fecha';
+
+  @override
+  String get ev_pick_time => 'Elige una hora';
+
+  @override
+  String get ev_type => 'Tipo de evento';
+
+  @override
+  String get ev_public => 'Evento público';
+
+  @override
+  String get ev_public_hint => 'Visible para todos';
+
+  @override
+  String get ev_private_party => 'Evento privado';
+
+  @override
+  String get ev_private_hint =>
+      'Los detalles extra solo se muestran a los invitados';
+
+  @override
+  String get ev_private_info => 'Información privada';
+
+  @override
+  String get ev_private_note =>
+      'Esto solo se muestra tras aprobar la solicitud';
+
+  @override
+  String get ev_general_location => 'Zona general';
+
+  @override
+  String get ev_area_hint => 'Barrio o zona general';
+
+  @override
+  String get ev_exact_address => 'Dirección exacta';
+
+  @override
+  String get ev_exact_hint => 'Introduce la dirección exacta';
+
+  @override
+  String get ev_address_example => 'Calle Mayor 1, piso 10';
+
+  @override
+  String get ev_meeting_point => 'Punto de encuentro';
+
+  @override
+  String get ev_meeting_example =>
+      'Junto a la entrada principal del centro comercial';
+
+  @override
+  String get ev_extra_info => 'Información adicional';
+
+  @override
+  String get ev_extra_hint => 'Qué llevar, código de vestimenta, etc.';
+
+  @override
+  String get ev_message_title => 'Mensaje para los participantes';
+
+  @override
+  String get ev_message_hint => 'Una nota personal que verán los invitados';
+
+  @override
+  String get ev_tags => 'Etiquetas';
+
+  @override
+  String get ev_tags_hint =>
+      'Elige las etiquetas que mejor describan tu evento (hasta 5)';
+
+  @override
+  String get ev_photos => 'Fotos';
+
+  @override
+  String get ev_photos_hint => 'Añade tus fotos de la galería (hasta 5)';
+
+  @override
+  String get ev_max_participants_label => 'Máximo de participantes';
+
+  @override
+  String get add => 'Añadir';
+
+  @override
+  String get pr_edit_title => 'Editar perfil';
+
+  @override
+  String get pr_your_photos => 'Tus fotos';
+
+  @override
+  String get pr_name => 'Nombre';
+
+  @override
+  String get pr_enter_name => 'Introduce tu nombre';
+
+  @override
+  String get pr_birth_date => 'Fecha de nacimiento';
+
+  @override
+  String get pr_pick_birth => 'Elige una fecha';
+
+  @override
+  String get pr_need_birth => 'Introduce tu fecha de nacimiento';
+
+  @override
+  String get pr_location => 'Ubicación';
+
+  @override
+  String get pr_enter_location => 'Introduce tu ubicación';
+
+  @override
+  String get pr_enter_city => 'Introduce una ciudad';
+
+  @override
+  String get pr_about => 'Sobre ti';
+
+  @override
+  String get pr_about_hint => 'Cuéntanos sobre ti…';
+
+  @override
+  String get pr_hobbies => 'Intereses';
+
+  @override
+  String get pr_search_hobby => 'Buscar intereses…';
+
+  @override
+  String get pr_no_hobbies => 'No se encontraron intereses';
+
+  @override
+  String get pr_try_other_query => 'Prueba otra búsqueda';
+
+  @override
+  String get pr_save_changes => 'Guardar cambios';
+
+  @override
+  String get pr_saved => 'Perfil actualizado';
+
+  @override
+  String get pr_save_failed => 'No se pudo guardar el perfil';
+
+  @override
+  String get pr_max_hobbies => 'Puedes elegir hasta 8 intereses';
+
+  @override
+  String get pr_limit => 'Límite';
+
+  @override
+  String get rg_meet => 'Presentación';
+
+  @override
+  String get rg_how_to_call => '¿Cómo te llamamos?';
+
+  @override
+  String get rg_your_phone => 'Tu número de teléfono';
+
+  @override
+  String get rg_check_free => 'Comprobaremos si este número está libre';
+
+  @override
+  String get rg_sms_title => 'Confirmación por SMS';
+
+  @override
+  String get rg_enter_6 => 'Introduce los 6 dígitos enviados a tu número';
+
+  @override
+  String get rg_code_incomplete => 'Introduce el código completo';
+
+  @override
+  String get rg_age => 'Edad';
+
+  @override
+  String get rg_adults_only => 'Solo para mayores de 18';
+
+  @override
+  String get rg_need_birth => 'Introduce tu fecha de nacimiento';
+
+  @override
+  String get rg_protect => 'Protege tu cuenta';
+
+  @override
+  String get rg_strong_password => 'Crea una contraseña segura';
+
+  @override
+  String get rg_password_short => 'La contraseña es demasiado corta';
+
+  @override
+  String get fp_title => 'Recuperar cuenta';
+
+  @override
+  String get fp_enter_phone => 'Introduce el número vinculado a la cuenta';
+
+  @override
+  String get fp_not_found => 'No se encontró una cuenta con este número';
+
+  @override
+  String get fp_new_strong => 'Crea una nueva contraseña segura';
+
+  @override
+  String get el_title => 'Me gusta en mis eventos';
+
+  @override
+  String get el_who_wants => 'Personas que quieren ir:';
+
+  @override
+  String get el_no_likes => 'Aún no hay me gusta';
+
+  @override
+  String get el_no_events => 'Todavía no tienes eventos';
+
+  @override
+  String get el_create_hint => 'Crea un evento para empezar a recibir me gusta';
+
+  @override
+  String get decline => 'Rechazar';
+
+  @override
+  String likes_count(int count) {
+    return '$count me gusta';
+  }
+
+  @override
+  String user_accepted(String name) {
+    return '$name fue aceptado en el evento';
+  }
+
+  @override
+  String user_declined(String name) {
+    return 'Solicitud de $name rechazada';
+  }
+
+  @override
+  String get request_sent => 'Solicitud enviada';
+
+  @override
+  String get request_sent_msg => 'Solicitud enviada con tu mensaje';
+
+  @override
+  String get m_pending => 'Pendientes';
+
+  @override
+  String get m_accepted => 'Aceptadas';
+
+  @override
+  String get m_no_pending => 'No hay solicitudes pendientes';
+
+  @override
+  String get m_no_accepted => 'No hay invitaciones aceptadas';
+
+  @override
+  String get m_requests_here => 'Tus solicitudes aparecerán aquí';
+
+  @override
+  String get md_like_user => 'Me gusta a una persona';
+
+  @override
+  String get md_like_event => 'Me gusta a un evento';
+
+  @override
+  String md_liked_user(String name) {
+    return 'Te gustó $name';
+  }
+
+  @override
+  String get md_liked_event => 'Te gustó el evento';
+
+  @override
+  String get md_nice_hint => 'Escribe algo agradable…';
+
+  @override
+  String get md_join_hint => 'Escribe por qué quieres unirte…';
+
+  @override
+  String get md_sending => 'Enviando…';
+
+  @override
+  String get ch_now => 'Ahora';
+
+  @override
+  String get ch_yesterday => 'Ayer';
+
+  @override
+  String get ch_unknown => 'Desconocido';
+
+  @override
+  String get ch_user => 'Usuario';
+
+  @override
+  String get no_name => 'Sin nombre';
+
+  @override
+  String get loading_info => 'Cargando…';
+
+  @override
+  String get no_description => 'Sin descripción';
+
+  @override
+  String get err_rate_limit =>
+      'Demasiadas acciones seguidas. Inténtalo un poco más tarde.';
+
+  @override
+  String get err_forbidden => 'No tienes acceso a estos datos.';
+
+  @override
+  String get err_save =>
+      'No se pudieron guardar los cambios. Inténtalo de nuevo.';
+
+  @override
+  String get err_storage =>
+      'No se pudo subir la foto. Comprueba el tamaño y el formato.';
+
+  @override
+  String get err_network =>
+      'Sin conexión con el servidor. Comprueba tu internet.';
+
+  @override
+  String get err_unknown => 'Algo salió mal. Inténtalo de nuevo.';
+
+  @override
+  String get err_not_authed => 'No has iniciado sesión';
+
+  @override
+  String get err_sms_failed => 'No se pudo enviar el SMS';
+
+  @override
+  String get err_wrong_code => 'Código incorrecto';
+
+  @override
+  String get err_update_password => 'No se pudo actualizar la contraseña';
+
+  @override
+  String get err_delete_account => 'No se pudo eliminar la cuenta';
+
+  @override
+  String get loc_updated => 'Ubicación actualizada';
+
+  @override
+  String get loc_disabled =>
+      'La ubicación está desactivada en los ajustes del teléfono';
+
+  @override
+  String get loc_denied =>
+      'Sin permiso de ubicación no podemos mostrar gente cerca';
+
+  @override
+  String get loc_denied_forever =>
+      'El permiso de ubicación fue denegado. Actívalo en los ajustes del teléfono';
+
+  @override
+  String get loc_failed =>
+      'No se pudo determinar tu ubicación. Inténtalo de nuevo';
+
+  @override
+  String get settings_button => 'Ajustes';
+
+  @override
+  String get deleted_user => 'Eliminado';
+
+  @override
+  String get ae_going => '¡Vas a este evento! 🎉';
+
+  @override
+  String ae_accepted_on(String date) {
+    return 'Aceptado $date';
+  }
+
+  @override
+  String get ae_about => 'Sobre el evento';
+
+  @override
+  String get ae_organizer => 'Organizador';
+
+  @override
+  String get ae_organizer_msg => 'Mensaje del organizador';
+
+  @override
+  String ae_participants(int count) {
+    return 'Participantes ($count)';
+  }
+
+  @override
+  String ae_participants_of(int joined, int total) {
+    return 'Participantes: $joined/$total';
+  }
+
+  @override
+  String get ae_route => 'Cómo llegar';
+
+  @override
+  String get ae_event_chat => 'Chat del evento';
+
+  @override
+  String ae_opening_route(String place) {
+    return 'Abriendo la ruta a «$place»';
+  }
+
+  @override
+  String ae_opening_chat(String title) {
+    return 'Abriendo el chat de «$title»';
+  }
+
+  @override
+  String ae_sharing(String title) {
+    return 'Compartiendo «$title»';
+  }
+
+  @override
+  String get ae_remind => 'Recordarme una hora antes';
+
+  @override
+  String get ae_reminder_set => 'Recordatorio programado una hora antes 🔔';
+
+  @override
+  String get ae_leave_review => 'Dejar una reseña';
+
+  @override
+  String get ae_how_was_it => '¿Qué te pareció el evento?';
+
+  @override
+  String get ae_thanks_review => '¡Gracias por tu reseña! ⭐';
+
+  @override
+  String get ae_finished => 'Finalizado';
+
+  @override
+  String get ae_event_over => 'El evento ha terminado';
+
+  @override
+  String get ae_today => '¡El evento es hoy!';
+
+  @override
+  String get ae_now => '¡Ahora!';
+
+  @override
+  String ae_days_left(int days) {
+    return 'Quedan $days días';
+  }
+
+  @override
+  String ae_in_days(int days) {
+    return 'En $days d';
+  }
+
+  @override
+  String ae_in_hours(int hours) {
+    return 'En $hours h';
+  }
+
+  @override
+  String ae_in_minutes(int minutes) {
+    return 'En $minutes min';
+  }
+
+  @override
+  String ae_days_ago(int days) {
+    return 'Hace $days días';
+  }
+
+  @override
+  String get ae_members_only => 'Esto solo lo ven los participantes del evento';
+
+  @override
+  String get yesterday => 'ayer';
+
+  @override
+  String get today_lc => 'hoy';
+
+  @override
+  String get offline => 'Desconectado';
+
+  @override
+  String get typing_now => 'escribiendo…';
+
+  @override
+  String get st_end_session => 'Cerrar la sesión actual';
+
+  @override
+  String get st_delete_data => 'Eliminar tus datos de forma permanente';
+
+  @override
+  String get st_update_password => 'Actualiza tu contraseña';
+
+  @override
+  String ev_created_ok(String title) {
+    return 'Evento «$title» creado 🎉';
+  }
+
+  @override
+  String get sign_in_title => 'Iniciar sesión';
+
+  @override
+  String get ended_badge => 'FINALIZADO';
+
+  @override
+  String get default_bio => '¡Hola! Soy nuevo aquí…';
+
+  @override
+  String get default_country => 'Ucrania';
+
+  @override
+  String city_prefix(String city) {
+    return '$city';
+  }
 }

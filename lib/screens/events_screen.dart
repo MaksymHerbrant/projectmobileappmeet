@@ -50,7 +50,7 @@ class _EventsScreenState extends State<EventsScreen> {
   Future<void> _loadEvents() async {
     setState(() {
       _isLoading = true;
-      _isFinished = false; // 🟢 СКИДАЄМО СТАН "ЗАКІНЧЕНО"
+      _isFinished = false; // 🟢 СКИДАЄМО СТАН AppLocalizations.of(context)!.ended_badge
     });
     
     try {
@@ -148,14 +148,14 @@ class _EventsScreenState extends State<EventsScreen> {
                   onTap: () => Navigator.of(context).pop(),
                   child: Container(
                     padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
-                    child: Text(AppLocalizations.of(context)!.for_you, style: const TextStyle(color: Colors.black, fontWeight: FontWeight.w600, fontSize: 16)),
+                    child: Text(AppLocalizations.of(context)!.for_you, style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontWeight: FontWeight.w600, fontSize: 16)),
                   ),
                 ),
                 const SizedBox(width: 20),
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
-                  decoration: BoxDecoration(color: Colors.black, borderRadius: BorderRadius.circular(20)),
-                  child: Text(AppLocalizations.of(context)!.events, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w600, fontSize: 16)),
+                  decoration: BoxDecoration(color: Theme.of(context).colorScheme.onSurface, borderRadius: BorderRadius.circular(20)),
+                  child: Text(AppLocalizations.of(context)!.events, style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontWeight: FontWeight.w600, fontSize: 16)),
                 ),
               ],
             ),
@@ -164,8 +164,8 @@ class _EventsScreenState extends State<EventsScreen> {
           // Кнопка фільтрів (поки заглушка)
            Container(
               padding: const EdgeInsets.all(8),
-              decoration: BoxDecoration(color: Colors.white.withOpacity(0.8), borderRadius: BorderRadius.circular(12)),
-              child: const Icon(Icons.filter_list, size: 20, color: Colors.black87),
+              decoration: BoxDecoration(color: Theme.of(context).colorScheme.surface.withOpacity(0.8), borderRadius: BorderRadius.circular(12)),
+              child: Icon(Icons.filter_list, size: 20, color: Theme.of(context).colorScheme.onSurface),
             ),
         ],
       ),
@@ -211,28 +211,28 @@ class _EventsScreenState extends State<EventsScreen> {
             Container(
               padding: const EdgeInsets.all(20),
               decoration: BoxDecoration(
-                color: Colors.white,
+                color: Theme.of(context).colorScheme.surface,
                 shape: BoxShape.circle,
                 boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.1), blurRadius: 10)]
               ),
-              child: const Icon(Icons.sentiment_dissatisfied, size: 60, color: Colors.grey),
+              child: Icon(Icons.sentiment_dissatisfied, size: 60, color: Theme.of(context).colorScheme.onSurfaceVariant),
             ),
             const SizedBox(height: 24),
-            const Text(
-              'Отакої!',
-              style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Colors.black87),
+            Text(
+              AppLocalizations.of(context)!.events_finished_title,
+              style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Theme.of(context).colorScheme.onSurface),
             ),
             const SizedBox(height: 12),
-            const Text(
-              'Події за вашими інтересами закінчились. Спробуйте змінити фільтри або зачекайте нових.',
+            Text(
+              AppLocalizations.of(context)!.events_finished_body,
               textAlign: TextAlign.center,
-              style: TextStyle(fontSize: 16, color: Colors.grey),
+              style: TextStyle(fontSize: 16, color: Theme.of(context).colorScheme.onSurfaceVariant),
             ),
             const SizedBox(height: 30),
             ElevatedButton.icon(
               onPressed: _loadEvents,
               icon: const Icon(Icons.refresh),
-              label: const Text('Оновити'),
+              label: Text(AppLocalizations.of(context)!.refresh),
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.black, // Або твій основний колір
                 foregroundColor: Colors.white,
@@ -284,7 +284,7 @@ class _EventsScreenState extends State<EventsScreen> {
                     fit: BoxFit.cover,
                     width: double.infinity,
                     height: double.infinity,
-                    errorBuilder: (context, error, stackTrace) => Container(color: Colors.grey[300]),
+                    errorBuilder: (context, error, stackTrace) => Container(color: Theme.of(context).colorScheme.outlineVariant),
                   );
                 },
               ),
@@ -371,7 +371,7 @@ class _EventsScreenState extends State<EventsScreen> {
                 },
                 child: Container(
                   padding: const EdgeInsets.all(8),
-                  decoration: BoxDecoration(color: Colors.white.withOpacity(0.2), borderRadius: BorderRadius.circular(20)),
+                  decoration: BoxDecoration(color: Theme.of(context).colorScheme.surface.withOpacity(0.2), borderRadius: BorderRadius.circular(20)),
                   child: const Icon(Icons.info_outline, color: Colors.white, size: 20),
                 ),
               ),
@@ -388,26 +388,26 @@ class _EventsScreenState extends State<EventsScreen> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(event.title, style: const TextStyle(color: Colors.white, fontSize: 24, fontWeight: FontWeight.bold)),
+                      Text(event.title, style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontSize: 24, fontWeight: FontWeight.bold)),
                       const SizedBox(height: 4),
                       Row(
                         children: [
-                          const Icon(Icons.location_on, color: Colors.white70, size: 16),
+                          Icon(Icons.location_on, color: Theme.of(context).colorScheme.onSurfaceVariant, size: 16),
                           const SizedBox(width: 4),
-                          Expanded(child: Text(event.location, style: const TextStyle(color: Colors.white70, fontSize: 16), overflow: TextOverflow.ellipsis)),
+                          Expanded(child: Text(event.location, style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant, fontSize: 16), overflow: TextOverflow.ellipsis)),
                         ],
                       ),
                       const SizedBox(height: 12),
                       // ... інші віджети (дата, учасники, теги)
                       Row(
                         children: [
-                          const Icon(Icons.access_time, color: Colors.white70, size: 16),
+                          Icon(Icons.access_time, color: Theme.of(context).colorScheme.onSurfaceVariant, size: 16),
                           const SizedBox(width: 4),
-                          Text('${event.dateTime.day}.${event.dateTime.month}.${event.dateTime.year}', style: const TextStyle(color: Colors.white70, fontSize: 14)),
+                          Text('${event.dateTime.day}.${event.dateTime.month}.${event.dateTime.year}', style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant, fontSize: 14)),
                           const SizedBox(width: 16),
-                          const Icon(Icons.people, color: Colors.white70, size: 16),
+                          Icon(Icons.people, color: Theme.of(context).colorScheme.onSurfaceVariant, size: 16),
                           const SizedBox(width: 4),
-                          Text('${event.participantsCount} учасників', style: const TextStyle(color: Colors.white70, fontSize: 14)),
+                          Text(AppLocalizations.of(context)!.participants_count(event.participantsCount), style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant, fontSize: 14)),
                         ],
                       ),
                       const SizedBox(height: 12),
@@ -415,8 +415,8 @@ class _EventsScreenState extends State<EventsScreen> {
                         spacing: 8, runSpacing: 4,
                         children: event.tags.take(3).map((tag) => Container(
                           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                          decoration: BoxDecoration(color: Colors.white.withOpacity(0.2), borderRadius: BorderRadius.circular(15)),
-                          child: Text(tag, style: const TextStyle(color: Colors.white, fontSize: 12)),
+                          decoration: BoxDecoration(color: Theme.of(context).colorScheme.surface.withOpacity(0.2), borderRadius: BorderRadius.circular(15)),
+                          child: Text(tag, style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontSize: 12)),
                         )).toList(),
                       ),
                     ],
@@ -444,7 +444,7 @@ class _EventsScreenState extends State<EventsScreen> {
       
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text(_pendingMessage != null ? 'Заявку з повідомленням надіслано!' : 'Заявку надіслано!'), 
+          content: Text(_pendingMessage != null ? AppLocalizations.of(context)!.request_sent_msg : AppLocalizations.of(context)!.request_sent), 
           backgroundColor: Colors.green,
           duration: const Duration(seconds: 1),
         ),
@@ -485,7 +485,7 @@ class _EventsScreenState extends State<EventsScreen> {
             Icons.chat_bubble_outline,
             Colors.white,
             _showMessageDialog, // 👈 Викликаємо діалог
-            borderColor: Colors.grey.shade300,
+            borderColor: Theme.of(context).colorScheme.outlineVariant,
             size: 55,
           ),
           
@@ -505,19 +505,19 @@ class _EventsScreenState extends State<EventsScreen> {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text("Надіслати повідомлення"),
+        title: Text(AppLocalizations.of(context)!.send_message),
         content: TextField(
           controller: textController,
-          decoration: const InputDecoration(
-            hintText: "Привіт! Хочу приєднатися...",
-            border: OutlineInputBorder(),
+          decoration: InputDecoration(
+            hintText: AppLocalizations.of(context)!.join_message_hint,
+            border: const OutlineInputBorder(),
           ),
           maxLines: 3,
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text("Скасувати"),
+            child: Text(AppLocalizations.of(context)!.cancel),
           ),
           ElevatedButton(
             onPressed: () {
@@ -532,7 +532,7 @@ class _EventsScreenState extends State<EventsScreen> {
               // 3. Робимо свайп вправо (Лайк). Це викличе _onSwipe, де ми використаємо _pendingMessage
               controller.swipe(CardSwiperDirection.right);
             },
-            child: const Text("Надіслати"),
+            child: Text(AppLocalizations.of(context)!.send),
           ),
         ],
       ),

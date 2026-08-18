@@ -1,3 +1,4 @@
+import 'package:dating_app/l10n/gen/app_localizations.dart';
 import 'package:flutter/material.dart';
 import '../service/auth_service.dart';
 import 'login_screen.dart';
@@ -42,12 +43,12 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
       if (_currentStep == 0) {
         // КРОК 1: ТЕЛЕФОН
         final phone = _phoneController.text.trim();
-        if (phone.length < 9) throw Exception('Введіть коректний номер');
+        if (phone.length < 9) throw Exception(AppLocalizations.of(context)!.enter_valid_phone);
 
         // Перевіряємо, чи Є такий користувач
         final bool exists = await _authService.checkUserExists(phone);
         if (!exists) {
-          throw Exception('Акаунт з таким номером не знайдено');
+          throw Exception(AppLocalizations.of(context)!.fp_not_found);
         }
 
         // Відправляємо SMS
@@ -60,15 +61,15 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
 
       } else if (_currentStep == 1) {
         // КРОК 2: SMS
-        if (_smsController.text.length < 6) throw Exception('Введіть код повністю');
+        if (_smsController.text.length < 6) throw Exception(AppLocalizations.of(context)!.rg_code_incomplete);
         // Перевірка коду авторизує користувача
         await _authService.verifyOtp(_phoneController.text, _smsController.text);
         _goToNextPage();
 
       } else if (_currentStep == 2) {
         // КРОК 3: НОВИЙ ПАРОЛЬ
-        if (_passwordController.text.length < 6) throw Exception('Пароль занадто короткий');
-        if (_passwordController.text != _confirmPasswordController.text) throw Exception('Паролі не збігаються');
+        if (_passwordController.text.length < 6) throw Exception(AppLocalizations.of(context)!.rg_password_short);
+        if (_passwordController.text != _confirmPasswordController.text) throw Exception(AppLocalizations.of(context)!.passwords_do_not_match);
         
         // Оновлюємо пароль у базі
         await _authService.updatePassword(_passwordController.text);
@@ -78,7 +79,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
         
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Пароль успішно змінено!'), backgroundColor: Colors.green),
+            SnackBar(content: Text(AppLocalizations.of(context)!.password_changed), backgroundColor: Colors.green),
           );
           // Повертаємось на екран входу
           Navigator.of(context).pushAndRemoveUntil(
@@ -115,23 +116,23 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: Theme.of(context).colorScheme.surface,
       appBar: AppBar(
-        backgroundColor: Colors.white,
+        backgroundColor: Theme.of(context).colorScheme.surface,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.black),
+          icon: Icon(Icons.arrow_back, color: Theme.of(context).colorScheme.onSurface),
           onPressed: _isLoading ? null : (_currentStep > 0 ? _previousStep : () => Navigator.pop(context)),
         ),
-        title: Text('Відновлення: Крок ${_currentStep + 1} з 3', style: const TextStyle(color: Colors.grey, fontSize: 14)),
+        title: Text(AppLocalizations.of(context)!.recovery_step_of(_currentStep + 1, 3), style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant, fontSize: 14)),
       ),
       body: PageView(
         controller: _pageController,
         physics: const NeverScrollableScrollPhysics(),
         children: [
-          _buildStep(title: 'Відновлення доступу', subtitle: 'Введіть номер, до якого прив\'язаний акаунт', content: _buildPhoneInput()),
-          _buildStep(title: 'Підтвердження SMS', subtitle: 'Введіть 6 цифр, що надійшли на номер', content: _buildSmsInput()),
-          _buildStep(title: 'Новий пароль', subtitle: 'Придумайте новий надійний пароль', content: _buildPasswordInput()),
+          _buildStep(title: AppLocalizations.of(context)!.fp_title, subtitle: AppLocalizations.of(context)!.fp_enter_phone, content: _buildPhoneInput()),
+          _buildStep(title: AppLocalizations.of(context)!.rg_sms_title, subtitle: AppLocalizations.of(context)!.rg_enter_6, content: _buildSmsInput()),
+          _buildStep(title: AppLocalizations.of(context)!.new_password, subtitle: AppLocalizations.of(context)!.fp_new_strong, content: _buildPasswordInput()),
         ],
       ),
     );
@@ -146,7 +147,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
           const SizedBox(height: 20),
           Text(title, style: const TextStyle(fontSize: 26, fontWeight: FontWeight.bold)),
           const SizedBox(height: 8),
-          Text(subtitle, style: const TextStyle(fontSize: 16, color: Colors.grey)),
+          Text(subtitle, style: TextStyle(fontSize: 16, color: Theme.of(context).colorScheme.onSurfaceVariant)),
           const SizedBox(height: 40),
           content,
           const Spacer(),
@@ -161,7 +162,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
               ),
               child: _isLoading 
                 ? const SizedBox(height: 20, width: 20, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2))
-                : const Text('Продовжити', style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold)),
+                : Text(AppLocalizations.of(context)!.continue_text, style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontSize: 16, fontWeight: FontWeight.bold)),
             ),
           ),
           const SizedBox(height: 20),
@@ -178,7 +179,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
       autofocus: true,
       decoration: InputDecoration(
         prefixText: '+380 ',
-        prefixStyle: const TextStyle(fontSize: 18, color: Colors.black, fontWeight: FontWeight.bold),
+        prefixStyle: TextStyle(fontSize: 18, color: Theme.of(context).colorScheme.onSurface, fontWeight: FontWeight.bold),
         border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
         hintText: 'XX XXX XXXX',
       ),
@@ -200,8 +201,8 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                 width: 45, height: 55,
                 alignment: Alignment.center,
                 decoration: BoxDecoration(
-                  color: Colors.grey.shade50,
-                  border: Border.all(color: isFocused ? const Color(0xFF5C72FF) : Colors.grey.shade300, width: 2),
+                  color: Theme.of(context).colorScheme.surfaceContainerHighest,
+                  border: Border.all(color: isFocused ? const Color(0xFF5C72FF) : Theme.of(context).colorScheme.outlineVariant, width: 2),
                   borderRadius: BorderRadius.circular(10),
                 ),
                 child: Text(char, style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold)),
@@ -233,7 +234,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
           controller: _passwordController,
           obscureText: !_isPasswordVisible,
           decoration: InputDecoration(
-            labelText: 'Новий пароль',
+            labelText: AppLocalizations.of(context)!.new_password,
             border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
             suffixIcon: IconButton(
               icon: Icon(_isPasswordVisible ? Icons.visibility : Icons.visibility_off),
@@ -245,7 +246,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
         TextField(
           controller: _confirmPasswordController,
           obscureText: !_isPasswordVisible,
-          decoration: InputDecoration(labelText: 'Підтвердіть новий пароль', border: OutlineInputBorder(borderRadius: BorderRadius.circular(12))),
+          decoration: InputDecoration(labelText: AppLocalizations.of(context)!.confirm_new_password, border: OutlineInputBorder(borderRadius: BorderRadius.circular(12))),
         ),
       ],
     );

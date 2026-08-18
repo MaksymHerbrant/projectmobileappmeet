@@ -120,7 +120,7 @@ class ChatService {
             .eq('id', myId)
             .maybeSingle();
 
-        final String senderName = myProfile?['full_name'] ?? "Нове повідомлення";
+        final String senderName = myProfile?['full_name'] ?? '';
 
         await _notificationService.sendPush(
           receiverId: receiverId,

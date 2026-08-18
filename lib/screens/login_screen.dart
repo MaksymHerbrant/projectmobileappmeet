@@ -35,11 +35,11 @@ class _LoginScreenState extends State<LoginScreen> {
   Future<void> _handleLogin() async {
     // Проста валідація
     if (_phoneController.text.length < 9) {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Введіть коректний номер')));
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(AppLocalizations.of(context)!.enter_valid_phone)));
       return;
     }
     if (_passwordController.text.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Введіть пароль')));
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(AppLocalizations.of(context)!.enter_password)));
       return;
     }
 
@@ -62,8 +62,8 @@ class _LoginScreenState extends State<LoginScreen> {
       if (mounted) {
         // Показуємо помилку (наприклад, невірний пароль)
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Невірний номер або пароль'), 
+          SnackBar(
+            content: Text(AppLocalizations.of(context)!.wrong_phone_or_password), 
             backgroundColor: Colors.red
           ),
         );
@@ -80,7 +80,7 @@ class _LoginScreenState extends State<LoginScreen> {
         final t = AppLocalizations.of(context)!;
 
         return Scaffold(
-          backgroundColor: Colors.white,
+          backgroundColor: Theme.of(context).colorScheme.surface,
           body: SafeArea(
             child: Padding(
               padding: const EdgeInsets.all(20),
@@ -97,7 +97,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   
                   // Заголовок
                   Text(
-                    t.login_title, // "Вхід"
+                    t.login_title, // AppLocalizations.of(context)!.sign_in_title
                     style: const TextStyle(fontSize: 28, fontWeight: FontWeight.bold),
                   ),
                   
@@ -106,7 +106,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   // --- ПОЛЕ ТЕЛЕФОНУ ---
                   Container(
                     decoration: BoxDecoration(
-                      border: Border.all(color: Colors.grey.shade300), 
+                      border: Border.all(color: Theme.of(context).colorScheme.outlineVariant), 
                       borderRadius: BorderRadius.circular(12)
                     ),
                     child: Row(
@@ -119,7 +119,7 @@ class _LoginScreenState extends State<LoginScreen> {
                             const Text('+380', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500)),
                           ]),
                         ),
-                        Container(width: 1, height: 40, color: Colors.grey.shade300),
+                        Container(width: 1, height: 40, color: Theme.of(context).colorScheme.outlineVariant),
                         Expanded(
                           child: TextField(
                             controller: _phoneController,
@@ -144,13 +144,13 @@ class _LoginScreenState extends State<LoginScreen> {
                     controller: _passwordController,
                     obscureText: !_isPasswordVisible,
                     decoration: InputDecoration(
-                      hintText: t.password, // "Пароль"
+                      hintText: t.password, // AppLocalizations.of(context)!.password
                       border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
                       contentPadding: const EdgeInsets.all(16),
                       suffixIcon: IconButton(
                         icon: Icon(
                           _isPasswordVisible ? Icons.visibility : Icons.visibility_off,
-                          color: Colors.grey,
+                          color: Theme.of(context).colorScheme.onSurfaceVariant,
                         ),
                         onPressed: () => setState(() => _isPasswordVisible = !_isPasswordVisible),
                       ),
@@ -186,7 +186,7 @@ class _LoginScreenState extends State<LoginScreen> {
                           MaterialPageRoute(builder: (context) => const ForgotPasswordScreen()),
                         );
                       },
-                      child: const Text('Забули пароль?', style: TextStyle(color: Colors.grey)),
+                      child: Text(AppLocalizations.of(context)!.forgot_password, style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant)),
                     ),
                   ),
                 ],

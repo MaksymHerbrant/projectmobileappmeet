@@ -136,13 +136,13 @@ class _EventRequestsScreenState extends State<EventRequestsScreen> {
             child: Container(
               padding: const EdgeInsets.all(8),
               decoration: BoxDecoration(
-                color: Colors.white.withOpacity(0.9),
+                color: Theme.of(context).colorScheme.surface.withOpacity(0.9),
                 borderRadius: BorderRadius.circular(12),
                 boxShadow: [
                   BoxShadow(color: Colors.black.withOpacity(0.1), blurRadius: 8, offset: const Offset(0, 2)),
                 ],
               ),
-              child: const Icon(Icons.arrow_back, color: Colors.black87),
+              child: Icon(Icons.arrow_back, color: Theme.of(context).colorScheme.onSurface),
             ),
           ),
           const SizedBox(width: 16),
@@ -152,7 +152,7 @@ class _EventRequestsScreenState extends State<EventRequestsScreen> {
               children: [
                 Text(
                   AppLocalizations.of(context)!.event_requests,
-                  style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.black87),
+                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Theme.of(context).colorScheme.onSurface),
                 ),
                 Text(
                   widget.event.title,
@@ -191,7 +191,7 @@ class _EventRequestsScreenState extends State<EventRequestsScreen> {
     return Container(
       margin: const EdgeInsets.only(bottom: 16),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: Theme.of(context).colorScheme.surface,
         borderRadius: BorderRadius.circular(20),
         boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.08), blurRadius: 12, offset: const Offset(0, 4))],
       ),
@@ -225,7 +225,7 @@ class _EventRequestsScreenState extends State<EventRequestsScreen> {
                     onTap: () => _showUserMenu(context, user, requestId),
                     child: Container(
                       padding: const EdgeInsets.all(6),
-                      decoration: BoxDecoration(color: Colors.white.withOpacity(0.2), borderRadius: BorderRadius.circular(8)),
+                      decoration: BoxDecoration(color: Theme.of(context).colorScheme.surface.withOpacity(0.2), borderRadius: BorderRadius.circular(8)),
                       child: const Icon(Icons.info, color: Colors.white, size: 18),
                     ),
                   ),
@@ -240,7 +240,7 @@ class _EventRequestsScreenState extends State<EventRequestsScreen> {
                       children: [
                         Row(
                           children: [
-                            Text('${user.name}, ${user.age}', style: const TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold)),
+                            Text('${user.name}, ${user.age}', style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontSize: 18, fontWeight: FontWeight.bold)),
                             const SizedBox(width: 8),
                             Icon(Icons.location_on, color: Colors.white.withOpacity(0.8), size: 16),
                             Text(user.location, style: TextStyle(color: Colors.white.withOpacity(0.8), fontSize: 14)),
@@ -306,7 +306,7 @@ class _EventRequestsScreenState extends State<EventRequestsScreen> {
                     ],
                   ),
                   const SizedBox(height: 6),
-                  Text(message, style: const TextStyle(fontSize: 14, color: Colors.black87)),
+                  Text(message, style: TextStyle(fontSize: 14, color: Theme.of(context).colorScheme.onSurface)),
                 ],
               ),
             ),
@@ -357,7 +357,7 @@ class _EventRequestsScreenState extends State<EventRequestsScreen> {
           children: [
             Icon(icon, color: Colors.white, size: 20),
             const SizedBox(height: 4),
-            Text(label, style: const TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.w600)),
+            Text(label, style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontSize: 12, fontWeight: FontWeight.w600)),
           ],
         ),
       ),
@@ -374,7 +374,7 @@ class _EventRequestsScreenState extends State<EventRequestsScreen> {
             Container(
               padding: const EdgeInsets.all(24),
               decoration: BoxDecoration(
-                color: Colors.white.withOpacity(0.9),
+                color: Theme.of(context).colorScheme.surface.withOpacity(0.9),
                 borderRadius: BorderRadius.circular(50),
                 boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.1), blurRadius: 12, offset: const Offset(0, 4))],
               ),
@@ -383,7 +383,7 @@ class _EventRequestsScreenState extends State<EventRequestsScreen> {
             const SizedBox(height: 24),
             Text(
               AppLocalizations.of(context)!.no_event_requests,
-              style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.black87),
+              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Theme.of(context).colorScheme.onSurface),
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 8),
@@ -407,11 +407,11 @@ class _EventRequestsScreenState extends State<EventRequestsScreen> {
       });
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('$userName прийнято до події!'), backgroundColor: Colors.green),
+          SnackBar(content: Text(AppLocalizations.of(context)!.user_accepted(userName)), backgroundColor: Colors.green),
         );
       }
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Помилка'), backgroundColor: Colors.red));
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(AppLocalizations.of(context)!.error), backgroundColor: Colors.red));
     }
   }
 
@@ -424,11 +424,11 @@ class _EventRequestsScreenState extends State<EventRequestsScreen> {
       });
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('$userName відхилено'), backgroundColor: Colors.grey),
+          SnackBar(content: Text(AppLocalizations.of(context)!.user_declined(userName)), backgroundColor: Colors.grey),
         );
       }
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Помилка'), backgroundColor: Colors.red));
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(AppLocalizations.of(context)!.error), backgroundColor: Colors.red));
     }
   }
 
@@ -438,14 +438,14 @@ class _EventRequestsScreenState extends State<EventRequestsScreen> {
       backgroundColor: Colors.transparent,
       builder: (BuildContext context) {
         return Container(
-          decoration: const BoxDecoration(
-            color: Colors.white,
+          decoration: BoxDecoration(
+            color: Theme.of(context).colorScheme.surface,
             borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
           ),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Container(margin: const EdgeInsets.only(top: 12), width: 40, height: 4, decoration: BoxDecoration(color: Colors.grey[300], borderRadius: BorderRadius.circular(2))),
+              Container(margin: const EdgeInsets.only(top: 12), width: 40, height: 4, decoration: BoxDecoration(color: Theme.of(context).colorScheme.outlineVariant, borderRadius: BorderRadius.circular(2))),
               const SizedBox(height: 20),
               ListTile(
                 leading: const Icon(Icons.person, color: Color.fromARGB(255, 76, 120, 175)),

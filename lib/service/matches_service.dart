@@ -255,7 +255,7 @@ class MatchesService {
 
   Future<void> createEvent(Event event) async {
     final userId = _userId;
-    if (userId == null) throw Exception('Користувач не авторизований');
+    if (userId == null) throw const AppFailure(FailureKind.notAuthenticated);
     final vector = VectorUtils.tagsToVector(event.tags);
     try {
       // Подія і її груповий чат створюються однією транзакцією на сервері.
@@ -370,7 +370,7 @@ class MatchesService {
           'event': Event.fromMap(item['event']),
           'inviter': item['inviter'] != null
               ? UserProfile.fromMap(item['inviter'])
-              : UserProfile(id: 'del', name: 'Видалено', age: 0, description: '', photos: [], location: '', hobbies: []),
+              : UserProfile(id: 'del', name: '', age: 0, description: '', photos: [], location: '', hobbies: []),
           'message': item['message'],
           'invitation_id': item['id'],
           'acceptedAt': item['created_at'] != null ? DateTime.parse(item['created_at']) : null,

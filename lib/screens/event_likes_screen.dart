@@ -123,20 +123,20 @@ class _EventLikesScreenState extends State<EventLikesScreen> {
             child: Container(
               padding: const EdgeInsets.all(8),
               decoration: BoxDecoration(
-                color: Colors.white.withOpacity(0.8),
+                color: Theme.of(context).colorScheme.surface.withOpacity(0.8),
                 borderRadius: BorderRadius.circular(12),
               ),
-              child: const Icon(Icons.arrow_back, color: Colors.black87),
+              child: Icon(Icons.arrow_back, color: Theme.of(context).colorScheme.onSurface),
             ),
           ),
           const SizedBox(width: 16),
-          const Expanded(
+          Expanded(
             child: Text(
-              'Лайки до моїх подій',
+              AppLocalizations.of(context)!.el_title,
               style: TextStyle(
                 fontSize: 20,
                 fontWeight: FontWeight.bold,
-                color: Colors.black87,
+                color: Theme.of(context).colorScheme.onSurface,
               ),
               overflow: TextOverflow.ellipsis,
             ),
@@ -153,7 +153,7 @@ class _EventLikesScreenState extends State<EventLikesScreen> {
     return Container(
       margin: const EdgeInsets.only(bottom: 20),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: Theme.of(context).colorScheme.surface,
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
@@ -184,8 +184,8 @@ class _EventLikesScreenState extends State<EventLikesScreen> {
                     children: [
                       Text(
                         event.title,
-                        style: const TextStyle(
-                          color: Colors.white,
+                        style: TextStyle(
+                          color: Theme.of(context).colorScheme.onSurface,
                           fontSize: 18,
                           fontWeight: FontWeight.bold,
                         ),
@@ -210,13 +210,13 @@ class _EventLikesScreenState extends State<EventLikesScreen> {
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                   decoration: BoxDecoration(
-                    color: Colors.white.withOpacity(0.2),
+                    color: Theme.of(context).colorScheme.surface.withOpacity(0.2),
                     borderRadius: BorderRadius.circular(20),
                   ),
                   child: Text(
-                    '${likes.length} лайків',
-                    style: const TextStyle(
-                      color: Colors.white,
+                    AppLocalizations.of(context)!.likes_count(likes.length),
+                    style: TextStyle(
+                      color: Theme.of(context).colorScheme.onSurface,
                       fontSize: 12,
                       fontWeight: FontWeight.w600,
                     ),
@@ -233,12 +233,12 @@ class _EventLikesScreenState extends State<EventLikesScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text(
-                    'Користувачі, які хочуть піти:',
+                  Text(
+                    AppLocalizations.of(context)!.el_who_wants,
                     style: TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.w600,
-                      color: Colors.black87,
+                      color: Theme.of(context).colorScheme.onSurface,
                     ),
                   ),
                   const SizedBox(height: 12),
@@ -259,7 +259,7 @@ class _EventLikesScreenState extends State<EventLikesScreen> {
                   ),
                   const SizedBox(height: 16),
                   Text(
-                    'Поки що немає лайків',
+                    AppLocalizations.of(context)!.el_no_likes,
                     style: TextStyle(
                       fontSize: 16,
                       color: Colors.grey.withOpacity(0.7),
@@ -308,10 +308,10 @@ class _EventLikesScreenState extends State<EventLikesScreen> {
               children: [
                 Text(
                   '${user.name}, ${user.age}',
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.w600,
-                    color: Colors.black87,
+                    color: Theme.of(context).colorScheme.onSurface,
                   ),
                 ),
                 const SizedBox(height: 4),
@@ -334,14 +334,14 @@ class _EventLikesScreenState extends State<EventLikesScreen> {
                 icon: Icons.check,
                 color: const Color(0xFF4CAF50),
                 onTap: () => _handleAccept(user, eventId),
-                label: 'Прийняти',
+                label: AppLocalizations.of(context)!.accept,
               ),
               const SizedBox(height: 8),
               _buildActionButton(
                 icon: Icons.close,
                 color: Colors.red,
                 onTap: () => _handleReject(user, eventId),
-                label: 'Відхилити',
+                label: AppLocalizations.of(context)!.decline,
               ),
             ],
           ),
@@ -370,8 +370,8 @@ class _EventLikesScreenState extends State<EventLikesScreen> {
             const SizedBox(height: 2),
             Text(
               label,
-              style: const TextStyle(
-                color: Colors.white,
+              style: TextStyle(
+                color: Theme.of(context).colorScheme.onSurface,
                 fontSize: 10,
                 fontWeight: FontWeight.w500,
               ),
@@ -392,7 +392,7 @@ class _EventLikesScreenState extends State<EventLikesScreen> {
             Container(
               padding: const EdgeInsets.all(24),
               decoration: BoxDecoration(
-                color: Colors.white.withOpacity(0.8),
+                color: Theme.of(context).colorScheme.surface.withOpacity(0.8),
                 borderRadius: BorderRadius.circular(50),
               ),
               child: const Icon(
@@ -402,18 +402,18 @@ class _EventLikesScreenState extends State<EventLikesScreen> {
               ),
             ),
             const SizedBox(height: 24),
-            const Text(
-              'У вас поки що немає подій',
+            Text(
+              AppLocalizations.of(context)!.el_no_events,
               style: TextStyle(
                 fontSize: 20,
                 fontWeight: FontWeight.bold,
-                color: Colors.black87,
+                color: Theme.of(context).colorScheme.onSurface,
               ),
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 8),
-            const Text(
-              'Створіть подію, щоб почати отримувати лайки',
+            Text(
+              AppLocalizations.of(context)!.el_create_hint,
               style: TextStyle(
                 fontSize: 16,
                 color: Colors.black54,
@@ -434,10 +434,10 @@ class _EventLikesScreenState extends State<EventLikesScreen> {
                   borderRadius: BorderRadius.circular(12),
                 ),
               ),
-              child: const Text(
-                'Створити подію',
+              child: Text(
+                AppLocalizations.of(context)!.create_event,
                 style: TextStyle(
-                  color: Colors.white,
+                  color: Theme.of(context).colorScheme.onSurface,
                   fontSize: 16,
                   fontWeight: FontWeight.w600,
                 ),
@@ -462,7 +462,7 @@ class _EventLikesScreenState extends State<EventLikesScreen> {
     // Тут можна додати логіку запису в базу (наприклад, зміна статусу на 'approved')
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text('${user.name} прийнято до події!'),
+        content: Text(AppLocalizations.of(context)!.user_accepted(user.name)),
         backgroundColor: const Color(0xFF4CAF50),
       ),
     );
@@ -477,7 +477,7 @@ class _EventLikesScreenState extends State<EventLikesScreen> {
     
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text('Заявку від ${user.name} відхилено'),
+        content: Text(AppLocalizations.of(context)!.user_declined(user.name)),
         backgroundColor: Colors.red,
       ),
     );

@@ -158,7 +158,7 @@ class _AcceptedEventDetailScreenState extends State<AcceptedEventDetailScreen>
     return SliverAppBar(
       expandedHeight: 300,
       pinned: true,
-      backgroundColor: Colors.white,
+      backgroundColor: Theme.of(context).colorScheme.surface,
       leading: Container(
         margin: const EdgeInsets.all(8),
         decoration: BoxDecoration(
@@ -246,8 +246,8 @@ class _AcceptedEventDetailScreenState extends State<AcceptedEventDetailScreen>
                 children: [
                   Text(
                     widget.event.title,
-                    style: const TextStyle(
-                      color: Colors.white,
+                    style: TextStyle(
+                      color: Theme.of(context).colorScheme.onSurface,
                       fontSize: 28,
                       fontWeight: FontWeight.bold,
                       shadows: [
@@ -267,8 +267,8 @@ class _AcceptedEventDetailScreenState extends State<AcceptedEventDetailScreen>
                       Expanded(
                         child: Text(
                           widget.event.location,
-                          style: const TextStyle(
-                            color: Colors.white,
+                          style: TextStyle(
+                            color: Theme.of(context).colorScheme.onSurface,
                             fontSize: 16,
                             shadows: [
                               Shadow(
@@ -316,12 +316,12 @@ class _AcceptedEventDetailScreenState extends State<AcceptedEventDetailScreen>
           Container(
             padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
-              color: Colors.white.withOpacity(0.2),
+              color: Theme.of(context).colorScheme.surface.withOpacity(0.2),
               borderRadius: BorderRadius.circular(16),
             ),
-            child: const Icon(
+            child: Icon(
               Icons.check_circle,
-              color: Colors.white,
+              color: Theme.of(context).colorScheme.surface,
               size: 32,
             ),
           ),
@@ -330,10 +330,10 @@ class _AcceptedEventDetailScreenState extends State<AcceptedEventDetailScreen>
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text(
-                  'Ви йдете на цю подію! 🎉',
+                Text(
+                  AppLocalizations.of(context)!.ae_going,
                   style: TextStyle(
-                    color: Colors.white,
+                    color: Theme.of(context).colorScheme.onSurface,
                     fontSize: 18,
                     fontWeight: FontWeight.bold,
                   ),
@@ -341,19 +341,19 @@ class _AcceptedEventDetailScreenState extends State<AcceptedEventDetailScreen>
                 const SizedBox(height: 4),
                 Text(
                   daysUntilEvent > 0 
-                      ? 'Залишилось $daysUntilEvent днів'
+                      ? AppLocalizations.of(context)!.ae_days_left(daysUntilEvent)
                       : daysUntilEvent == 0 
-                          ? 'Подія сьогодні!'
-                          : 'Подія завершена',
-                  style: const TextStyle(
-                    color: Colors.white,
+                          ? AppLocalizations.of(context)!.ae_today
+                          : AppLocalizations.of(context)!.ae_event_over,
+                  style: TextStyle(
+                    color: Theme.of(context).colorScheme.onSurface,
                     fontSize: 14,
                     fontWeight: FontWeight.w500,
                   ),
                 ),
                 const SizedBox(height: 8),
                 Text(
-                  'Прийнято ${_formatDate(widget.acceptedAt)}',
+                  AppLocalizations.of(context)!.ae_accepted_on(_formatDate(widget.acceptedAt)),
                   style: TextStyle(
                     color: Colors.white.withOpacity(0.9),
                     fontSize: 12,
@@ -369,15 +369,15 @@ class _AcceptedEventDetailScreenState extends State<AcceptedEventDetailScreen>
 
   Widget _buildEventInfo(AppLocalizations t) {
     return _buildSection(
-      title: 'Про подію',
+      title: AppLocalizations.of(context)!.ae_about,
       icon: Icons.info_outline,
       children: [
         Text(
           widget.event.description,
-          style: const TextStyle(
+          style: TextStyle(
             fontSize: 16,
             height: 1.6,
-            color: Colors.black87,
+            color: Theme.of(context).colorScheme.onSurface,
           ),
         ),
         const SizedBox(height: 16),
@@ -393,7 +393,7 @@ class _AcceptedEventDetailScreenState extends State<AcceptedEventDetailScreen>
               Icon(Icons.people, color: Colors.blue.shade600, size: 20),
               const SizedBox(width: 12),
               Text(
-                'Учасників: ${_participants.length}/${widget.event.participantsCount}',
+                AppLocalizations.of(context)!.ae_participants_of(_participants.length, widget.event.participantsCount),
                 style: TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.w600,
@@ -425,7 +425,7 @@ class _AcceptedEventDetailScreenState extends State<AcceptedEventDetailScreen>
 
   Widget _buildDateTimeSection(AppLocalizations t) {
     return _buildSection(
-      title: 'Дата та час',
+      title: AppLocalizations.of(context)!.ev_date_time,
       icon: Icons.schedule,
       children: [
         Row(
@@ -446,7 +446,7 @@ class _AcceptedEventDetailScreenState extends State<AcceptedEventDetailScreen>
                         Icon(Icons.calendar_today, color: Colors.purple.shade600, size: 16),
                         const SizedBox(width: 8),
                         Text(
-                          'Дата',
+                          AppLocalizations.of(context)!.ev_date,
                           style: TextStyle(
                             fontSize: 12,
                             color: Colors.purple.shade600,
@@ -458,17 +458,17 @@ class _AcceptedEventDetailScreenState extends State<AcceptedEventDetailScreen>
                     const SizedBox(height: 8),
                     Text(
                       DateFormat('dd MMMM yyyy', 'uk').format(widget.event.dateTime),
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.bold,
-                        color: Colors.black87,
+                        color: Theme.of(context).colorScheme.onSurface,
                       ),
                     ),
                     Text(
                       DateFormat('EEEE', 'uk').format(widget.event.dateTime),
                       style: TextStyle(
                         fontSize: 14,
-                        color: Colors.grey.shade600,
+                        color: Theme.of(context).colorScheme.onSurfaceVariant,
                       ),
                     ),
                   ],
@@ -492,7 +492,7 @@ class _AcceptedEventDetailScreenState extends State<AcceptedEventDetailScreen>
                         Icon(Icons.access_time, color: Colors.orange.shade600, size: 16),
                         const SizedBox(width: 8),
                         Text(
-                          'Час',
+                          AppLocalizations.of(context)!.ev_time,
                           style: TextStyle(
                             fontSize: 12,
                             color: Colors.orange.shade600,
@@ -504,17 +504,17 @@ class _AcceptedEventDetailScreenState extends State<AcceptedEventDetailScreen>
                     const SizedBox(height: 8),
                     Text(
                       DateFormat('HH:mm').format(widget.event.dateTime),
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.bold,
-                        color: Colors.black87,
+                        color: Theme.of(context).colorScheme.onSurface,
                       ),
                     ),
                     Text(
                       _getTimeUntilEvent(),
                       style: TextStyle(
                         fontSize: 14,
-                        color: Colors.grey.shade600,
+                        color: Theme.of(context).colorScheme.onSurfaceVariant,
                       ),
                     ),
                   ],
@@ -529,7 +529,7 @@ class _AcceptedEventDetailScreenState extends State<AcceptedEventDetailScreen>
 
   Widget _buildOrganizerSection(AppLocalizations t) {
     return _buildSection(
-      title: 'Організатор',
+      title: AppLocalizations.of(context)!.ae_organizer,
       icon: Icons.person_outline,
       children: [
         GestureDetector(
@@ -537,9 +537,9 @@ class _AcceptedEventDetailScreenState extends State<AcceptedEventDetailScreen>
           child: Container(
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
-              color: Colors.white,
+              color: Theme.of(context).colorScheme.surface,
               borderRadius: BorderRadius.circular(16),
-              border: Border.all(color: Colors.grey.shade200),
+              border: Border.all(color: Theme.of(context).colorScheme.outlineVariant),
               boxShadow: [
                 BoxShadow(
                   color: Colors.black.withOpacity(0.05),
@@ -568,10 +568,10 @@ class _AcceptedEventDetailScreenState extends State<AcceptedEventDetailScreen>
                     children: [
                       Text(
                         '${widget.organizer.name}, ${widget.organizer.age}',
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: 18,
                           fontWeight: FontWeight.bold,
-                          color: Colors.black87,
+                          color: Theme.of(context).colorScheme.onSurface,
                         ),
                       ),
                       const SizedBox(height: 4),
@@ -579,7 +579,7 @@ class _AcceptedEventDetailScreenState extends State<AcceptedEventDetailScreen>
                         widget.organizer.description,
                         style: TextStyle(
                           fontSize: 14,
-                          color: Colors.grey.shade600,
+                          color: Theme.of(context).colorScheme.onSurfaceVariant,
                         ),
                         maxLines: 2,
                         overflow: TextOverflow.ellipsis,
@@ -587,13 +587,13 @@ class _AcceptedEventDetailScreenState extends State<AcceptedEventDetailScreen>
                       const SizedBox(height: 8),
                       Row(
                         children: [
-                          Icon(Icons.location_on, size: 14, color: Colors.grey.shade500),
+                          Icon(Icons.location_on, size: 14, color: Theme.of(context).colorScheme.onSurfaceVariant),
                           const SizedBox(width: 4),
                           Text(
                             widget.organizer.location,
                             style: TextStyle(
                               fontSize: 12,
-                              color: Colors.grey.shade500,
+                              color: Theme.of(context).colorScheme.onSurfaceVariant,
                             ),
                           ),
                         ],
@@ -623,7 +623,7 @@ class _AcceptedEventDetailScreenState extends State<AcceptedEventDetailScreen>
 
   Widget _buildInvitationMessage(AppLocalizations t) {
     return _buildSection(
-      title: 'Повідомлення від організатора',
+      title: AppLocalizations.of(context)!.ae_organizer_msg,
       icon: Icons.message_outlined,
       children: [
         Container(
@@ -656,10 +656,10 @@ class _AcceptedEventDetailScreenState extends State<AcceptedEventDetailScreen>
               const SizedBox(height: 12),
               Text(
                 widget.invitationMessage!,
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 16,
                   height: 1.5,
-                  color: Colors.black87,
+                  color: Theme.of(context).colorScheme.onSurface,
                 ),
               ),
             ],
@@ -671,7 +671,7 @@ class _AcceptedEventDetailScreenState extends State<AcceptedEventDetailScreen>
 
   Widget _buildPrivateInfo(AppLocalizations t) {
     return _buildSection(
-      title: 'Приватна інформація',
+      title: AppLocalizations.of(context)!.ev_private_info,
       icon: Icons.lock_outline,
       color: Colors.purple.shade50,
       children: [
@@ -688,7 +688,7 @@ class _AcceptedEventDetailScreenState extends State<AcceptedEventDetailScreen>
               const SizedBox(width: 12),
               Expanded(
                 child: Text(
-                  'Ця інформація доступна тільки учасникам події',
+                  AppLocalizations.of(context)!.ae_members_only,
                   style: TextStyle(
                     fontSize: 14,
                     fontWeight: FontWeight.w600,
@@ -703,7 +703,7 @@ class _AcceptedEventDetailScreenState extends State<AcceptedEventDetailScreen>
         if (widget.event.privateLocation?.isNotEmpty ?? false)
           _buildPrivateInfoItem(
             icon: Icons.home,
-            title: 'Точна адреса',
+            title: AppLocalizations.of(context)!.ev_exact_address,
             content: widget.event.privateLocation!,
             color: Colors.red,
           ),
@@ -711,7 +711,7 @@ class _AcceptedEventDetailScreenState extends State<AcceptedEventDetailScreen>
           const SizedBox(height: 12),
           _buildPrivateInfoItem(
             icon: Icons.meeting_room,
-            title: 'Місце зустрічі',
+            title: AppLocalizations.of(context)!.ev_meeting_point,
             content: widget.event.meetingPoint!,
             color: Colors.blue,
           ),
@@ -720,7 +720,7 @@ class _AcceptedEventDetailScreenState extends State<AcceptedEventDetailScreen>
           const SizedBox(height: 12),
           _buildPrivateInfoItem(
             icon: Icons.info,
-            title: 'Додаткова інформація',
+            title: AppLocalizations.of(context)!.ev_extra_info,
             content: widget.event.additionalInfo!,
             color: Colors.green,
           ),
@@ -738,7 +738,7 @@ class _AcceptedEventDetailScreenState extends State<AcceptedEventDetailScreen>
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: Theme.of(context).colorScheme.surface,
         borderRadius: BorderRadius.circular(12),
         border: Border.all(color: color.withOpacity(0.3)),
       ),
@@ -762,9 +762,9 @@ class _AcceptedEventDetailScreenState extends State<AcceptedEventDetailScreen>
           const SizedBox(height: 8),
           Text(
             content,
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 16,
-              color: Colors.black87,
+              color: Theme.of(context).colorScheme.onSurface,
               height: 1.4,
             ),
           ),
@@ -775,7 +775,7 @@ class _AcceptedEventDetailScreenState extends State<AcceptedEventDetailScreen>
 
   Widget _buildParticipantsSection(AppLocalizations t) {
     return _buildSection(
-      title: 'Учасники (${_participants.length})',
+      title: AppLocalizations.of(context)!.ae_participants(_participants.length),
       icon: Icons.people_outline,
       children: [
         ListView.separated(
@@ -790,9 +790,9 @@ class _AcceptedEventDetailScreenState extends State<AcceptedEventDetailScreen>
               child: Container(
                 padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
-                  color: Colors.white,
+                  color: Theme.of(context).colorScheme.surface,
                   borderRadius: BorderRadius.circular(16),
-                  border: Border.all(color: Colors.grey.shade200),
+                  border: Border.all(color: Theme.of(context).colorScheme.outlineVariant),
                   boxShadow: [
                     BoxShadow(
                       color: Colors.black.withOpacity(0.05),
@@ -821,10 +821,10 @@ class _AcceptedEventDetailScreenState extends State<AcceptedEventDetailScreen>
                         children: [
                           Text(
                             '${participant.name}, ${participant.age}',
-                            style: const TextStyle(
+                            style: TextStyle(
                               fontSize: 16,
                               fontWeight: FontWeight.bold,
-                              color: Colors.black87,
+                              color: Theme.of(context).colorScheme.onSurface,
                             ),
                           ),
                           const SizedBox(height: 4),
@@ -832,7 +832,7 @@ class _AcceptedEventDetailScreenState extends State<AcceptedEventDetailScreen>
                             participant.description,
                             style: TextStyle(
                               fontSize: 14,
-                              color: Colors.grey.shade600,
+                              color: Theme.of(context).colorScheme.onSurfaceVariant,
                             ),
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
@@ -864,7 +864,7 @@ class _AcceptedEventDetailScreenState extends State<AcceptedEventDetailScreen>
 
   Widget _buildTagsSection(AppLocalizations t) {
     return _buildSection(
-      title: 'Теги',
+      title: AppLocalizations.of(context)!.ev_tags,
       icon: Icons.tag,
       children: [
         Wrap(
@@ -908,7 +908,7 @@ class _AcceptedEventDetailScreenState extends State<AcceptedEventDetailScreen>
             Expanded(
               child: _buildActionButton(
                 icon: Icons.chat_bubble_outline,
-                label: 'Чат події',
+                label: AppLocalizations.of(context)!.ae_event_chat,
                 color: Colors.blue,
                 onTap: _openEventChat,
               ),
@@ -917,7 +917,7 @@ class _AcceptedEventDetailScreenState extends State<AcceptedEventDetailScreen>
             Expanded(
               child: _buildActionButton(
                 icon: Icons.directions,
-                label: 'Маршрут',
+                label: AppLocalizations.of(context)!.ae_route,
                 color: Colors.green,
                 onTap: _openDirections,
               ),
@@ -930,7 +930,7 @@ class _AcceptedEventDetailScreenState extends State<AcceptedEventDetailScreen>
             width: double.infinity,
             child: _buildActionButton(
               icon: Icons.notifications_active,
-              label: 'Нагадати за годину до події',
+              label: AppLocalizations.of(context)!.ae_remind,
               color: Colors.orange,
               onTap: _setReminder,
             ),
@@ -940,7 +940,7 @@ class _AcceptedEventDetailScreenState extends State<AcceptedEventDetailScreen>
             width: double.infinity,
             child: _buildActionButton(
               icon: Icons.rate_review,
-              label: 'Залишити відгук',
+              label: AppLocalizations.of(context)!.ae_leave_review,
               color: Colors.purple,
               onTap: _leaveReview,
             ),
@@ -993,7 +993,7 @@ class _AcceptedEventDetailScreenState extends State<AcceptedEventDetailScreen>
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: color ?? Colors.white,
+        color: color ?? Theme.of(context).colorScheme.surface,
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
@@ -1024,10 +1024,10 @@ class _AcceptedEventDetailScreenState extends State<AcceptedEventDetailScreen>
               Expanded(
                 child: Text(
                   title,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.bold,
-                    color: Colors.black87,
+                    color: Theme.of(context).colorScheme.onSurface,
                   ),
                 ),
               ),
@@ -1044,9 +1044,9 @@ class _AcceptedEventDetailScreenState extends State<AcceptedEventDetailScreen>
   String _formatDate(DateTime date) {
     final now = DateTime.now();
     final diff = now.difference(date).inDays;
-    if (diff == 0) return 'сьогодні';
-    if (diff == 1) return 'вчора';
-    if (diff < 7) return '$diff днів тому';
+    if (diff == 0) return AppLocalizations.of(context)!.today_lc;
+    if (diff == 1) return AppLocalizations.of(context)!.yesterday;
+    if (diff < 7) return AppLocalizations.of(context)!.ae_days_ago(diff);
     return DateFormat('dd.MM.yyyy').format(date);
   }
 
@@ -1054,18 +1054,18 @@ class _AcceptedEventDetailScreenState extends State<AcceptedEventDetailScreen>
     final now = DateTime.now();
     final diff = widget.event.dateTime.difference(now);
     
-    if (diff.isNegative) return 'Завершено';
-    if (diff.inDays > 0) return 'Через ${diff.inDays} дн.';
-    if (diff.inHours > 0) return 'Через ${diff.inHours} год.';
-    if (diff.inMinutes > 0) return 'Через ${diff.inMinutes} хв.';
-    return 'Зараз!';
+    if (diff.isNegative) return AppLocalizations.of(context)!.ae_finished;
+    if (diff.inDays > 0) return AppLocalizations.of(context)!.ae_in_days(diff.inDays);
+    if (diff.inHours > 0) return AppLocalizations.of(context)!.ae_in_hours(diff.inHours);
+    if (diff.inMinutes > 0) return AppLocalizations.of(context)!.ae_in_minutes(diff.inMinutes);
+    return AppLocalizations.of(context)!.ae_now;
   }
 
   // Action methods
   void _shareEvent() {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text('Поділитись "${widget.event.title}"'),
+        content: Text(AppLocalizations.of(context)!.ae_sharing(widget.event.title)),
         backgroundColor: Colors.blue.shade600,
         behavior: SnackBarBehavior.floating,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
@@ -1092,7 +1092,7 @@ class _AcceptedEventDetailScreenState extends State<AcceptedEventDetailScreen>
   void _openEventChat() {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text('Відкриваємо чат події "${widget.event.title}"'),
+        content: Text(AppLocalizations.of(context)!.ae_opening_chat(widget.event.title)),
         backgroundColor: Colors.blue.shade600,
         behavior: SnackBarBehavior.floating,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
@@ -1110,7 +1110,7 @@ class _AcceptedEventDetailScreenState extends State<AcceptedEventDetailScreen>
   void _openDirections() {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text('Відкриваємо маршрут до "${widget.event.location}"'),
+        content: Text(AppLocalizations.of(context)!.ae_opening_route(widget.event.location)),
         backgroundColor: Colors.green.shade600,
         behavior: SnackBarBehavior.floating,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
@@ -1121,7 +1121,7 @@ class _AcceptedEventDetailScreenState extends State<AcceptedEventDetailScreen>
   void _setReminder() {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: const Text('Нагадування встановлено за годину до події 🔔'),
+        content: Text(AppLocalizations.of(context)!.ae_reminder_set),
         backgroundColor: Colors.orange.shade600,
         behavior: SnackBarBehavior.floating,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
@@ -1134,26 +1134,26 @@ class _AcceptedEventDetailScreenState extends State<AcceptedEventDetailScreen>
       context: context,
       builder: (context) {
         return AlertDialog(
-          title: const Text('Залишити відгук'),
-          content: const Text('Як вам сподобалась подія?'),
+          title: Text(AppLocalizations.of(context)!.ae_leave_review),
+          content: Text(AppLocalizations.of(context)!.ae_how_was_it),
           actions: [
             TextButton(
               onPressed: () => Navigator.of(context).pop(),
-              child: const Text('Скасувати'),
+              child: Text(AppLocalizations.of(context)!.cancel),
             ),
             ElevatedButton(
               onPressed: () {
                 Navigator.of(context).pop();
                 ScaffoldMessenger.of(context).showSnackBar(
                   SnackBar(
-                    content: const Text('Дякуємо за відгук! ⭐'),
+                    content: Text(AppLocalizations.of(context)!.ae_thanks_review),
                     backgroundColor: Colors.purple.shade600,
                     behavior: SnackBarBehavior.floating,
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
                   ),
                 );
               },
-              child: const Text('Залишити відгук'),
+              child: Text(AppLocalizations.of(context)!.ae_leave_review),
             ),
           ],
         );

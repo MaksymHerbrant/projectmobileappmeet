@@ -40,10 +40,10 @@ class LandingScreen extends StatelessWidget {
               left: 24,
               child: Text(
                 AppLocalizations.of(context)!.app_name,
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 32,
                   fontWeight: FontWeight.bold,
-                  color: Colors.black,
+                  color: Theme.of(context).colorScheme.onSurface,
                   fontFamily: 'Arial',
                 ),
               ),
@@ -202,7 +202,7 @@ class LandingScreen extends StatelessWidget {
                               style: TextStyle(
                                 fontSize: isSmallScreen ? 22 : 26, // Менший шрифт для маленьких екранів
                                 fontWeight: FontWeight.bold,
-                                color: Colors.black,
+                                color: Theme.of(context).colorScheme.onSurface,
                                 height: isSmallScreen ? 1.2 : 1.25, // Менша висота для маленьких екранів
                               ),
                               children: [
@@ -218,7 +218,7 @@ class LandingScreen extends StatelessWidget {
                             AppLocalizations.of(context)!.become_part_of_community,
                             style: TextStyle(
                               fontSize: isSmallScreen ? 13 : 15, // Менший шрифт для маленьких екранів
-                              color: Colors.grey,
+                              color: Theme.of(context).colorScheme.onSurfaceVariant,
                               fontWeight: FontWeight.w400,
                             ),
                             textAlign: TextAlign.center,
@@ -238,8 +238,7 @@ class LandingScreen extends StatelessWidget {
                                 );
                               },
                               style: ElevatedButton.styleFrom(
-                                backgroundColor: Colors.black,
-                                foregroundColor: Colors.white,
+                                backgroundColor: Theme.of(context).colorScheme.primary, foregroundColor: Theme.of(context).colorScheme.onPrimary,
                                 padding: const EdgeInsets.symmetric(vertical: 14), // Зменшено з 18 до 14
                                 shape: RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(12),
@@ -271,9 +270,9 @@ class LandingScreen extends StatelessWidget {
                           // Текст "Продовжити через"
                           Text(
                             AppLocalizations.of(context)!.continue_with,
-                            style: const TextStyle(
+                            style: TextStyle(
                               fontSize: 14,
-                              color: Colors.grey,
+                              color: Theme.of(context).colorScheme.onSurfaceVariant,
                               fontWeight: FontWeight.w400,
                             ),
                           ),
@@ -289,8 +288,8 @@ class LandingScreen extends StatelessWidget {
                                 width: 50,
                                 height: 50,
                                 decoration: BoxDecoration(
-                                  color: Colors.white,
-                                  border: Border.all(color: Colors.grey.shade300),
+                                  color: Theme.of(context).colorScheme.surface,
+                                  border: Border.all(color: Theme.of(context).colorScheme.outlineVariant),
                                   borderRadius: BorderRadius.circular(12),
                                   boxShadow: [
                                     BoxShadow(
@@ -317,8 +316,8 @@ class LandingScreen extends StatelessWidget {
                                 width: 50,
                                 height: 50,
                                 decoration: BoxDecoration(
-                                  color: Colors.white,
-                                  border: Border.all(color: Colors.grey.shade300),
+                                  color: Theme.of(context).colorScheme.surface,
+                                  border: Border.all(color: Theme.of(context).colorScheme.outlineVariant),
                                   borderRadius: BorderRadius.circular(12),
                                   boxShadow: [
                                     BoxShadow(
@@ -328,10 +327,10 @@ class LandingScreen extends StatelessWidget {
                                     ),
                                   ],
                                 ),
-                                child: const Icon(
+                                child: Icon(
                                   Icons.apple,
                                   size: 45, // Збільшено на 30%
-                                  color: Colors.black,
+                                  color: Theme.of(context).colorScheme.onSurface,
                                 ),
                               ),
                             ],
@@ -345,9 +344,9 @@ class LandingScreen extends StatelessWidget {
                             children: [
                               Text(
                                 '${AppLocalizations.of(context)!.already_have_account} ',
-                                style: const TextStyle(
+                                style: TextStyle(
                                   fontSize: 14,
-                                  color: Colors.grey,
+                                  color: Theme.of(context).colorScheme.onSurfaceVariant,
                                   fontWeight: FontWeight.w400,
                                 ),
                               ),

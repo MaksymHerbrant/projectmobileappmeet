@@ -871,4 +871,655 @@ class AppLocalizationsUk extends AppLocalizations {
 
   @override
   String get language_system => 'Як у телефоні';
+
+  @override
+  String get interest_it => 'IT';
+
+  @override
+  String get interest_running => 'Біг';
+
+  @override
+  String get interest_cycling => 'Велоспорт';
+
+  @override
+  String get interest_party => 'Вечірка';
+
+  @override
+  String get interest_gaming => 'Геймінг';
+
+  @override
+  String get interest_mountains => 'Гори';
+
+  @override
+  String get interest_yoga => 'Йога';
+
+  @override
+  String get interest_coffee => 'Кава';
+
+  @override
+  String get interest_cooking => 'Кулінарія';
+
+  @override
+  String get interest_cinema => 'Кіно';
+
+  @override
+  String get interest_drawing => 'Малювання';
+
+  @override
+  String get interest_art => 'Мистецтво';
+
+  @override
+  String get interest_music => 'Музика';
+
+  @override
+  String get interest_lofi => 'Музика Lo-Fi';
+
+  @override
+  String get interest_board_games => 'Настільні ігри';
+
+  @override
+  String get interest_learning => 'Освіта';
+
+  @override
+  String get interest_swimming => 'Плавання';
+
+  @override
+  String get interest_travel => 'Подорожі';
+
+  @override
+  String get interest_hiking => 'Походи';
+
+  @override
+  String get interest_camping => 'Похід з наметом';
+
+  @override
+  String get interest_nature => 'Природа';
+
+  @override
+  String get interest_programming => 'Програмування';
+
+  @override
+  String get interest_sport => 'Спорт';
+
+  @override
+  String get interest_dancing => 'Танці';
+
+  @override
+  String get interest_fantasy_books => 'Фентезі книги';
+
+  @override
+  String get interest_photography => 'Фотографія';
+
+  @override
+  String get interest_fitness => 'Фітнес';
+
+  @override
+  String get interest_reading => 'Читання';
+
+  @override
+  String get ev_fill_required => 'Будь ласка, заповніть всі обов\'язкові поля';
+
+  @override
+  String get ev_enter_title => 'Введіть назву події';
+
+  @override
+  String get ev_title_min => 'Назва повинна містити мінімум 3 символи';
+
+  @override
+  String get ev_add_description => 'Додайте опис події';
+
+  @override
+  String get ev_desc_min => 'Опис повинен містити мінімум 10 символів';
+
+  @override
+  String get ev_set_location => 'Вкажіть локацію';
+
+  @override
+  String get ev_set_participants => 'Вкажіть кількість учасників';
+
+  @override
+  String get ev_min_participants => 'Мінімум 2 учасники';
+
+  @override
+  String get ev_max_participants => 'Максимум 100 учасників';
+
+  @override
+  String get ev_pick_photo => 'Оберіть принаймні одне фото';
+
+  @override
+  String get ev_max_tags => 'Можна обрати максимум 5 тегів';
+
+  @override
+  String get ev_create_failed =>
+      'Помилка при створенні події. Спробуйте ще раз.';
+
+  @override
+  String get ev_lets_create => 'Створимо щось особливе ✨';
+
+  @override
+  String get ev_fill_info =>
+      'Заповніть інформацію про вашу подію, щоб інші могли приєднатись';
+
+  @override
+  String get ev_basic_info => 'Основна інформація';
+
+  @override
+  String get ev_title_label => 'Назва події';
+
+  @override
+  String get ev_title_hint => 'Наприклад: Вечірка у центрі міста';
+
+  @override
+  String get ev_desc_label => 'Опис події';
+
+  @override
+  String get ev_desc_hint => 'Розкажіть детальніше про вашу подію...';
+
+  @override
+  String get ev_date_time => 'Дата та час';
+
+  @override
+  String get ev_pick_datetime => 'Оберіть дату та час події';
+
+  @override
+  String get ev_date => 'Дата';
+
+  @override
+  String get ev_time => 'Час';
+
+  @override
+  String get ev_pick_date => 'Оберіть дату';
+
+  @override
+  String get ev_pick_time => 'Оберіть час';
+
+  @override
+  String get ev_type => 'Тип події';
+
+  @override
+  String get ev_public => 'Публічна подія';
+
+  @override
+  String get ev_public_hint => 'Подія доступна всім користувачам';
+
+  @override
+  String get ev_private_party => 'Приватна вечірка';
+
+  @override
+  String get ev_private_hint =>
+      'Додаткова інформація буде доступна тільки запрошеним';
+
+  @override
+  String get ev_private_info => 'Приватна інформація';
+
+  @override
+  String get ev_private_note =>
+      'Ця інформація буде доступна тільки після підтвердження запиту на участь';
+
+  @override
+  String get ev_general_location => 'Загальна локація';
+
+  @override
+  String get ev_area_hint => 'Район або загальна область';
+
+  @override
+  String get ev_exact_address => 'Точна адреса';
+
+  @override
+  String get ev_exact_hint => 'Вкажіть точну адресу';
+
+  @override
+  String get ev_address_example => 'вул. Хрещатик, 1, кв. 10';
+
+  @override
+  String get ev_meeting_point => 'Місце зустрічі';
+
+  @override
+  String get ev_meeting_example => 'Біля головного входу в ТРЦ';
+
+  @override
+  String get ev_extra_info => 'Додаткова інформація';
+
+  @override
+  String get ev_extra_hint => 'Що потрібно взяти з собою, дрес-код тощо';
+
+  @override
+  String get ev_message_title => 'Повідомлення для учасників';
+
+  @override
+  String get ev_message_hint => 'Особисте повідомлення, яке побачать запрошені';
+
+  @override
+  String get ev_tags => 'Теги';
+
+  @override
+  String get ev_tags_hint =>
+      'Оберіть теги, які найкраще описують вашу подію (до 5)';
+
+  @override
+  String get ev_photos => 'Фотографії';
+
+  @override
+  String get ev_photos_hint => 'Додайте власні фото з галереї (до 5 штук)';
+
+  @override
+  String get ev_max_participants_label => 'Максимальна кількість учасників';
+
+  @override
+  String get add => 'Додати';
+
+  @override
+  String get pr_edit_title => 'Редагування профілю';
+
+  @override
+  String get pr_your_photos => 'Ваші фото';
+
+  @override
+  String get pr_name => 'Ім\'я';
+
+  @override
+  String get pr_enter_name => 'Введіть ваше ім\'я';
+
+  @override
+  String get pr_birth_date => 'Дата народження';
+
+  @override
+  String get pr_pick_birth => 'Оберіть дату';
+
+  @override
+  String get pr_need_birth => 'Будь ласка, вкажіть дату народження';
+
+  @override
+  String get pr_location => 'Місце знаходження';
+
+  @override
+  String get pr_enter_location => 'Введіть місце знаходження';
+
+  @override
+  String get pr_enter_city => 'Введіть місто';
+
+  @override
+  String get pr_about => 'Про себе';
+
+  @override
+  String get pr_about_hint => 'Розкажіть про себе...';
+
+  @override
+  String get pr_hobbies => 'Хобі';
+
+  @override
+  String get pr_search_hobby => 'Пошук хобі...';
+
+  @override
+  String get pr_no_hobbies => 'Хобі не знайдено';
+
+  @override
+  String get pr_try_other_query => 'Спробуйте інший пошуковий запит';
+
+  @override
+  String get pr_save_changes => 'Зберегти зміни';
+
+  @override
+  String get pr_saved => 'Профіль успішно оновлено!';
+
+  @override
+  String get pr_save_failed => 'Не вдалося зберегти профіль';
+
+  @override
+  String get pr_max_hobbies => 'Можна вибрати максимум 8 хобі';
+
+  @override
+  String get pr_limit => 'Обмеження';
+
+  @override
+  String get rg_meet => 'Знайомство';
+
+  @override
+  String get rg_how_to_call => 'Як до вас звертатися?';
+
+  @override
+  String get rg_your_phone => 'Ваш номер телефону';
+
+  @override
+  String get rg_check_free => 'Ми перевіримо, чи вільний цей номер';
+
+  @override
+  String get rg_sms_title => 'Підтвердження SMS';
+
+  @override
+  String get rg_enter_6 => 'Введіть 6 цифр, що надійшли на номер';
+
+  @override
+  String get rg_code_incomplete => 'Введіть код повністю';
+
+  @override
+  String get rg_age => 'Вік';
+
+  @override
+  String get rg_adults_only => 'Тільки для повнолітніх (18+)';
+
+  @override
+  String get rg_need_birth => 'Вкажіть дату народження';
+
+  @override
+  String get rg_protect => 'Захистіть акаунт';
+
+  @override
+  String get rg_strong_password => 'Придумайте надійний пароль';
+
+  @override
+  String get rg_password_short => 'Пароль занадто короткий';
+
+  @override
+  String get fp_title => 'Відновлення доступу';
+
+  @override
+  String get fp_enter_phone => 'Введіть номер, до якого прив\'язаний акаунт';
+
+  @override
+  String get fp_not_found => 'Акаунт з таким номером не знайдено';
+
+  @override
+  String get fp_new_strong => 'Придумайте новий надійний пароль';
+
+  @override
+  String get el_title => 'Лайки до моїх подій';
+
+  @override
+  String get el_who_wants => 'Користувачі, які хочуть піти:';
+
+  @override
+  String get el_no_likes => 'Поки що немає лайків';
+
+  @override
+  String get el_no_events => 'У вас поки що немає подій';
+
+  @override
+  String get el_create_hint => 'Створіть подію, щоб почати отримувати лайки';
+
+  @override
+  String get decline => 'Відхилити';
+
+  @override
+  String likes_count(int count) {
+    return '$count лайків';
+  }
+
+  @override
+  String user_accepted(String name) {
+    return '$name прийнято до події!';
+  }
+
+  @override
+  String user_declined(String name) {
+    return 'Заявку від $name відхилено';
+  }
+
+  @override
+  String get request_sent => 'Заявку надіслано!';
+
+  @override
+  String get request_sent_msg => 'Заявку з повідомленням надіслано!';
+
+  @override
+  String get m_pending => 'Очікувані';
+
+  @override
+  String get m_accepted => 'Прийняті';
+
+  @override
+  String get m_no_pending => 'Немає очікуваних запитів';
+
+  @override
+  String get m_no_accepted => 'Немає прийнятих запрошень';
+
+  @override
+  String get m_requests_here => 'Ваші заявки з\'являться тут';
+
+  @override
+  String get md_like_user => 'Лайк користувача';
+
+  @override
+  String get md_like_event => 'Лайк події';
+
+  @override
+  String md_liked_user(String name) {
+    return 'Ви лайкнули $name';
+  }
+
+  @override
+  String get md_liked_event => 'Ви лайкнули подію';
+
+  @override
+  String get md_nice_hint => 'Напишіть щось приємне...';
+
+  @override
+  String get md_join_hint => 'Напишіть, чому хочете приєднатися до події...';
+
+  @override
+  String get md_sending => 'Відправляємо...';
+
+  @override
+  String get ch_now => 'Зараз';
+
+  @override
+  String get ch_yesterday => 'Вчора';
+
+  @override
+  String get ch_unknown => 'Невідомий';
+
+  @override
+  String get ch_user => 'Користувач';
+
+  @override
+  String get no_name => 'Без імені';
+
+  @override
+  String get loading_info => 'Завантаження інформації...';
+
+  @override
+  String get no_description => 'Опис відсутній';
+
+  @override
+  String get err_rate_limit => 'Забагато дій поспіль. Спробуйте трохи пізніше.';
+
+  @override
+  String get err_forbidden => 'Немає доступу до цих даних.';
+
+  @override
+  String get err_save => 'Не вдалося зберегти зміни. Спробуйте ще раз.';
+
+  @override
+  String get err_storage =>
+      'Не вдалося завантажити фото. Перевірте розмір і формат файлу.';
+
+  @override
+  String get err_network => 'Немає зв\'язку з сервером. Перевірте інтернет.';
+
+  @override
+  String get err_unknown => 'Щось пішло не так. Спробуйте ще раз.';
+
+  @override
+  String get err_not_authed => 'Користувач не авторизований';
+
+  @override
+  String get err_sms_failed => 'Не вдалося надіслати SMS';
+
+  @override
+  String get err_wrong_code => 'Невірний код';
+
+  @override
+  String get err_update_password => 'Не вдалося оновити пароль';
+
+  @override
+  String get err_delete_account => 'Не вдалося видалити акаунт';
+
+  @override
+  String get loc_updated => 'Локацію оновлено';
+
+  @override
+  String get loc_disabled => 'Геолокація вимкнена в налаштуваннях телефона';
+
+  @override
+  String get loc_denied =>
+      'Без дозволу на геолокацію ми не зможемо показати людей поруч';
+
+  @override
+  String get loc_denied_forever =>
+      'Дозвіл на геолокацію відхилено. Увімкніть його в налаштуваннях телефона';
+
+  @override
+  String get loc_failed => 'Не вдалося визначити місце. Спробуйте ще раз';
+
+  @override
+  String get settings_button => 'Налаштування';
+
+  @override
+  String get deleted_user => 'Видалено';
+
+  @override
+  String get ae_going => 'Ви йдете на цю подію! 🎉';
+
+  @override
+  String ae_accepted_on(String date) {
+    return 'Прийнято $date';
+  }
+
+  @override
+  String get ae_about => 'Про подію';
+
+  @override
+  String get ae_organizer => 'Організатор';
+
+  @override
+  String get ae_organizer_msg => 'Повідомлення від організатора';
+
+  @override
+  String ae_participants(int count) {
+    return 'Учасники ($count)';
+  }
+
+  @override
+  String ae_participants_of(int joined, int total) {
+    return 'Учасників: $joined/$total';
+  }
+
+  @override
+  String get ae_route => 'Маршрут';
+
+  @override
+  String get ae_event_chat => 'Чат події';
+
+  @override
+  String ae_opening_route(String place) {
+    return 'Відкриваємо маршрут до \"$place\"';
+  }
+
+  @override
+  String ae_opening_chat(String title) {
+    return 'Відкриваємо чат події \"$title\"';
+  }
+
+  @override
+  String ae_sharing(String title) {
+    return 'Поділитись \"$title\"';
+  }
+
+  @override
+  String get ae_remind => 'Нагадати за годину до події';
+
+  @override
+  String get ae_reminder_set => 'Нагадування встановлено за годину до події 🔔';
+
+  @override
+  String get ae_leave_review => 'Залишити відгук';
+
+  @override
+  String get ae_how_was_it => 'Як вам сподобалась подія?';
+
+  @override
+  String get ae_thanks_review => 'Дякуємо за відгук! ⭐';
+
+  @override
+  String get ae_finished => 'Завершено';
+
+  @override
+  String get ae_event_over => 'Подія завершена';
+
+  @override
+  String get ae_today => 'Подія сьогодні!';
+
+  @override
+  String get ae_now => 'Зараз!';
+
+  @override
+  String ae_days_left(int days) {
+    return 'Залишилось $days днів';
+  }
+
+  @override
+  String ae_in_days(int days) {
+    return 'Через $days дн.';
+  }
+
+  @override
+  String ae_in_hours(int hours) {
+    return 'Через $hours год.';
+  }
+
+  @override
+  String ae_in_minutes(int minutes) {
+    return 'Через $minutes хв.';
+  }
+
+  @override
+  String ae_days_ago(int days) {
+    return '$days днів тому';
+  }
+
+  @override
+  String get ae_members_only => 'Ця інформація доступна тільки учасникам події';
+
+  @override
+  String get yesterday => 'вчора';
+
+  @override
+  String get today_lc => 'сьогодні';
+
+  @override
+  String get offline => 'Офлайн';
+
+  @override
+  String get typing_now => 'друкує...';
+
+  @override
+  String get st_end_session => 'Завершити поточну сесію';
+
+  @override
+  String get st_delete_data => 'Незворотно видалити дані';
+
+  @override
+  String get st_update_password => 'Оновити ваш пароль';
+
+  @override
+  String ev_created_ok(String title) {
+    return 'Подію \"$title\" успішно створено! 🎉';
+  }
+
+  @override
+  String get sign_in_title => 'Вхід';
+
+  @override
+  String get ended_badge => 'ЗАКІНЧЕНО';
+
+  @override
+  String get default_bio => 'Привіт! Я новий користувач...';
+
+  @override
+  String get default_country => 'Україна';
+
+  @override
+  String city_prefix(String city) {
+    return 'м. $city';
+  }
 }

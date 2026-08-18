@@ -1,3 +1,5 @@
+import 'package:dating_app/l10n/gen/app_localizations.dart';
+import '../l10n/interest_labels.dart';
 import '../theme/app_theme.dart';
 import '../models/picked_photo.dart';
 import 'package:flutter/material.dart';
@@ -166,11 +168,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
       builder: (context, child) {
         return Theme(
           data: Theme.of(context).copyWith(
-            colorScheme: const ColorScheme.light(
-              primary: Colors.blue, 
-              onPrimary: Colors.white, 
-              onSurface: Colors.black, 
-            ),
+            colorScheme: Theme.of(context).colorScheme,
           ),
           child: child!,
         );
@@ -188,9 +186,9 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
 
   Future<void> _saveProfile() async {
     // 1. Валідація
-    if (_nameController.text.trim().isEmpty) { _showErrorDialog('Введіть ваше ім\'я'); return; }
-    if (_locationController.text.trim().isEmpty) { _showErrorDialog('Введіть місце знаходження'); return; }
-    if (_birthDate == null) { _showErrorDialog('Будь ласка, вкажіть дату народження'); return; }
+    if (_nameController.text.trim().isEmpty) { _showErrorDialog(AppLocalizations.of(context)!.pr_enter_name); return; }
+    if (_locationController.text.trim().isEmpty) { _showErrorDialog(AppLocalizations.of(context)!.pr_enter_location); return; }
+    if (_birthDate == null) { _showErrorDialog(AppLocalizations.of(context)!.pr_need_birth); return; }
 
     setState(() => _isUploading = true);
 
@@ -261,12 +259,12 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
       if (mounted) {
         Navigator.of(context).pop(uiData);
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Профіль успішно оновлено!'), backgroundColor: Colors.green),
+          SnackBar(content: Text(AppLocalizations.of(context)!.pr_saved), backgroundColor: Colors.green),
         );
       }
     } catch (e) {
       debugPrint("Full save error: $e");
-      if (mounted) _showErrorDialog('Помилка збереження: $e');
+      if (mounted) _showErrorDialog(AppLocalizations.of(context)!.pr_save_failed);
     } finally {
       if (mounted) setState(() => _isUploading = false);
     }
@@ -331,16 +329,16 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
             child: Container(
               padding: const EdgeInsets.all(8),
               decoration: BoxDecoration(
-                color: Colors.white.withOpacity(0.8),
+                color: Theme.of(context).colorScheme.surface.withOpacity(0.8),
                 borderRadius: BorderRadius.circular(12),
               ),
-              child: const Icon(Icons.arrow_back, color: Colors.black87),
+              child: Icon(Icons.arrow_back, color: Theme.of(context).colorScheme.onSurface),
             ),
           ),
           const SizedBox(width: 16),
-          const Text(
-            'Редагування профілю',
-            style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.black87),
+          Text(
+            AppLocalizations.of(context)!.pr_edit_title,
+            style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Theme.of(context).colorScheme.onSurface),
           ),
         ],
       ),
@@ -351,7 +349,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text('Ваші фото', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600, color: Colors.black87)),
+        Text(AppLocalizations.of(context)!.pr_your_photos, style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600, color: Theme.of(context).colorScheme.onSurface)),
         const SizedBox(height: 12),
         Wrap(
           spacing: 10, runSpacing: 10,
@@ -363,8 +361,8 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                 onTap: _pickImage,
                 child: Container(
                   width: 100, height: 140,
-                  decoration: BoxDecoration(color: Colors.grey[200], borderRadius: BorderRadius.circular(12), border: Border.all(color: Colors.grey[400]!)),
-                  child: const Center(child: Icon(Icons.add, size: 40, color: Colors.grey)),
+                  decoration: BoxDecoration(color: Theme.of(context).colorScheme.outlineVariant, borderRadius: BorderRadius.circular(12), border: Border.all(color: Theme.of(context).colorScheme.onSurfaceVariant!)),
+                  child: Center(child: Icon(Icons.add, size: 40, color: Theme.of(context).colorScheme.onSurfaceVariant)),
                 ),
               ),
           ],
@@ -383,21 +381,21 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   }
 
   Widget _buildNameSection() {
-    return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [const Text('Ім\'я', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600, color: Colors.black87)), const SizedBox(height: 8), Container(decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(16), boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 10, offset: const Offset(0, 2))]), child: TextField(controller: _nameController, decoration: const InputDecoration(hintText: 'Введіть ваше ім\'я', border: InputBorder.none, contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 16)), style: const TextStyle(fontSize: 16)))]);
+    return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [Text(AppLocalizations.of(context)!.pr_name, style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600, color: Theme.of(context).colorScheme.onSurface)), const SizedBox(height: 8), Container(decoration: BoxDecoration(color: Theme.of(context).colorScheme.surface, borderRadius: BorderRadius.circular(16), boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 10, offset: const Offset(0, 2))]), child: TextField(controller: _nameController, decoration: InputDecoration(hintText: AppLocalizations.of(context)!.pr_enter_name, border: InputBorder.none, contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 16)), style: const TextStyle(fontSize: 16)))]);
   }
 
   Widget _buildLocationSection() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text('Місце знаходження', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600, color: Colors.black87)),
+        Text(AppLocalizations.of(context)!.pr_location, style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600, color: Theme.of(context).colorScheme.onSurface)),
         const SizedBox(height: 8),
         Row(
           children: [
             Expanded(
               child: Container(
-                decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(16), boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 10, offset: const Offset(0, 2))]),
-                child: TextField(controller: _locationController, decoration: const InputDecoration(hintText: 'Введіть місто', border: InputBorder.none, contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 16)), style: const TextStyle(fontSize: 16)),
+                decoration: BoxDecoration(color: Theme.of(context).colorScheme.surface, borderRadius: BorderRadius.circular(16), boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 10, offset: const Offset(0, 2))]),
+                child: TextField(controller: _locationController, decoration: InputDecoration(hintText: AppLocalizations.of(context)!.pr_enter_city, border: InputBorder.none, contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 16)), style: const TextStyle(fontSize: 16)),
               ),
             ),
             const SizedBox(width: 12),
@@ -425,35 +423,35 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   }
 
   Widget _buildBirthDateSection() {
-    String dateText = _birthDate != null ? '${_birthDate!.day.toString().padLeft(2, '0')}.${_birthDate!.month.toString().padLeft(2, '0')}.${_birthDate!.year}' : 'Оберіть дату';
-    return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [const Text('Дата народження', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600, color: Colors.black87)), const SizedBox(height: 8), GestureDetector(onTap: _selectDate, child: Container(width: double.infinity, padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16), decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(16), boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 10, offset: const Offset(0, 2))]), child: Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [Text(dateText, style: TextStyle(fontSize: 16, color: _birthDate != null ? Colors.black87 : Colors.grey[600])), const Icon(Icons.calendar_today, color: Colors.blue, size: 20)])))]);
+    String dateText = _birthDate != null ? '${_birthDate!.day.toString().padLeft(2, '0')}.${_birthDate!.month.toString().padLeft(2, '0')}.${_birthDate!.year}' : AppLocalizations.of(context)!.pr_pick_birth;
+    return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [Text(AppLocalizations.of(context)!.pr_birth_date, style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600, color: Theme.of(context).colorScheme.onSurface)), const SizedBox(height: 8), GestureDetector(onTap: _selectDate, child: Container(width: double.infinity, padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16), decoration: BoxDecoration(color: Theme.of(context).colorScheme.surface, borderRadius: BorderRadius.circular(16), boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 10, offset: const Offset(0, 2))]), child: Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [Text(dateText, style: TextStyle(fontSize: 16, color: _birthDate != null ? Colors.black87 : Colors.grey[600])), const Icon(Icons.calendar_today, color: Colors.blue, size: 20)])))]);
   }
 
   Widget _buildBioSection() {
-    return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [const Text('Про себе', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600, color: Colors.black87)), const SizedBox(height: 8), Container(decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(16), boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 10, offset: const Offset(0, 2))]), child: TextField(controller: _bioController, maxLines: 4, decoration: const InputDecoration(hintText: 'Розкажіть про себе...', border: InputBorder.none, contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 16)), style: const TextStyle(fontSize: 16)))]);
+    return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [Text(AppLocalizations.of(context)!.pr_about, style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600, color: Theme.of(context).colorScheme.onSurface)), const SizedBox(height: 8), Container(decoration: BoxDecoration(color: Theme.of(context).colorScheme.surface, borderRadius: BorderRadius.circular(16), boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 10, offset: const Offset(0, 2))]), child: TextField(controller: _bioController, maxLines: 4, decoration: InputDecoration(hintText: AppLocalizations.of(context)!.pr_about_hint, border: InputBorder.none, contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 16)), style: const TextStyle(fontSize: 16)))]);
   }
 
   Widget _buildHobbiesSection() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text('Хобі', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600, color: Colors.black87)),
+        Text(AppLocalizations.of(context)!.pr_hobbies, style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600, color: Theme.of(context).colorScheme.onSurface)),
         const SizedBox(height: 8),
         Container(
-          decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(16), boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 10, offset: const Offset(0, 2))]),
+          decoration: BoxDecoration(color: Theme.of(context).colorScheme.surface, borderRadius: BorderRadius.circular(16), boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 10, offset: const Offset(0, 2))]),
           child: Column(
             children: [
               if (_selectedHobbies.isNotEmpty) ...[
                 Padding(padding: const EdgeInsets.all(16), child: Wrap(spacing: 8, runSpacing: 8, children: _selectedHobbies.map((hobby) => _buildSelectedHobbyTag(hobby)).toList())),
                 const Divider(height: 1),
               ],
-              Padding(padding: const EdgeInsets.all(16), child: Container(decoration: BoxDecoration(color: Colors.grey.shade50, borderRadius: BorderRadius.circular(12), border: Border.all(color: Colors.grey.shade200)), child: TextField(controller: _hobbySearchController ??= TextEditingController(), onChanged: _filterHobbies, decoration: const InputDecoration(hintText: 'Пошук хобі...', prefixIcon: Icon(Icons.search, color: Colors.grey), border: InputBorder.none, contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 12)), style: const TextStyle(fontSize: 16)))),
+              Padding(padding: const EdgeInsets.all(16), child: Container(decoration: BoxDecoration(color: Theme.of(context).colorScheme.surfaceContainerHighest, borderRadius: BorderRadius.circular(12), border: Border.all(color: Theme.of(context).colorScheme.outlineVariant)), child: TextField(controller: _hobbySearchController ??= TextEditingController(), onChanged: _filterHobbies, decoration: InputDecoration(hintText: AppLocalizations.of(context)!.pr_search_hobby, prefixIcon: Icon(Icons.search, color: Theme.of(context).colorScheme.onSurfaceVariant), border: InputBorder.none, contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 12)), style: const TextStyle(fontSize: 16)))),
               Container(
                 constraints: const BoxConstraints(maxHeight: 200),
                 child: _filteredHobbies.isEmpty && _hobbySearchQuery.isNotEmpty ? _buildNoResultsMessage() : ListView.builder(shrinkWrap: true, itemCount: _filteredHobbies.length, itemBuilder: (context, index) {
                   final hobby = _filteredHobbies[index];
                   final isSelected = _selectedHobbies.contains(hobby);
-                  return ListTile(leading: Icon(isSelected ? Icons.check_circle : Icons.radio_button_unchecked, color: isSelected ? Colors.blue : Colors.grey), title: Text(hobby, style: TextStyle(color: isSelected ? Colors.blue : Colors.black87, fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal)), onTap: () => setState(() { isSelected ? _selectedHobbies.remove(hobby) : (_selectedHobbies.length < 8 ? _selectedHobbies.add(hobby) : _showMaxHobbiesDialog()); }));
+                  return ListTile(leading: Icon(isSelected ? Icons.check_circle : Icons.radio_button_unchecked, color: isSelected ? Colors.blue : Colors.grey), title: Text(InterestLabels.of(context, hobby), style: TextStyle(color: isSelected ? Colors.blue : Colors.black87, fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal)), onTap: () => setState(() { isSelected ? _selectedHobbies.remove(hobby) : (_selectedHobbies.length < 8 ? _selectedHobbies.add(hobby) : _showMaxHobbiesDialog()); }));
                 }),
               ),
             ],
@@ -464,11 +462,11 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   }
 
   Widget _buildSelectedHobbyTag(String hobby) {
-    return Container(padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6), decoration: BoxDecoration(color: Colors.blue.withOpacity(0.1), borderRadius: BorderRadius.circular(16), border: Border.all(color: Colors.blue.withOpacity(0.3))), child: Row(mainAxisSize: MainAxisSize.min, children: [Text(hobby, style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w500, color: Colors.blue)), const SizedBox(width: 4), GestureDetector(onTap: () => setState(() => _selectedHobbies.remove(hobby)), child: const Icon(Icons.close, size: 14, color: Colors.blue))]));
+    return Container(padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6), decoration: BoxDecoration(color: Colors.blue.withOpacity(0.1), borderRadius: BorderRadius.circular(16), border: Border.all(color: Colors.blue.withOpacity(0.3))), child: Row(mainAxisSize: MainAxisSize.min, children: [Text(InterestLabels.of(context, hobby), style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w500, color: Colors.blue)), const SizedBox(width: 4), GestureDetector(onTap: () => setState(() => _selectedHobbies.remove(hobby)), child: const Icon(Icons.close, size: 14, color: Colors.blue))]));
   }
 
   Widget _buildSaveButton() {
-    return SizedBox(width: double.infinity, child: ElevatedButton(onPressed: _isUploading ? null : _saveProfile, style: ElevatedButton.styleFrom(backgroundColor: Colors.blue, foregroundColor: Colors.white, padding: const EdgeInsets.symmetric(vertical: 16), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)), elevation: 0), child: _isUploading ? const SizedBox(height: 20, width: 20, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2)) : const Text('Зберегти зміни', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600))));
+    return SizedBox(width: double.infinity, child: ElevatedButton(onPressed: _isUploading ? null : _saveProfile, style: ElevatedButton.styleFrom(backgroundColor: Colors.blue, foregroundColor: Colors.white, padding: const EdgeInsets.symmetric(vertical: 16), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)), elevation: 0), child: _isUploading ? const SizedBox(height: 20, width: 20, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2)) : Text(AppLocalizations.of(context)!.pr_save_changes, style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600))));
   }
 
   // --- ДОПОМІЖНІ МЕТОДИ ---
@@ -518,7 +516,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text(outcome.message),
+          content: Text(outcome.localized(context)),
           backgroundColor: Colors.green,
         ),
       );
@@ -530,11 +528,11 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   void _showLocationProblem(LocationOutcome outcome) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text(outcome.message),
+        content: Text(outcome.localized(context)),
         duration: const Duration(seconds: 6),
         action: outcome.needsSettings
             ? SnackBarAction(
-                label: 'Налаштування',
+                label: AppLocalizations.of(context)!.settings_button,
                 textColor: Colors.white,
                 onPressed: () => outcome == LocationOutcome.serviceDisabled
                     ? _locationService.openLocationSettings()
@@ -545,8 +543,8 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     );
   }
 
-  void _showMaxHobbiesDialog() { showDialog(context: context, builder: (context) => AlertDialog(title: const Text('Обмеження'), content: const Text('Можна вибрати максимум 8 хобі'), actions: [TextButton(onPressed: () => Navigator.of(context).pop(), child: const Text('OK'))])); }
+  void _showMaxHobbiesDialog() { showDialog(context: context, builder: (context) => AlertDialog(title: Text(AppLocalizations.of(context)!.pr_limit), content: Text(AppLocalizations.of(context)!.pr_max_hobbies), actions: [TextButton(onPressed: () => Navigator.of(context).pop(), child: const Text('OK'))])); }
   void _filterHobbies(String query) { setState(() { _hobbySearchQuery = query.toLowerCase(); _filteredHobbies = query.isEmpty ? List.from(_availableHobbies) : _availableHobbies.where((hobby) => hobby.toLowerCase().contains(_hobbySearchQuery)).toList(); }); }
-  Widget _buildNoResultsMessage() { return Container(padding: const EdgeInsets.all(20), child: Column(children: [Icon(Icons.search_off, size: 48, color: Colors.grey.shade400), const SizedBox(height: 12), Text('Хобі не знайдено', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500, color: Colors.grey.shade600)), const SizedBox(height: 8), Text('Спробуйте інший пошуковий запит', style: TextStyle(fontSize: 14, color: Colors.grey.shade500))])); }
+  Widget _buildNoResultsMessage() { return Container(padding: const EdgeInsets.all(20), child: Column(children: [Icon(Icons.search_off, size: 48, color: Theme.of(context).colorScheme.onSurfaceVariant), const SizedBox(height: 12), Text(AppLocalizations.of(context)!.pr_no_hobbies, style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500, color: Theme.of(context).colorScheme.onSurfaceVariant)), const SizedBox(height: 8), Text(AppLocalizations.of(context)!.pr_try_other_query, style: TextStyle(fontSize: 14, color: Theme.of(context).colorScheme.onSurfaceVariant))])); }
   void _showErrorDialog(String message) { showDialog(context: context, builder: (context) => AlertDialog(title: const Text('Помилка'), content: Text(message), actions: [TextButton(onPressed: () => Navigator.of(context).pop(), child: const Text('OK'))])); }
 }

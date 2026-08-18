@@ -22,9 +22,9 @@ class AuthService {
       final fullPhone = '${AppConfig.phonePrefix}${phone.trim()}';
       await _supabase.auth.signInWithOtp(phone: fullPhone);
     } on AuthException catch (e) {
-      throw Exception('Помилка відправки SMS: ${e.message}');
+      throw AppFailure(FailureKind.smsFailed, details: e.message);
     } catch (e) {
-      throw Exception('Помилка відправки SMS: $e');
+      throw AppFailure(FailureKind.smsFailed, details: e.toString());
     }
   }
 
@@ -39,9 +39,9 @@ class AuthService {
       await updateFcmToken();
       return response;
     } on AuthException catch (e) {
-      throw Exception('Невірний код: ${e.message}');
+      throw AppFailure(FailureKind.wrongCode, details: e.message);
     } catch (e) {
-      throw Exception('Невірний код: $e');
+      throw AppFailure(FailureKind.wrongCode, details: e.toString());
     }
   }
 
@@ -51,9 +51,9 @@ class AuthService {
       await _supabase.auth.signInWithPassword(phone: fullPhone, password: password);
       await updateFcmToken();
     } on AuthException catch (e) {
-      throw Exception('Невірний номер або пароль: ${e.message}');
+      throw AppFailure(FailureKind.wrongCode, details: e.message);
     } catch (e) {
-      throw Exception('Невірний номер або пароль');
+      throw const AppFailure(FailureKind.wrongCode);
     }
   }
 
@@ -80,7 +80,7 @@ class AuthService {
     required String password, 
   }) async {
     final user = currentUser;
-    if (user == null) throw Exception('Користувач не авторизований');
+    if (user == null) throw const AppFailure(FailureKind.notAuthenticated);
 
     try {
       // А) Встановлюємо пароль для користувача (щоб міг входити потім без смс)
@@ -98,7 +98,7 @@ class AuthService {
       });
       await updateFcmToken();
     } catch (e) {
-      throw Exception('Помилка збереження даних: $e');
+      throw AppFailure(FailureKind.save, details: e.toString());
     }
   }
   Future<void> updatePassword(String newPassword) async {
@@ -107,10 +107,10 @@ class AuthService {
         UserAttributes(password: newPassword),
       );
       if (response.user == null) {
-        throw Exception('Не вдалося оновити пароль');
+        throw const AppFailure(FailureKind.updatePassword);
       }
     } catch (e) {
-      throw Exception('Помилка оновлення: ${e.toString()}');
+      throw AppFailure(FailureKind.updatePassword, details: e.toString());
     }
   }
   // 👇 ОСЬ ЦЕЙ МЕТОД ТИ ПРОСИВ (Отримання даних профілю)
@@ -133,9 +133,9 @@ class AuthService {
       await _supabase.rpc('delete_user');
       await _supabase.auth.signOut();
     } on PostgrestException catch (e) {
-      throw Exception('Помилка видалення: ${e.message}');
+      throw AppFailure(FailureKind.deleteAccount, details: e.message);
     } catch (e) {
-      throw Exception('Помилка видалення: $e');
+      throw AppFailure(FailureKind.deleteAccount, details: e.toString());
     }
   }
 

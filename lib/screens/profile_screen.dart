@@ -1,3 +1,4 @@
+import '../l10n/interest_labels.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'edit_profile_screen.dart';
@@ -39,8 +40,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
   
   String userName = '';
-  String userLocation = 'Україна';
-  String aboutMe = 'Завантаження інформації...';
+  String? userLocation; // null → підставляємо стандартне значення у build
+  String? aboutMe; // null → показуємо «Завантаження…» у build
   
   // Хобі
   List<String> hobbies = [
@@ -63,9 +64,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
       
       if (mounted && profile != null) {
         setState(() {
-          userName = profile['full_name'] ?? 'Без імені';
-          aboutMe = profile['bio'] ?? 'Привіт! Я новий користувач...'; 
-          userLocation = profile['location'] ?? 'Україна';
+          userName = profile['full_name'] ?? AppLocalizations.of(context)!.no_name;
+          aboutMe = profile['bio'] ?? AppLocalizations.of(context)!.default_bio; 
+          userLocation = profile['location'] ?? AppLocalizations.of(context)!.default_country;
           
           // Обробка дати
           if (profile['birth_date'] != null) {
@@ -97,12 +98,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
     }
   }
 
+  /// Єдине джерело назв інтересів. Раніше тут була власна мапа на кілька
+  /// значень, тож більшість інтересів лишалась українською в будь-якій мові.
   List<String> _getLocalizedHobbies(List<String> hobbies, BuildContext context) {
-      Map<String, String> hobbyTranslations = {
-        'Геймінг': AppLocalizations.of(context)!.gaming,
-        // ... (твої переклади)
-      };
-      return hobbies.map((hobby) => hobbyTranslations[hobby] ?? hobby).toList();
+    return hobbies.map((h) => InterestLabels.of(context, h)).toList();
   }
 
   @override
@@ -153,10 +152,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
           Expanded(
             child: Text(
               AppLocalizations.of(context)!.my_profile,
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 24,
                 fontWeight: FontWeight.bold,
-                color: Colors.black,
+                color: Theme.of(context).colorScheme.onSurface,
               ),
               textAlign: TextAlign.center,
             ),
@@ -166,10 +165,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
             child: Container(
               padding: const EdgeInsets.all(8),
               decoration: BoxDecoration(
-                color: Colors.grey.shade100,
+                color: Theme.of(context).colorScheme.surfaceContainerHighest,
                 borderRadius: BorderRadius.circular(20),
               ),
-              child: const Icon(Icons.edit, color: Colors.black87, size: 20),
+              child: Icon(Icons.edit, color: Theme.of(context).colorScheme.onSurface, size: 20),
             ),
           ),
           const SizedBox(width: 12),
@@ -178,10 +177,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
             child: Container(
               padding: const EdgeInsets.all(8),
               decoration: BoxDecoration(
-                color: Colors.grey.shade100,
+                color: Theme.of(context).colorScheme.surfaceContainerHighest,
                 borderRadius: BorderRadius.circular(20),
               ),
-              child: const Icon(Icons.settings, color: Colors.black87, size: 20),
+              child: Icon(Icons.settings, color: Theme.of(context).colorScheme.onSurface, size: 20),
             ),
           ),
         ],
@@ -213,22 +212,22 @@ class _ProfileScreenState extends State<ProfileScreen> {
         width: double.infinity,
         height: double.infinity,
         decoration: BoxDecoration(
-          color: Colors.grey[300],
+          color: Theme.of(context).colorScheme.outlineVariant,
           borderRadius: BorderRadius.circular(20),
-          border: Border.all(color: Colors.grey[400]!, width: 2),
+          border: Border.all(color: Theme.of(context).colorScheme.onSurfaceVariant!, width: 2),
         ),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(Icons.add_a_photo, size: 50, color: Colors.grey[600]),
+            Icon(Icons.add_a_photo, size: 50, color: Theme.of(context).colorScheme.onSurfaceVariant),
             const SizedBox(height: 10),
             Text(
-              "Немає фото.\nНатисніть, щоб додати",
+              AppLocalizations.of(context)!.no_photos_tap_to_add,
               textAlign: TextAlign.center,
               style: TextStyle(
                 fontSize: 16,
                 fontWeight: FontWeight.bold,
-                color: Colors.grey[700],
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
               ),
             ),
           ],
@@ -279,17 +278,17 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     children: [
                       Text(
                         '$userName $userAge',
-                        style: const TextStyle(
-                          color: Colors.white,
+                        style: TextStyle(
+                          color: Theme.of(context).colorScheme.onSurface,
                           fontSize: 28,
                           fontWeight: FontWeight.bold,
                         ),
                       ),
                       const SizedBox(height: 8),
                       Text(
-                        userLocation,
-                        style: const TextStyle(
-                          color: Colors.white,
+                        (userLocation ?? AppLocalizations.of(context)!.default_country),
+                        style: TextStyle(
+                          color: Theme.of(context).colorScheme.onSurface,
                           fontSize: 18,
                           fontWeight: FontWeight.w500,
                         ),
@@ -331,10 +330,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   Widget _buildAboutMeSection() {
     final displayText = _showFullAboutMe 
-        ? aboutMe 
-        : aboutMe.length > 100 
-            ? '${aboutMe.substring(0, 100)}...' 
-            : aboutMe;
+        ? (aboutMe ?? AppLocalizations.of(context)!.loading_info) 
+        : (aboutMe ?? AppLocalizations.of(context)!.loading_info).length > 100 
+            ? '${(aboutMe ?? AppLocalizations.of(context)!.loading_info).substring(0, 100)}...' 
+            : (aboutMe ?? AppLocalizations.of(context)!.loading_info);
     
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 20),
@@ -343,7 +342,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
         children: [
           Text(
             AppLocalizations.of(context)!.about_me,
-            style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.black),
+            style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Theme.of(context).colorScheme.onSurface),
           ),
           const SizedBox(height: 12),
           Row(
@@ -352,10 +351,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
               Expanded(
                 child: Text(
                   displayText,
-                  style: const TextStyle(fontSize: 16, color: Colors.black87, height: 1.5),
+                  style: TextStyle(fontSize: 16, color: Theme.of(context).colorScheme.onSurface, height: 1.5),
                 ),
               ),
-              if (aboutMe.length > 100) ...[
+              if ((aboutMe ?? AppLocalizations.of(context)!.loading_info).length > 100) ...[
                 const SizedBox(width: 12),
                 GestureDetector(
                   onTap: () {
@@ -376,12 +375,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           _showFullAboutMe 
                             ? AppLocalizations.of(context)!.less
                             : AppLocalizations.of(context)!.more,
-                          style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w500, color: Colors.black87),
+                          style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500, color: Theme.of(context).colorScheme.onSurface),
                         ),
                         const SizedBox(width: 4),
                         Icon(
                           _showFullAboutMe ? Icons.keyboard_arrow_up : Icons.arrow_forward,
-                          size: 16, color: Colors.black87,
+                          size: 16, color: Theme.of(context).colorScheme.onSurface,
                         ),
                       ],
                     ),
@@ -408,7 +407,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
         children: [
           Text(
             AppLocalizations.of(context)!.hobbies,
-            style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.black),
+            style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Theme.of(context).colorScheme.onSurface),
           ),
           const SizedBox(height: 12),
           Column(
@@ -440,12 +439,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           _showFullHobbies 
                             ? AppLocalizations.of(context)!.less
                             : AppLocalizations.of(context)!.more,
-                          style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w500, color: Colors.black87),
+                          style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500, color: Theme.of(context).colorScheme.onSurface),
                         ),
                         const SizedBox(width: 4),
                         Icon(
                           _showFullHobbies ? Icons.keyboard_arrow_up : Icons.arrow_forward,
-                          size: 16, color: Colors.black87,
+                          size: 16, color: Theme.of(context).colorScheme.onSurface,
                         ),
                       ],
                     ),
@@ -480,9 +479,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
       decoration: BoxDecoration(
-        color: Colors.grey.shade100,
+        color: Theme.of(context).colorScheme.surfaceContainerHighest,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: Colors.grey.shade300),
+        border: Border.all(color: Theme.of(context).colorScheme.outlineVariant),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
@@ -492,7 +491,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
           Flexible(
             child: Text(
               hobby,
-              style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w500, color: Colors.black87),
+              style: TextStyle(fontSize: 12, fontWeight: FontWeight.w500, color: Theme.of(context).colorScheme.onSurface),
               overflow: TextOverflow.ellipsis,
             ),
           ),
@@ -504,9 +503,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
   void _openEditProfile() async {
     final profileData = {
       'name': userName,
-      'location': userLocation,
+      'location': (userLocation ?? AppLocalizations.of(context)!.default_country),
       'birthDate': userBirthDate,
-      'aboutMe': aboutMe,
+      '(aboutMe ?? AppLocalizations.of(context)!.loading_info)': (aboutMe ?? AppLocalizations.of(context)!.loading_info),
       'hobbies': hobbies,
       // 🟢 Передаємо поточні фото в редагування
       'photos': userPhotos, 
@@ -525,7 +524,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
         if (result['birthDate'] != null) {
           userBirthDate = result['birthDate'] as DateTime; 
         }
-        aboutMe = result['aboutMe'];
+        aboutMe = result['(aboutMe ?? AppLocalizations.of(context)!.loading_info)'];
         hobbies = List<String>.from(result['hobbies']);
         
         // 🟢 Оновлюємо список фото після редагування

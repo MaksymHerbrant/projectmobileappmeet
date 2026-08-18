@@ -1,3 +1,5 @@
+import '../service/error_reporter.dart';
+import 'package:dating_app/l10n/gen/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'main_navigation_screen.dart';
@@ -55,7 +57,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
       if (_currentStep == 0) {
         // КРОК 1: ТЕЛЕФОН
         final phone = _phoneController.text.trim();
-        if (phone.length < 9) throw Exception('Введіть коректний номер');
+        if (phone.length < 9) throw Exception(AppLocalizations.of(context)!.enter_valid_phone);
 
         // 🟢 ЖОРСТКА ПЕРЕВІРКА: чи є номер у таблиці profiles
         final bool exists = await _authService.checkUserExists(phone);
@@ -78,24 +80,24 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
 
       } else if (_currentStep == 1) {
         // КРОК 2: SMS
-        if (_smsController.text.length < 6) throw Exception('Введіть код повністю');
+        if (_smsController.text.length < 6) throw Exception(AppLocalizations.of(context)!.rg_code_incomplete);
         await _authService.verifyOtp(_phoneController.text, _smsController.text);
         _goToNextPage();
 
       } else if (_currentStep == 2) {
         // КРОК 3: ПАРОЛЬ
-        if (_passwordController.text.length < 6) throw Exception('Пароль занадто короткий');
-        if (_passwordController.text != _confirmPasswordController.text) throw Exception('Паролі не збігаються');
+        if (_passwordController.text.length < 6) throw Exception(AppLocalizations.of(context)!.rg_password_short);
+        if (_passwordController.text != _confirmPasswordController.text) throw Exception(AppLocalizations.of(context)!.passwords_do_not_match);
         _goToNextPage();
 
       } else if (_currentStep == 3) {
         // КРОК 4: ІМ'Я
-        if (_nameController.text.trim().isEmpty) throw Exception('Введіть ваше ім\'я');
+        if (_nameController.text.trim().isEmpty) throw const AppFailure(FailureKind.save);
         _goToNextPage();
 
       } else if (_currentStep == 4) {
         // КРОК 5: ДАТА
-        if (_selectedDate == null) throw Exception('Вкажіть дату народження');
+        if (_selectedDate == null) throw Exception(AppLocalizations.of(context)!.rg_need_birth);
         await _completeRegistration();
       }
     } catch (e) {
@@ -118,12 +120,12 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
       barrierDismissible: false,
       builder: (context) => AlertDialog(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-        title: const Text('Акаунт уже існує'),
-        content: const Text('Ви вже зареєстровані в системі. Будь ласка, увійдіть у свій профіль або скористайтеся іншим номером.'),
+        title: Text(AppLocalizations.of(context)!.account_exists_title),
+        content: Text(AppLocalizations.of(context)!.account_exists_body),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('Змінити номер'),
+            child: Text(AppLocalizations.of(context)!.change_number),
           ),
           ElevatedButton(
             onPressed: () {
@@ -131,7 +133,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
               Navigator.pop(context); // Повернутися на екран входу (Login)
             },
             style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF5C72FF)),
-            child: const Text('Увійти', style: TextStyle(color: Colors.white)),
+            child: Text(AppLocalizations.of(context)!.login, style: TextStyle(color: Theme.of(context).colorScheme.onSurface)),
           ),
         ],
       ),
@@ -168,25 +170,25 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: Theme.of(context).colorScheme.surface,
       appBar: AppBar(
-        backgroundColor: Colors.white,
+        backgroundColor: Theme.of(context).colorScheme.surface,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.black),
+          icon: Icon(Icons.arrow_back, color: Theme.of(context).colorScheme.onSurface),
           onPressed: _isLoading ? null : (_currentStep > 0 ? _previousStep : () => Navigator.pop(context)),
         ),
-        title: Text('Крок ${_currentStep + 1} з 5', style: const TextStyle(color: Colors.grey, fontSize: 14)),
+        title: Text(AppLocalizations.of(context)!.step_of(_currentStep + 1, 5), style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant, fontSize: 14)),
       ),
       body: PageView(
         controller: _pageController,
         physics: const NeverScrollableScrollPhysics(),
         children: [
-          _buildStep(title: 'Ваш номер телефону', subtitle: 'Ми перевіримо, чи вільний цей номер', content: _buildPhoneInput()),
-          _buildStep(title: 'Підтвердження SMS', subtitle: 'Введіть 6 цифр, що надійшли на номер', content: _buildSmsInput()),
-          _buildStep(title: 'Захистіть акаунт', subtitle: 'Придумайте надійний пароль', content: _buildPasswordInput()),
-          _buildStep(title: 'Знайомство', subtitle: 'Як до вас звертатися?', content: _buildNameInput()),
-          _buildStep(title: 'Вік', subtitle: 'Тільки для повнолітніх (18+)', content: _buildBirthdayInput()),
+          _buildStep(title: AppLocalizations.of(context)!.rg_your_phone, subtitle: AppLocalizations.of(context)!.rg_check_free, content: _buildPhoneInput()),
+          _buildStep(title: AppLocalizations.of(context)!.rg_sms_title, subtitle: AppLocalizations.of(context)!.rg_enter_6, content: _buildSmsInput()),
+          _buildStep(title: AppLocalizations.of(context)!.rg_protect, subtitle: AppLocalizations.of(context)!.rg_strong_password, content: _buildPasswordInput()),
+          _buildStep(title: AppLocalizations.of(context)!.rg_meet, subtitle: AppLocalizations.of(context)!.rg_how_to_call, content: _buildNameInput()),
+          _buildStep(title: AppLocalizations.of(context)!.rg_age, subtitle: AppLocalizations.of(context)!.rg_adults_only, content: _buildBirthdayInput()),
         ],
       ),
     );
@@ -201,7 +203,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
           const SizedBox(height: 20),
           Text(title, style: const TextStyle(fontSize: 26, fontWeight: FontWeight.bold)),
           const SizedBox(height: 8),
-          Text(subtitle, style: const TextStyle(fontSize: 16, color: Colors.grey)),
+          Text(subtitle, style: TextStyle(fontSize: 16, color: Theme.of(context).colorScheme.onSurfaceVariant)),
           const SizedBox(height: 40),
           content,
           const Spacer(),
@@ -216,7 +218,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
               ),
               child: _isLoading 
                 ? const SizedBox(height: 20, width: 20, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2))
-                : const Text('Продовжити', style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold)),
+                : Text(AppLocalizations.of(context)!.continue_text, style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontSize: 16, fontWeight: FontWeight.bold)),
             ),
           ),
           const SizedBox(height: 20),
@@ -233,7 +235,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
       autofocus: true,
       decoration: InputDecoration(
         prefixText: '+380 ',
-        prefixStyle: const TextStyle(fontSize: 18, color: Colors.black, fontWeight: FontWeight.bold),
+        prefixStyle: TextStyle(fontSize: 18, color: Theme.of(context).colorScheme.onSurface, fontWeight: FontWeight.bold),
         border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
         hintText: 'XX XXX XXXX',
       ),
@@ -255,8 +257,8 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                 width: 45, height: 55,
                 alignment: Alignment.center,
                 decoration: BoxDecoration(
-                  color: Colors.grey.shade50,
-                  border: Border.all(color: isFocused ? const Color(0xFF5C72FF) : Colors.grey.shade300, width: 2),
+                  color: Theme.of(context).colorScheme.surfaceContainerHighest,
+                  border: Border.all(color: isFocused ? const Color(0xFF5C72FF) : Theme.of(context).colorScheme.outlineVariant, width: 2),
                   borderRadius: BorderRadius.circular(10),
                 ),
                 child: Text(char, style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold)),
@@ -288,7 +290,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
           controller: _passwordController,
           obscureText: !_isPasswordVisible,
           decoration: InputDecoration(
-            labelText: 'Пароль',
+            labelText: AppLocalizations.of(context)!.password,
             border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
             suffixIcon: IconButton(
               icon: Icon(_isPasswordVisible ? Icons.visibility : Icons.visibility_off),
@@ -300,7 +302,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
         TextField(
           controller: _confirmPasswordController,
           obscureText: !_isPasswordVisible,
-          decoration: InputDecoration(labelText: 'Підтвердіть пароль', border: OutlineInputBorder(borderRadius: BorderRadius.circular(12))),
+          decoration: InputDecoration(labelText: AppLocalizations.of(context)!.confirm_password, border: OutlineInputBorder(borderRadius: BorderRadius.circular(12))),
         ),
       ],
     );
@@ -310,7 +312,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
     return TextField(
       controller: _nameController,
       textCapitalization: TextCapitalization.words,
-      decoration: InputDecoration(hintText: 'Ваше ім\'я', border: OutlineInputBorder(borderRadius: BorderRadius.circular(12))),
+      decoration: InputDecoration(hintText: AppLocalizations.of(context)!.your_name, border: OutlineInputBorder(borderRadius: BorderRadius.circular(12))),
     );
   }
 
@@ -333,7 +335,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
         }
       },
       decoration: InputDecoration(
-        hintText: 'Оберіть дату народження',
+        hintText: AppLocalizations.of(context)!.pick_birth_date,
         suffixIcon: const Icon(Icons.calendar_today),
         border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
       ),

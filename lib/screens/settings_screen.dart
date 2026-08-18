@@ -127,9 +127,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
     
     return Container(
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: Theme.of(context).colorScheme.surface,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: Colors.grey.shade200),
+        border: Border.all(color: Theme.of(context).colorScheme.outlineVariant),
       ),
       child: DropdownButtonHideUnderline(
         child: DropdownButton<String>(
@@ -289,7 +289,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
         children: [
           _buildListTile(
             title: AppLocalizations.of(context)!.change_password,
-            subtitle: "Оновити ваш пароль",
+            subtitle: AppLocalizations.of(context)!.st_update_password,
             icon: Icons.lock,
             onTap: () {
               // 👇 ДОДАНО ПЕРЕХІД НА ЕКРАН ЗМІНИ ПАРОЛЯ
@@ -302,14 +302,14 @@ class _SettingsScreenState extends State<SettingsScreen> {
           // 🟢 КНОПКА ВИХОДУ
           _buildListTile(
             title: t.sign_out,
-            subtitle: 'Завершити поточну сесію',
+            subtitle: AppLocalizations.of(context)!.st_end_session,
             icon: Icons.logout,
             onTap: _showLogoutDialog,
             isDestructive: true,
           ),
           _buildListTile(
             title: AppLocalizations.of(context)!.delete_account,
-            subtitle: "Незворотно видалити дані",
+            subtitle: AppLocalizations.of(context)!.st_delete_data,
             icon: Icons.delete_forever,
             onTap: _showDeleteAccountDialog, // 👇 ДОДАНО
             isDestructive: true,

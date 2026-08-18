@@ -1771,6 +1771,1224 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Same as phone'**
   String get language_system;
+
+  /// No description provided for @interest_it.
+  ///
+  /// In en, this message translates to:
+  /// **'IT'**
+  String get interest_it;
+
+  /// No description provided for @interest_running.
+  ///
+  /// In en, this message translates to:
+  /// **'Running'**
+  String get interest_running;
+
+  /// No description provided for @interest_cycling.
+  ///
+  /// In en, this message translates to:
+  /// **'Cycling'**
+  String get interest_cycling;
+
+  /// No description provided for @interest_party.
+  ///
+  /// In en, this message translates to:
+  /// **'Parties'**
+  String get interest_party;
+
+  /// No description provided for @interest_gaming.
+  ///
+  /// In en, this message translates to:
+  /// **'Gaming'**
+  String get interest_gaming;
+
+  /// No description provided for @interest_mountains.
+  ///
+  /// In en, this message translates to:
+  /// **'Mountains'**
+  String get interest_mountains;
+
+  /// No description provided for @interest_yoga.
+  ///
+  /// In en, this message translates to:
+  /// **'Yoga'**
+  String get interest_yoga;
+
+  /// No description provided for @interest_coffee.
+  ///
+  /// In en, this message translates to:
+  /// **'Coffee'**
+  String get interest_coffee;
+
+  /// No description provided for @interest_cooking.
+  ///
+  /// In en, this message translates to:
+  /// **'Cooking'**
+  String get interest_cooking;
+
+  /// No description provided for @interest_cinema.
+  ///
+  /// In en, this message translates to:
+  /// **'Cinema'**
+  String get interest_cinema;
+
+  /// No description provided for @interest_drawing.
+  ///
+  /// In en, this message translates to:
+  /// **'Drawing'**
+  String get interest_drawing;
+
+  /// No description provided for @interest_art.
+  ///
+  /// In en, this message translates to:
+  /// **'Art'**
+  String get interest_art;
+
+  /// No description provided for @interest_music.
+  ///
+  /// In en, this message translates to:
+  /// **'Music'**
+  String get interest_music;
+
+  /// No description provided for @interest_lofi.
+  ///
+  /// In en, this message translates to:
+  /// **'Lo-Fi music'**
+  String get interest_lofi;
+
+  /// No description provided for @interest_board_games.
+  ///
+  /// In en, this message translates to:
+  /// **'Board games'**
+  String get interest_board_games;
+
+  /// No description provided for @interest_learning.
+  ///
+  /// In en, this message translates to:
+  /// **'Learning'**
+  String get interest_learning;
+
+  /// No description provided for @interest_swimming.
+  ///
+  /// In en, this message translates to:
+  /// **'Swimming'**
+  String get interest_swimming;
+
+  /// No description provided for @interest_travel.
+  ///
+  /// In en, this message translates to:
+  /// **'Travel'**
+  String get interest_travel;
+
+  /// No description provided for @interest_hiking.
+  ///
+  /// In en, this message translates to:
+  /// **'Hiking'**
+  String get interest_hiking;
+
+  /// No description provided for @interest_camping.
+  ///
+  /// In en, this message translates to:
+  /// **'Camping'**
+  String get interest_camping;
+
+  /// No description provided for @interest_nature.
+  ///
+  /// In en, this message translates to:
+  /// **'Nature'**
+  String get interest_nature;
+
+  /// No description provided for @interest_programming.
+  ///
+  /// In en, this message translates to:
+  /// **'Programming'**
+  String get interest_programming;
+
+  /// No description provided for @interest_sport.
+  ///
+  /// In en, this message translates to:
+  /// **'Sport'**
+  String get interest_sport;
+
+  /// No description provided for @interest_dancing.
+  ///
+  /// In en, this message translates to:
+  /// **'Dancing'**
+  String get interest_dancing;
+
+  /// No description provided for @interest_fantasy_books.
+  ///
+  /// In en, this message translates to:
+  /// **'Fantasy books'**
+  String get interest_fantasy_books;
+
+  /// No description provided for @interest_photography.
+  ///
+  /// In en, this message translates to:
+  /// **'Photography'**
+  String get interest_photography;
+
+  /// No description provided for @interest_fitness.
+  ///
+  /// In en, this message translates to:
+  /// **'Fitness'**
+  String get interest_fitness;
+
+  /// No description provided for @interest_reading.
+  ///
+  /// In en, this message translates to:
+  /// **'Reading'**
+  String get interest_reading;
+
+  /// No description provided for @ev_fill_required.
+  ///
+  /// In en, this message translates to:
+  /// **'Please fill in all required fields'**
+  String get ev_fill_required;
+
+  /// No description provided for @ev_enter_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter the event name'**
+  String get ev_enter_title;
+
+  /// No description provided for @ev_title_min.
+  ///
+  /// In en, this message translates to:
+  /// **'The name must be at least 3 characters'**
+  String get ev_title_min;
+
+  /// No description provided for @ev_add_description.
+  ///
+  /// In en, this message translates to:
+  /// **'Add an event description'**
+  String get ev_add_description;
+
+  /// No description provided for @ev_desc_min.
+  ///
+  /// In en, this message translates to:
+  /// **'The description must be at least 10 characters'**
+  String get ev_desc_min;
+
+  /// No description provided for @ev_set_location.
+  ///
+  /// In en, this message translates to:
+  /// **'Set a location'**
+  String get ev_set_location;
+
+  /// No description provided for @ev_set_participants.
+  ///
+  /// In en, this message translates to:
+  /// **'Set the number of participants'**
+  String get ev_set_participants;
+
+  /// No description provided for @ev_min_participants.
+  ///
+  /// In en, this message translates to:
+  /// **'At least 2 participants'**
+  String get ev_min_participants;
+
+  /// No description provided for @ev_max_participants.
+  ///
+  /// In en, this message translates to:
+  /// **'Maximum 100 participants'**
+  String get ev_max_participants;
+
+  /// No description provided for @ev_pick_photo.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose at least one photo'**
+  String get ev_pick_photo;
+
+  /// No description provided for @ev_max_tags.
+  ///
+  /// In en, this message translates to:
+  /// **'You can pick up to 5 tags'**
+  String get ev_max_tags;
+
+  /// No description provided for @ev_create_failed.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not create the event. Please try again.'**
+  String get ev_create_failed;
+
+  /// No description provided for @ev_lets_create.
+  ///
+  /// In en, this message translates to:
+  /// **'Let\'s create something special ✨'**
+  String get ev_lets_create;
+
+  /// No description provided for @ev_fill_info.
+  ///
+  /// In en, this message translates to:
+  /// **'Fill in your event details so others can join'**
+  String get ev_fill_info;
+
+  /// No description provided for @ev_basic_info.
+  ///
+  /// In en, this message translates to:
+  /// **'Basic information'**
+  String get ev_basic_info;
+
+  /// No description provided for @ev_title_label.
+  ///
+  /// In en, this message translates to:
+  /// **'Event name'**
+  String get ev_title_label;
+
+  /// No description provided for @ev_title_hint.
+  ///
+  /// In en, this message translates to:
+  /// **'For example: Party in the city centre'**
+  String get ev_title_hint;
+
+  /// No description provided for @ev_desc_label.
+  ///
+  /// In en, this message translates to:
+  /// **'Event description'**
+  String get ev_desc_label;
+
+  /// No description provided for @ev_desc_hint.
+  ///
+  /// In en, this message translates to:
+  /// **'Tell people more about your event…'**
+  String get ev_desc_hint;
+
+  /// No description provided for @ev_date_time.
+  ///
+  /// In en, this message translates to:
+  /// **'Date and time'**
+  String get ev_date_time;
+
+  /// No description provided for @ev_pick_datetime.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose the date and time'**
+  String get ev_pick_datetime;
+
+  /// No description provided for @ev_date.
+  ///
+  /// In en, this message translates to:
+  /// **'Date'**
+  String get ev_date;
+
+  /// No description provided for @ev_time.
+  ///
+  /// In en, this message translates to:
+  /// **'Time'**
+  String get ev_time;
+
+  /// No description provided for @ev_pick_date.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose a date'**
+  String get ev_pick_date;
+
+  /// No description provided for @ev_pick_time.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose a time'**
+  String get ev_pick_time;
+
+  /// No description provided for @ev_type.
+  ///
+  /// In en, this message translates to:
+  /// **'Event type'**
+  String get ev_type;
+
+  /// No description provided for @ev_public.
+  ///
+  /// In en, this message translates to:
+  /// **'Public event'**
+  String get ev_public;
+
+  /// No description provided for @ev_public_hint.
+  ///
+  /// In en, this message translates to:
+  /// **'Visible to everyone'**
+  String get ev_public_hint;
+
+  /// No description provided for @ev_private_party.
+  ///
+  /// In en, this message translates to:
+  /// **'Private event'**
+  String get ev_private_party;
+
+  /// No description provided for @ev_private_hint.
+  ///
+  /// In en, this message translates to:
+  /// **'Extra details are shown only to invited people'**
+  String get ev_private_hint;
+
+  /// No description provided for @ev_private_info.
+  ///
+  /// In en, this message translates to:
+  /// **'Private information'**
+  String get ev_private_info;
+
+  /// No description provided for @ev_private_note.
+  ///
+  /// In en, this message translates to:
+  /// **'This is shown only after a join request is approved'**
+  String get ev_private_note;
+
+  /// No description provided for @ev_general_location.
+  ///
+  /// In en, this message translates to:
+  /// **'General area'**
+  String get ev_general_location;
+
+  /// No description provided for @ev_area_hint.
+  ///
+  /// In en, this message translates to:
+  /// **'District or general area'**
+  String get ev_area_hint;
+
+  /// No description provided for @ev_exact_address.
+  ///
+  /// In en, this message translates to:
+  /// **'Exact address'**
+  String get ev_exact_address;
+
+  /// No description provided for @ev_exact_hint.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter the exact address'**
+  String get ev_exact_hint;
+
+  /// No description provided for @ev_address_example.
+  ///
+  /// In en, this message translates to:
+  /// **'1 Main Street, apt. 10'**
+  String get ev_address_example;
+
+  /// No description provided for @ev_meeting_point.
+  ///
+  /// In en, this message translates to:
+  /// **'Meeting point'**
+  String get ev_meeting_point;
+
+  /// No description provided for @ev_meeting_example.
+  ///
+  /// In en, this message translates to:
+  /// **'By the main entrance to the mall'**
+  String get ev_meeting_example;
+
+  /// No description provided for @ev_extra_info.
+  ///
+  /// In en, this message translates to:
+  /// **'Additional information'**
+  String get ev_extra_info;
+
+  /// No description provided for @ev_extra_hint.
+  ///
+  /// In en, this message translates to:
+  /// **'What to bring, dress code and so on'**
+  String get ev_extra_hint;
+
+  /// No description provided for @ev_message_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Message for participants'**
+  String get ev_message_title;
+
+  /// No description provided for @ev_message_hint.
+  ///
+  /// In en, this message translates to:
+  /// **'A personal note the invited people will see'**
+  String get ev_message_hint;
+
+  /// No description provided for @ev_tags.
+  ///
+  /// In en, this message translates to:
+  /// **'Tags'**
+  String get ev_tags;
+
+  /// No description provided for @ev_tags_hint.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose the tags that best describe your event (up to 5)'**
+  String get ev_tags_hint;
+
+  /// No description provided for @ev_photos.
+  ///
+  /// In en, this message translates to:
+  /// **'Photos'**
+  String get ev_photos;
+
+  /// No description provided for @ev_photos_hint.
+  ///
+  /// In en, this message translates to:
+  /// **'Add your own photos from the gallery (up to 5)'**
+  String get ev_photos_hint;
+
+  /// No description provided for @ev_max_participants_label.
+  ///
+  /// In en, this message translates to:
+  /// **'Maximum participants'**
+  String get ev_max_participants_label;
+
+  /// No description provided for @add.
+  ///
+  /// In en, this message translates to:
+  /// **'Add'**
+  String get add;
+
+  /// No description provided for @pr_edit_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit profile'**
+  String get pr_edit_title;
+
+  /// No description provided for @pr_your_photos.
+  ///
+  /// In en, this message translates to:
+  /// **'Your photos'**
+  String get pr_your_photos;
+
+  /// No description provided for @pr_name.
+  ///
+  /// In en, this message translates to:
+  /// **'Name'**
+  String get pr_name;
+
+  /// No description provided for @pr_enter_name.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter your name'**
+  String get pr_enter_name;
+
+  /// No description provided for @pr_birth_date.
+  ///
+  /// In en, this message translates to:
+  /// **'Date of birth'**
+  String get pr_birth_date;
+
+  /// No description provided for @pr_pick_birth.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose a date'**
+  String get pr_pick_birth;
+
+  /// No description provided for @pr_need_birth.
+  ///
+  /// In en, this message translates to:
+  /// **'Please enter your date of birth'**
+  String get pr_need_birth;
+
+  /// No description provided for @pr_location.
+  ///
+  /// In en, this message translates to:
+  /// **'Location'**
+  String get pr_location;
+
+  /// No description provided for @pr_enter_location.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter your location'**
+  String get pr_enter_location;
+
+  /// No description provided for @pr_enter_city.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter a city'**
+  String get pr_enter_city;
+
+  /// No description provided for @pr_about.
+  ///
+  /// In en, this message translates to:
+  /// **'About you'**
+  String get pr_about;
+
+  /// No description provided for @pr_about_hint.
+  ///
+  /// In en, this message translates to:
+  /// **'Tell people about yourself…'**
+  String get pr_about_hint;
+
+  /// No description provided for @pr_hobbies.
+  ///
+  /// In en, this message translates to:
+  /// **'Interests'**
+  String get pr_hobbies;
+
+  /// No description provided for @pr_search_hobby.
+  ///
+  /// In en, this message translates to:
+  /// **'Search interests…'**
+  String get pr_search_hobby;
+
+  /// No description provided for @pr_no_hobbies.
+  ///
+  /// In en, this message translates to:
+  /// **'No interests found'**
+  String get pr_no_hobbies;
+
+  /// No description provided for @pr_try_other_query.
+  ///
+  /// In en, this message translates to:
+  /// **'Try a different search'**
+  String get pr_try_other_query;
+
+  /// No description provided for @pr_save_changes.
+  ///
+  /// In en, this message translates to:
+  /// **'Save changes'**
+  String get pr_save_changes;
+
+  /// No description provided for @pr_saved.
+  ///
+  /// In en, this message translates to:
+  /// **'Profile updated'**
+  String get pr_saved;
+
+  /// No description provided for @pr_save_failed.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not save the profile'**
+  String get pr_save_failed;
+
+  /// No description provided for @pr_max_hobbies.
+  ///
+  /// In en, this message translates to:
+  /// **'You can pick up to 8 interests'**
+  String get pr_max_hobbies;
+
+  /// No description provided for @pr_limit.
+  ///
+  /// In en, this message translates to:
+  /// **'Limit'**
+  String get pr_limit;
+
+  /// No description provided for @rg_meet.
+  ///
+  /// In en, this message translates to:
+  /// **'Getting to know you'**
+  String get rg_meet;
+
+  /// No description provided for @rg_how_to_call.
+  ///
+  /// In en, this message translates to:
+  /// **'What should we call you?'**
+  String get rg_how_to_call;
+
+  /// No description provided for @rg_your_phone.
+  ///
+  /// In en, this message translates to:
+  /// **'Your phone number'**
+  String get rg_your_phone;
+
+  /// No description provided for @rg_check_free.
+  ///
+  /// In en, this message translates to:
+  /// **'We will check whether this number is available'**
+  String get rg_check_free;
+
+  /// No description provided for @rg_sms_title.
+  ///
+  /// In en, this message translates to:
+  /// **'SMS confirmation'**
+  String get rg_sms_title;
+
+  /// No description provided for @rg_enter_6.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter the 6 digits sent to your number'**
+  String get rg_enter_6;
+
+  /// No description provided for @rg_code_incomplete.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter the full code'**
+  String get rg_code_incomplete;
+
+  /// No description provided for @rg_age.
+  ///
+  /// In en, this message translates to:
+  /// **'Age'**
+  String get rg_age;
+
+  /// No description provided for @rg_adults_only.
+  ///
+  /// In en, this message translates to:
+  /// **'Adults only (18+)'**
+  String get rg_adults_only;
+
+  /// No description provided for @rg_need_birth.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter your date of birth'**
+  String get rg_need_birth;
+
+  /// No description provided for @rg_protect.
+  ///
+  /// In en, this message translates to:
+  /// **'Secure your account'**
+  String get rg_protect;
+
+  /// No description provided for @rg_strong_password.
+  ///
+  /// In en, this message translates to:
+  /// **'Create a strong password'**
+  String get rg_strong_password;
+
+  /// No description provided for @rg_password_short.
+  ///
+  /// In en, this message translates to:
+  /// **'Password is too short'**
+  String get rg_password_short;
+
+  /// No description provided for @fp_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Account recovery'**
+  String get fp_title;
+
+  /// No description provided for @fp_enter_phone.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter the number linked to the account'**
+  String get fp_enter_phone;
+
+  /// No description provided for @fp_not_found.
+  ///
+  /// In en, this message translates to:
+  /// **'No account found with this number'**
+  String get fp_not_found;
+
+  /// No description provided for @fp_new_strong.
+  ///
+  /// In en, this message translates to:
+  /// **'Create a new strong password'**
+  String get fp_new_strong;
+
+  /// No description provided for @el_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Likes on my events'**
+  String get el_title;
+
+  /// No description provided for @el_who_wants.
+  ///
+  /// In en, this message translates to:
+  /// **'People who want to come:'**
+  String get el_who_wants;
+
+  /// No description provided for @el_no_likes.
+  ///
+  /// In en, this message translates to:
+  /// **'No likes yet'**
+  String get el_no_likes;
+
+  /// No description provided for @el_no_events.
+  ///
+  /// In en, this message translates to:
+  /// **'You have no events yet'**
+  String get el_no_events;
+
+  /// No description provided for @el_create_hint.
+  ///
+  /// In en, this message translates to:
+  /// **'Create an event to start receiving likes'**
+  String get el_create_hint;
+
+  /// No description provided for @decline.
+  ///
+  /// In en, this message translates to:
+  /// **'Decline'**
+  String get decline;
+
+  /// No description provided for @likes_count.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} likes'**
+  String likes_count(int count);
+
+  /// No description provided for @user_accepted.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} was accepted to the event'**
+  String user_accepted(String name);
+
+  /// No description provided for @user_declined.
+  ///
+  /// In en, this message translates to:
+  /// **'Request from {name} declined'**
+  String user_declined(String name);
+
+  /// No description provided for @request_sent.
+  ///
+  /// In en, this message translates to:
+  /// **'Request sent'**
+  String get request_sent;
+
+  /// No description provided for @request_sent_msg.
+  ///
+  /// In en, this message translates to:
+  /// **'Request sent with your message'**
+  String get request_sent_msg;
+
+  /// No description provided for @m_pending.
+  ///
+  /// In en, this message translates to:
+  /// **'Pending'**
+  String get m_pending;
+
+  /// No description provided for @m_accepted.
+  ///
+  /// In en, this message translates to:
+  /// **'Accepted'**
+  String get m_accepted;
+
+  /// No description provided for @m_no_pending.
+  ///
+  /// In en, this message translates to:
+  /// **'No pending requests'**
+  String get m_no_pending;
+
+  /// No description provided for @m_no_accepted.
+  ///
+  /// In en, this message translates to:
+  /// **'No accepted invitations'**
+  String get m_no_accepted;
+
+  /// No description provided for @m_requests_here.
+  ///
+  /// In en, this message translates to:
+  /// **'Your requests will appear here'**
+  String get m_requests_here;
+
+  /// No description provided for @md_like_user.
+  ///
+  /// In en, this message translates to:
+  /// **'Like a person'**
+  String get md_like_user;
+
+  /// No description provided for @md_like_event.
+  ///
+  /// In en, this message translates to:
+  /// **'Like an event'**
+  String get md_like_event;
+
+  /// No description provided for @md_liked_user.
+  ///
+  /// In en, this message translates to:
+  /// **'You liked {name}'**
+  String md_liked_user(String name);
+
+  /// No description provided for @md_liked_event.
+  ///
+  /// In en, this message translates to:
+  /// **'You liked the event'**
+  String get md_liked_event;
+
+  /// No description provided for @md_nice_hint.
+  ///
+  /// In en, this message translates to:
+  /// **'Write something nice…'**
+  String get md_nice_hint;
+
+  /// No description provided for @md_join_hint.
+  ///
+  /// In en, this message translates to:
+  /// **'Write why you want to join the event…'**
+  String get md_join_hint;
+
+  /// No description provided for @md_sending.
+  ///
+  /// In en, this message translates to:
+  /// **'Sending…'**
+  String get md_sending;
+
+  /// No description provided for @ch_now.
+  ///
+  /// In en, this message translates to:
+  /// **'Now'**
+  String get ch_now;
+
+  /// No description provided for @ch_yesterday.
+  ///
+  /// In en, this message translates to:
+  /// **'Yesterday'**
+  String get ch_yesterday;
+
+  /// No description provided for @ch_unknown.
+  ///
+  /// In en, this message translates to:
+  /// **'Unknown'**
+  String get ch_unknown;
+
+  /// No description provided for @ch_user.
+  ///
+  /// In en, this message translates to:
+  /// **'User'**
+  String get ch_user;
+
+  /// No description provided for @no_name.
+  ///
+  /// In en, this message translates to:
+  /// **'No name'**
+  String get no_name;
+
+  /// No description provided for @loading_info.
+  ///
+  /// In en, this message translates to:
+  /// **'Loading…'**
+  String get loading_info;
+
+  /// No description provided for @no_description.
+  ///
+  /// In en, this message translates to:
+  /// **'No description'**
+  String get no_description;
+
+  /// No description provided for @err_rate_limit.
+  ///
+  /// In en, this message translates to:
+  /// **'Too many actions in a row. Please try again a bit later.'**
+  String get err_rate_limit;
+
+  /// No description provided for @err_forbidden.
+  ///
+  /// In en, this message translates to:
+  /// **'You do not have access to this data.'**
+  String get err_forbidden;
+
+  /// No description provided for @err_save.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not save the changes. Please try again.'**
+  String get err_save;
+
+  /// No description provided for @err_storage.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not upload the photo. Check the file size and format.'**
+  String get err_storage;
+
+  /// No description provided for @err_network.
+  ///
+  /// In en, this message translates to:
+  /// **'No connection to the server. Check your internet.'**
+  String get err_network;
+
+  /// No description provided for @err_unknown.
+  ///
+  /// In en, this message translates to:
+  /// **'Something went wrong. Please try again.'**
+  String get err_unknown;
+
+  /// No description provided for @err_not_authed.
+  ///
+  /// In en, this message translates to:
+  /// **'You are not signed in'**
+  String get err_not_authed;
+
+  /// No description provided for @err_sms_failed.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not send the SMS'**
+  String get err_sms_failed;
+
+  /// No description provided for @err_wrong_code.
+  ///
+  /// In en, this message translates to:
+  /// **'Wrong code'**
+  String get err_wrong_code;
+
+  /// No description provided for @err_update_password.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not update the password'**
+  String get err_update_password;
+
+  /// No description provided for @err_delete_account.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not delete the account'**
+  String get err_delete_account;
+
+  /// No description provided for @loc_updated.
+  ///
+  /// In en, this message translates to:
+  /// **'Location updated'**
+  String get loc_updated;
+
+  /// No description provided for @loc_disabled.
+  ///
+  /// In en, this message translates to:
+  /// **'Location is turned off in your phone settings'**
+  String get loc_disabled;
+
+  /// No description provided for @loc_denied.
+  ///
+  /// In en, this message translates to:
+  /// **'Without location access we cannot show people nearby'**
+  String get loc_denied;
+
+  /// No description provided for @loc_denied_forever.
+  ///
+  /// In en, this message translates to:
+  /// **'Location access was denied. Turn it on in your phone settings'**
+  String get loc_denied_forever;
+
+  /// No description provided for @loc_failed.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not determine your location. Please try again'**
+  String get loc_failed;
+
+  /// No description provided for @settings_button.
+  ///
+  /// In en, this message translates to:
+  /// **'Settings'**
+  String get settings_button;
+
+  /// No description provided for @deleted_user.
+  ///
+  /// In en, this message translates to:
+  /// **'Deleted'**
+  String get deleted_user;
+
+  /// No description provided for @ae_going.
+  ///
+  /// In en, this message translates to:
+  /// **'You are going to this event 🎉'**
+  String get ae_going;
+
+  /// No description provided for @ae_accepted_on.
+  ///
+  /// In en, this message translates to:
+  /// **'Accepted {date}'**
+  String ae_accepted_on(String date);
+
+  /// No description provided for @ae_about.
+  ///
+  /// In en, this message translates to:
+  /// **'About the event'**
+  String get ae_about;
+
+  /// No description provided for @ae_organizer.
+  ///
+  /// In en, this message translates to:
+  /// **'Organiser'**
+  String get ae_organizer;
+
+  /// No description provided for @ae_organizer_msg.
+  ///
+  /// In en, this message translates to:
+  /// **'Message from the organiser'**
+  String get ae_organizer_msg;
+
+  /// No description provided for @ae_participants.
+  ///
+  /// In en, this message translates to:
+  /// **'Participants ({count})'**
+  String ae_participants(int count);
+
+  /// No description provided for @ae_participants_of.
+  ///
+  /// In en, this message translates to:
+  /// **'Participants: {joined}/{total}'**
+  String ae_participants_of(int joined, int total);
+
+  /// No description provided for @ae_route.
+  ///
+  /// In en, this message translates to:
+  /// **'Directions'**
+  String get ae_route;
+
+  /// No description provided for @ae_event_chat.
+  ///
+  /// In en, this message translates to:
+  /// **'Event chat'**
+  String get ae_event_chat;
+
+  /// No description provided for @ae_opening_route.
+  ///
+  /// In en, this message translates to:
+  /// **'Opening directions to \"{place}\"'**
+  String ae_opening_route(String place);
+
+  /// No description provided for @ae_opening_chat.
+  ///
+  /// In en, this message translates to:
+  /// **'Opening the chat for \"{title}\"'**
+  String ae_opening_chat(String title);
+
+  /// No description provided for @ae_sharing.
+  ///
+  /// In en, this message translates to:
+  /// **'Sharing \"{title}\"'**
+  String ae_sharing(String title);
+
+  /// No description provided for @ae_remind.
+  ///
+  /// In en, this message translates to:
+  /// **'Remind me an hour before'**
+  String get ae_remind;
+
+  /// No description provided for @ae_reminder_set.
+  ///
+  /// In en, this message translates to:
+  /// **'Reminder set for an hour before the event 🔔'**
+  String get ae_reminder_set;
+
+  /// No description provided for @ae_leave_review.
+  ///
+  /// In en, this message translates to:
+  /// **'Leave a review'**
+  String get ae_leave_review;
+
+  /// No description provided for @ae_how_was_it.
+  ///
+  /// In en, this message translates to:
+  /// **'How was the event?'**
+  String get ae_how_was_it;
+
+  /// No description provided for @ae_thanks_review.
+  ///
+  /// In en, this message translates to:
+  /// **'Thanks for your review ⭐'**
+  String get ae_thanks_review;
+
+  /// No description provided for @ae_finished.
+  ///
+  /// In en, this message translates to:
+  /// **'Finished'**
+  String get ae_finished;
+
+  /// No description provided for @ae_event_over.
+  ///
+  /// In en, this message translates to:
+  /// **'The event has ended'**
+  String get ae_event_over;
+
+  /// No description provided for @ae_today.
+  ///
+  /// In en, this message translates to:
+  /// **'The event is today'**
+  String get ae_today;
+
+  /// No description provided for @ae_now.
+  ///
+  /// In en, this message translates to:
+  /// **'Now'**
+  String get ae_now;
+
+  /// No description provided for @ae_days_left.
+  ///
+  /// In en, this message translates to:
+  /// **'{days} days left'**
+  String ae_days_left(int days);
+
+  /// No description provided for @ae_in_days.
+  ///
+  /// In en, this message translates to:
+  /// **'In {days} d'**
+  String ae_in_days(int days);
+
+  /// No description provided for @ae_in_hours.
+  ///
+  /// In en, this message translates to:
+  /// **'In {hours} h'**
+  String ae_in_hours(int hours);
+
+  /// No description provided for @ae_in_minutes.
+  ///
+  /// In en, this message translates to:
+  /// **'In {minutes} min'**
+  String ae_in_minutes(int minutes);
+
+  /// No description provided for @ae_days_ago.
+  ///
+  /// In en, this message translates to:
+  /// **'{days} days ago'**
+  String ae_days_ago(int days);
+
+  /// No description provided for @ae_members_only.
+  ///
+  /// In en, this message translates to:
+  /// **'This is visible only to event participants'**
+  String get ae_members_only;
+
+  /// No description provided for @yesterday.
+  ///
+  /// In en, this message translates to:
+  /// **'yesterday'**
+  String get yesterday;
+
+  /// No description provided for @today_lc.
+  ///
+  /// In en, this message translates to:
+  /// **'today'**
+  String get today_lc;
+
+  /// No description provided for @offline.
+  ///
+  /// In en, this message translates to:
+  /// **'Offline'**
+  String get offline;
+
+  /// No description provided for @typing_now.
+  ///
+  /// In en, this message translates to:
+  /// **'typing…'**
+  String get typing_now;
+
+  /// No description provided for @st_end_session.
+  ///
+  /// In en, this message translates to:
+  /// **'End the current session'**
+  String get st_end_session;
+
+  /// No description provided for @st_delete_data.
+  ///
+  /// In en, this message translates to:
+  /// **'Permanently delete your data'**
+  String get st_delete_data;
+
+  /// No description provided for @st_update_password.
+  ///
+  /// In en, this message translates to:
+  /// **'Update your password'**
+  String get st_update_password;
+
+  /// No description provided for @ev_created_ok.
+  ///
+  /// In en, this message translates to:
+  /// **'Event \"{title}\" created 🎉'**
+  String ev_created_ok(String title);
+
+  /// No description provided for @sign_in_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign in'**
+  String get sign_in_title;
+
+  /// No description provided for @ended_badge.
+  ///
+  /// In en, this message translates to:
+  /// **'ENDED'**
+  String get ended_badge;
+
+  /// No description provided for @default_bio.
+  ///
+  /// In en, this message translates to:
+  /// **'Hi! I am new here…'**
+  String get default_bio;
+
+  /// No description provided for @default_country.
+  ///
+  /// In en, this message translates to:
+  /// **'Ukraine'**
+  String get default_country;
+
+  /// No description provided for @city_prefix.
+  ///
+  /// In en, this message translates to:
+  /// **'{city}'**
+  String city_prefix(String city);
 }
 
 class _AppLocalizationsDelegate

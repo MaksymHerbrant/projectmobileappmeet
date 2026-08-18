@@ -114,7 +114,7 @@ class _MainFeedScreenState extends State<MainFeedScreen> {
       if (mounted) {
         setState(() => _isLoading = false);
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(ErrorReporter.toFailure(e).message)),
+          SnackBar(content: Text(ErrorReporter.message(context, e))),
         );
       }
     }
@@ -178,7 +178,7 @@ class _MainFeedScreenState extends State<MainFeedScreen> {
       if (!mounted) return;
       final failure = ErrorReporter.toFailure(e);
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(failure.message)),
+        SnackBar(content: Text(failure.localized(context))),
       );
     }
   }
@@ -290,10 +290,10 @@ class _MainFeedScreenState extends State<MainFeedScreen> {
               focusNode: _searchFocusNode,
               decoration: InputDecoration(
                 hintText: AppLocalizations.of(context)!.search_people, 
-                prefixIcon: const Icon(Icons.search, color: Colors.grey),
+                prefixIcon: Icon(Icons.search, color: Theme.of(context).colorScheme.onSurfaceVariant),
                 suffixIcon: _searchController.text.isNotEmpty 
                   ? IconButton(
-                      icon: const Icon(Icons.clear, color: Colors.grey),
+                      icon: Icon(Icons.clear, color: Theme.of(context).colorScheme.onSurfaceVariant),
                       onPressed: () {
                         _searchController.clear();
                         FocusScope.of(context).unfocus();
@@ -302,7 +302,7 @@ class _MainFeedScreenState extends State<MainFeedScreen> {
                     )
                   : null,
                 filled: true,
-                fillColor: Colors.white.withOpacity(0.9),
+                fillColor: Theme.of(context).colorScheme.surface.withOpacity(0.9),
                 border: OutlineInputBorder(borderRadius: BorderRadius.circular(25), borderSide: BorderSide.none),
                 contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
               ),
@@ -325,7 +325,7 @@ class _MainFeedScreenState extends State<MainFeedScreen> {
                             color: _selectedTab == 0 ? Colors.black : Colors.transparent,
                             borderRadius: BorderRadius.circular(20),
                           ),
-                          child: Text(AppLocalizations.of(context)!.for_you, style: TextStyle(color: _selectedTab == 0 ? Colors.white : Colors.black, fontWeight: FontWeight.w600, fontSize: 16)),
+                          child: Text(AppLocalizations.of(context)!.for_you, style: TextStyle(color: _selectedTab == 0 ? Theme.of(context).colorScheme.onPrimary : Theme.of(context).colorScheme.onSurface, fontWeight: FontWeight.w600, fontSize: 16)),
                         ),
                       ),
                       const SizedBox(width: 20),
@@ -337,7 +337,7 @@ class _MainFeedScreenState extends State<MainFeedScreen> {
                             color: _selectedTab == 1 ? Colors.black : Colors.transparent,
                             borderRadius: BorderRadius.circular(20),
                           ),
-                          child: Text(AppLocalizations.of(context)!.events_nearby, style: TextStyle(color: _selectedTab == 1 ? Colors.white : Colors.black, fontWeight: FontWeight.w600, fontSize: 16)),
+                          child: Text(AppLocalizations.of(context)!.events_nearby, style: TextStyle(color: _selectedTab == 1 ? Theme.of(context).colorScheme.onPrimary : Theme.of(context).colorScheme.onSurface, fontWeight: FontWeight.w600, fontSize: 16)),
                         ),
                       ),
                     ],
@@ -373,10 +373,10 @@ class _MainFeedScreenState extends State<MainFeedScreen> {
           const SizedBox(width: 6),
           Text(
             t.radius_km(_radiusKm),
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 13,
               fontWeight: FontWeight.w600,
-              color: Colors.black87,
+              color: Theme.of(context).colorScheme.onSurface,
             ),
           ),
           Expanded(
@@ -413,18 +413,18 @@ class _MainFeedScreenState extends State<MainFeedScreen> {
           children: [
             Container(
               padding: const EdgeInsets.all(20),
-              decoration: BoxDecoration(color: Colors.white, shape: BoxShape.circle, boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.1), blurRadius: 10)]),
-              child: const Icon(Icons.sentiment_dissatisfied, size: 60, color: Colors.grey),
+              decoration: BoxDecoration(color: Theme.of(context).colorScheme.surface, shape: BoxShape.circle, boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.1), blurRadius: 10)]),
+              child: Icon(Icons.sentiment_dissatisfied, size: 60, color: Theme.of(context).colorScheme.onSurfaceVariant),
             ),
             const SizedBox(height: 24),
-            Text(t.feed_empty_title, style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Colors.black87)),
+            Text(t.feed_empty_title, style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Theme.of(context).colorScheme.onSurface)),
             const SizedBox(height: 12),
             Text(
               _hasLocation
                   ? t.feed_empty_radius(_radiusKm)
                   : t.feed_empty_no_location,
               textAlign: TextAlign.center,
-              style: const TextStyle(fontSize: 16, color: Colors.grey),
+              style: TextStyle(fontSize: 16, color: Theme.of(context).colorScheme.onSurfaceVariant),
             ),
             const SizedBox(height: 30),
             // Порожній стан має пропонувати дію, а не просто повідомляти факт.
@@ -433,14 +433,14 @@ class _MainFeedScreenState extends State<MainFeedScreen> {
                 onPressed: () => _setRadius(_nextRadius(_radiusKm)),
                 icon: const Icon(Icons.travel_explore),
                 label: Text(t.search_within_km(_nextRadius(_radiusKm))),
-                style: ElevatedButton.styleFrom(backgroundColor: Colors.black, foregroundColor: Colors.white, padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 15), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30))),
+                style: ElevatedButton.styleFrom(backgroundColor: Theme.of(context).colorScheme.primary, foregroundColor: Theme.of(context).colorScheme.onPrimary, padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 15), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30))),
               )
             else
               ElevatedButton.icon(
                 onPressed: _loadUsers,
                 icon: const Icon(Icons.refresh),
                 label: Text(t.refresh),
-                style: ElevatedButton.styleFrom(backgroundColor: Colors.black, foregroundColor: Colors.white, padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 15), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30))),
+                style: ElevatedButton.styleFrom(backgroundColor: Theme.of(context).colorScheme.primary, foregroundColor: Theme.of(context).colorScheme.onPrimary, padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 15), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30))),
               ),
           ],
         ),
@@ -458,7 +458,7 @@ class _MainFeedScreenState extends State<MainFeedScreen> {
           children: [
             Container(
               padding: const EdgeInsets.all(20),
-              decoration: BoxDecoration(color: Colors.white, shape: BoxShape.circle, boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.1), blurRadius: 10)]),
+              decoration: BoxDecoration(color: Theme.of(context).colorScheme.surface, shape: BoxShape.circle, boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.1), blurRadius: 10)]),
               child: const Icon(Icons.check_circle_outline, size: 60, color: Colors.green),
             ),
             const SizedBox(height: 24),
@@ -468,7 +468,7 @@ class _MainFeedScreenState extends State<MainFeedScreen> {
               onPressed: _loadUsers,
               icon: const Icon(Icons.refresh),
               label: Text(t.search_again),
-              style: ElevatedButton.styleFrom(backgroundColor: Colors.black, foregroundColor: Colors.white, padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 15)),
+              style: ElevatedButton.styleFrom(backgroundColor: Theme.of(context).colorScheme.primary, foregroundColor: Theme.of(context).colorScheme.onPrimary, padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 15)),
             ),
           ],
         ),
@@ -482,7 +482,7 @@ class _MainFeedScreenState extends State<MainFeedScreen> {
     return Container(
       // 🔥 1. ВАЖЛИВО: Робимо картку непрозорою, щоб не бачити наступну
       decoration: BoxDecoration(
-        color: Colors.white, // Білий фон перекриває картку знизу
+        color: Theme.of(context).colorScheme.surface, // Білий фон перекриває картку знизу
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
@@ -516,15 +516,15 @@ class _MainFeedScreenState extends State<MainFeedScreen> {
                         height: double.infinity,
                         // 🔥 3. Замість прозорості показуємо сірий блок
                         placeholder: (context, url) => Container(
-                          color: Colors.grey[200], 
-                          child: const Center(
+                          color: Theme.of(context).colorScheme.outlineVariant, 
+                          child: Center(
                             child: SizedBox(
                               width: 30, height: 30, 
-                              child: CircularProgressIndicator(strokeWidth: 2, color: Colors.grey)
+                              child: CircularProgressIndicator(strokeWidth: 2, color: Theme.of(context).colorScheme.onSurfaceVariant)
                             )
                           ),
                         ),
-                        errorWidget: (context, url, error) => Container(color: Colors.grey[300]),
+                        errorWidget: (context, url, error) => Container(color: Theme.of(context).colorScheme.outlineVariant),
                         // 🔥 4. Вимикаємо плавну появу (fade-in), бо вона створює прозорість на 0.5с
                         fadeInDuration: Duration.zero, 
                         fadeOutDuration: Duration.zero,
@@ -538,7 +538,7 @@ class _MainFeedScreenState extends State<MainFeedScreen> {
                       width: double.infinity,
                       height: double.infinity,
                       // Те саме для звичайних фото - білий фон при помилці
-                      errorBuilder: (context, error, stackTrace) => Container(color: Colors.grey[200]),
+                      errorBuilder: (context, error, stackTrace) => Container(color: Theme.of(context).colorScheme.outlineVariant),
                     );
                   },
                   onPageChanged: (index) {
@@ -642,7 +642,7 @@ class _MainFeedScreenState extends State<MainFeedScreen> {
                 child: Container(
                   padding: const EdgeInsets.all(8),
                   decoration: BoxDecoration(
-                    color: Colors.white.withOpacity(0.2), 
+                    color: Theme.of(context).colorScheme.surface.withOpacity(0.2), 
                     borderRadius: BorderRadius.circular(20)
                   ),
                   child: const Icon(Icons.info_outline, color: Colors.white, size: 20),
@@ -661,24 +661,24 @@ class _MainFeedScreenState extends State<MainFeedScreen> {
                     children: [
                       Text(
                         '${user.name}, ${user.age}', 
-                        style: const TextStyle(color: Colors.white, fontSize: 24, fontWeight: FontWeight.bold),
+                        style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontSize: 24, fontWeight: FontWeight.bold),
                         maxLines: 1,
                       ),
                       const SizedBox(height: 4),
                       Row(
                         children: [
-                          const Icon(Icons.location_on, color: Colors.white70, size: 16),
+                          Icon(Icons.location_on, color: Theme.of(context).colorScheme.onSurfaceVariant, size: 16),
                           const SizedBox(width: 4),
                           Text(
                             user.location.isNotEmpty ? user.location : 'Ukraine', 
-                            style: const TextStyle(color: Colors.white70, fontSize: 16)
+                            style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant, fontSize: 16)
                           ),
                         ],
                       ),
                       const SizedBox(height: 12),
                       Text(
                         user.description, 
-                        style: const TextStyle(color: Colors.white, fontSize: 14), 
+                        style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontSize: 14), 
                         maxLines: 2, 
                         overflow: TextOverflow.ellipsis
                       ),
@@ -688,10 +688,10 @@ class _MainFeedScreenState extends State<MainFeedScreen> {
                         children: user.hobbies.take(3).map((hobby) => Container(
                           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                           decoration: BoxDecoration(
-                            color: Colors.white.withOpacity(0.2), 
+                            color: Theme.of(context).colorScheme.surface.withOpacity(0.2), 
                             borderRadius: BorderRadius.circular(15)
                           ),
-                          child: Text(hobby, style: const TextStyle(color: Colors.white, fontSize: 12)),
+                          child: Text(hobby, style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontSize: 12)),
                         )).toList(),
                       ),
                     ],

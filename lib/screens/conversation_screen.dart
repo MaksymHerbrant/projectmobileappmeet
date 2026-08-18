@@ -127,7 +127,7 @@ class _ConversationScreenState extends State<ConversationScreen> {
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(ErrorReporter.toFailure(e).message)),
+          SnackBar(content: Text(ErrorReporter.message(context, e))),
         );
         // Текст не втрачається — повертаємо його в поле, щоб не набирати знову.
         _messageController.text = text;
@@ -138,7 +138,7 @@ class _ConversationScreenState extends State<ConversationScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: Theme.of(context).colorScheme.surface,
       
       appBar: _buildAppBar(), // Винесли в окремий метод
       body: Container(
@@ -159,7 +159,7 @@ class _ConversationScreenState extends State<ConversationScreen> {
                   stream: _messagesStream, // Використовуємо нашу змінну! // Старі зверху, нові знизу
                   builder: (context, snapshot) {
                     if (snapshot.hasError) {
-                      return Center(child: Text('Помилка: ${snapshot.error}'));
+                      return Center(child: Text(ErrorReporter.message(context, snapshot.error!)));
                     }
                     if (!snapshot.hasData) {
                       return const Center(child: CircularProgressIndicator());
@@ -184,7 +184,7 @@ class _ConversationScreenState extends State<ConversationScreen> {
                       return Center(
                         child: Text(
                           AppLocalizations.of(context)!.write_first_message,
-                          style: TextStyle(color: Colors.grey.shade600),
+                          style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant),
                         ),
                       );
                     }
@@ -212,10 +212,10 @@ class _ConversationScreenState extends State<ConversationScreen> {
 
   AppBar _buildAppBar() {
     return AppBar(
-      backgroundColor: Colors.white,
+      backgroundColor: Theme.of(context).colorScheme.surface,
       elevation: 1,
       leading: IconButton(
-        icon: const Icon(Icons.arrow_back, color: Colors.black),
+        icon: Icon(Icons.arrow_back, color: Theme.of(context).colorScheme.onSurface),
         onPressed: () => Navigator.pop(context),
       ),
       title: Row(
@@ -231,12 +231,12 @@ class _ConversationScreenState extends State<ConversationScreen> {
               children: [
                 Text(
                   widget.userName, // Ім'я береться з параметрів
-                  style: const TextStyle(color: Colors.black, fontSize: 16),
+                  style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontSize: 16),
                   overflow: TextOverflow.ellipsis,
                 ),
                 if (!widget.isGroup)
                   Text(
-                    widget.isOnline ? 'Онлайн' : 'Офлайн',
+                    widget.isOnline ? AppLocalizations.of(context)!.online : AppLocalizations.of(context)!.offline,
                     style: TextStyle(
                       color: widget.isOnline ? Colors.green : Colors.grey,
                       fontSize: 12,
@@ -261,7 +261,7 @@ class _ConversationScreenState extends State<ConversationScreen> {
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
         constraints: BoxConstraints(maxWidth: MediaQuery.of(context).size.width * 0.75),
         decoration: BoxDecoration(
-          color: isMe ? const Color(0xFFF3E5F5) : Colors.white,
+          color: isMe ? Theme.of(context).colorScheme.primaryContainer : Theme.of(context).colorScheme.surface,
           borderRadius: BorderRadius.only(
             topLeft: const Radius.circular(20),
             topRight: const Radius.circular(20),
@@ -278,7 +278,7 @@ class _ConversationScreenState extends State<ConversationScreen> {
           children: [
             Text(
               content,
-              style: const TextStyle(color: Colors.black87, fontSize: 15),
+              style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontSize: 15),
             ),
             const SizedBox(height: 4),
             Row(
@@ -287,7 +287,7 @@ class _ConversationScreenState extends State<ConversationScreen> {
               children: [
                 Text(
                   DateFormat('HH:mm').format(time),
-                  style: TextStyle(color: Colors.grey.shade600, fontSize: 11),
+                  style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant, fontSize: 11),
                 ),
                 if (isMe) ...[
                   const SizedBox(width: 4),
@@ -307,7 +307,7 @@ class _ConversationScreenState extends State<ConversationScreen> {
 
   Widget _buildMessageInput() {
     return Container(
-      color: Colors.white, // Білий фон тепер заллє весь низ екрану
+      color: Theme.of(context).colorScheme.surface,
       child: SafeArea( // Захищаємо контент від налізання на Home Indicator
         top: false,
         child: Padding(
@@ -320,7 +320,7 @@ class _ConversationScreenState extends State<ConversationScreen> {
                   decoration: InputDecoration(
                     hintText: AppLocalizations.of(context)!.message_hint,
                     filled: true,
-                    fillColor: Colors.grey.shade100,
+                    fillColor: Theme.of(context).colorScheme.outlineVariant,
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(25),
                       borderSide: BorderSide.none,
@@ -334,9 +334,10 @@ class _ConversationScreenState extends State<ConversationScreen> {
               const SizedBox(width: 10),
               GestureDetector(
                 onTap: _sendMessage,
-                child: const CircleAvatar( // Прибрав const з Color і додав сюди
-                  backgroundColor: Color(0xFFF3E5F5),
-                  child: Icon(Icons.send, color: Colors.black),
+                child: CircleAvatar(
+                  backgroundColor: Theme.of(context).colorScheme.primaryContainer,
+                  child: Icon(Icons.send,
+                      color: Theme.of(context).colorScheme.onPrimaryContainer),
                 ),
               ),
             ],
