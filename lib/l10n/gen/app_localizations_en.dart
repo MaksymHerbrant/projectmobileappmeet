@@ -60,7 +60,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get login => 'Login';
 
   @override
-  String get login_title => 'Login';
+  String get login_title => 'Welcome back';
 
   @override
   String get step => 'Step';
@@ -1179,13 +1179,14 @@ class AppLocalizationsEn extends AppLocalizations {
   String get rg_how_to_call => 'What should we call you?';
 
   @override
-  String get rg_your_phone => 'Your phone number';
+  String get rg_your_phone => 'Your number';
 
   @override
-  String get rg_check_free => 'We will check whether this number is available';
+  String get rg_check_free =>
+      'We’ll send a confirmation code. Only you can see your number.';
 
   @override
-  String get rg_sms_title => 'SMS confirmation';
+  String get rg_sms_title => 'Code from SMS';
 
   @override
   String get rg_enter_6 => 'Enter the 6 digits sent to your number';
@@ -1558,4 +1559,79 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get social_soon => 'Google and Apple sign-in are coming soon';
+
+  @override
+  String get rg_phone_note =>
+      'We never show your number to anyone else, and we never send ads.';
+
+  @override
+  String rg_sms_sent_to(String phone) {
+    return 'Sent to $phone';
+  }
+
+  @override
+  String rg_resend_in(String time) {
+    return 'You can resend in $time';
+  }
+
+  @override
+  String get rg_resend_now => 'Resend the code';
+
+  @override
+  String get rg_confirm => 'Confirm';
+
+  @override
+  String get rg_next => 'Next';
+
+  @override
+  String get rg_about_title => 'What’s your name';
+
+  @override
+  String get rg_about_sub =>
+      'Others will see your name and age. No surname needed.';
+
+  @override
+  String get rg_name_label => 'Name';
+
+  @override
+  String get rg_birth_label => 'Date of birth';
+
+  @override
+  String get rg_pick_date => 'pick a date';
+
+  @override
+  String get rg_age_gate =>
+      'The app is for adults only. We check your age when you sign up.';
+
+  @override
+  String get rg_password_note =>
+      'A password lets you sign in even if you lose access to your number.';
+
+  @override
+  String get login_sub =>
+      'Sign in the same way you signed up — otherwise you’ll end up with a second profile.';
+
+  @override
+  String get or_by_phone => 'or by phone';
+
+  @override
+  String get phone_label => 'phone';
+
+  @override
+  String get show_password => 'Show';
+
+  @override
+  String get hide_password => 'Hide';
+
+  @override
+  String get nav_feed => 'Feed';
+
+  @override
+  String get nav_chats => 'Chats';
+
+  @override
+  String get nav_matches => 'Matches';
+
+  @override
+  String get nav_profile => 'Profile';
 }

@@ -17,7 +17,7 @@
   "success": "Éxito",
   "registration": "Registro",
   "login": "Iniciar sesión",
-  "login_title": "Iniciar sesión",
+  "login_title": "Bienvenido de nuevo",
   "step": "Paso",
   "of_text": "de",
   "phone_number": "Número de teléfono",
@@ -378,9 +378,9 @@
   "pr_limit": "Límite",
   "rg_meet": "Presentación",
   "rg_how_to_call": "¿Cómo te llamamos?",
-  "rg_your_phone": "Tu número de teléfono",
-  "rg_check_free": "Comprobaremos si este número está libre",
-  "rg_sms_title": "Confirmación por SMS",
+  "rg_your_phone": "Tu número",
+  "rg_check_free": "Te enviaremos un código de confirmación. Solo tú ves tu número.",
+  "rg_sms_title": "Código del SMS",
   "rg_enter_6": "Introduce los 6 dígitos enviados a tu número",
   "rg_code_incomplete": "Introduce el código completo",
   "rg_age": "Edad",
@@ -490,5 +490,41 @@
   "have_account": "¿Ya tienes cuenta?",
   "continue_with_phone": "Continuar con el teléfono",
   "or_divider": "o",
-  "social_soon": "El acceso con Google y Apple llegará pronto"
+  "social_soon": "El acceso con Google y Apple llegará pronto",
+  "rg_phone_note": "Nunca mostramos tu número a otras personas ni enviamos publicidad.",
+  "rg_sms_sent_to": "Enviado a {phone}",
+  "@rg_sms_sent_to": {
+    "placeholders": {
+      "phone": {
+        "type": "String"
+      }
+    }
+  },
+  "rg_resend_in": "Puedes reenviarlo en {time}",
+  "@rg_resend_in": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "rg_resend_now": "Reenviar el código",
+  "rg_confirm": "Confirmar",
+  "rg_next": "Siguiente",
+  "rg_about_title": "¿Cómo te llamas?",
+  "rg_about_sub": "Otras personas verán tu nombre y tu edad. No hace falta el apellido.",
+  "rg_name_label": "Nombre",
+  "rg_birth_label": "Fecha de nacimiento",
+  "rg_pick_date": "elige una fecha",
+  "rg_age_gate": "La aplicación es solo para mayores de edad. Verificamos la edad al registrarte.",
+  "rg_password_note": "La contraseña te permite entrar aunque pierdas el acceso a tu número.",
+  "login_sub": "Inicia sesión del mismo modo que te registraste; si no, se creará un segundo perfil.",
+  "or_by_phone": "o con tu número",
+  "phone_label": "número",
+  "show_password": "Mostrar",
+  "hide_password": "Ocultar",
+  "nav_feed": "Descubrir",
+  "nav_chats": "Chats",
+  "nav_matches": "Coincidencias",
+  "nav_profile": "Perfil"
 }

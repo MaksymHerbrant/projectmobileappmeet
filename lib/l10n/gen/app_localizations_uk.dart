@@ -60,7 +60,7 @@ class AppLocalizationsUk extends AppLocalizations {
   String get login => 'Увійти';
 
   @override
-  String get login_title => 'Вхід';
+  String get login_title => 'З поверненням';
 
   @override
   String get step => 'Крок';
@@ -1178,13 +1178,14 @@ class AppLocalizationsUk extends AppLocalizations {
   String get rg_how_to_call => 'Як до вас звертатися?';
 
   @override
-  String get rg_your_phone => 'Ваш номер телефону';
+  String get rg_your_phone => 'Ваш номер';
 
   @override
-  String get rg_check_free => 'Ми перевіримо, чи вільний цей номер';
+  String get rg_check_free =>
+      'Надішлемо код підтвердження. Номер бачите тільки ви.';
 
   @override
-  String get rg_sms_title => 'Підтвердження SMS';
+  String get rg_sms_title => 'Код із SMS';
 
   @override
   String get rg_enter_6 => 'Введіть 6 цифр, що надійшли на номер';
@@ -1555,4 +1556,79 @@ class AppLocalizationsUk extends AppLocalizations {
 
   @override
   String get social_soon => 'Вхід через Google та Apple буде незабаром';
+
+  @override
+  String get rg_phone_note =>
+      'Ми не показуємо номер іншим і не надсилаємо рекламу.';
+
+  @override
+  String rg_sms_sent_to(String phone) {
+    return 'Надіслали на $phone';
+  }
+
+  @override
+  String rg_resend_in(String time) {
+    return 'Надіслати ще раз можна через $time';
+  }
+
+  @override
+  String get rg_resend_now => 'Надіслати код ще раз';
+
+  @override
+  String get rg_confirm => 'Підтвердити';
+
+  @override
+  String get rg_next => 'Далі';
+
+  @override
+  String get rg_about_title => 'Як вас звати';
+
+  @override
+  String get rg_about_sub =>
+      'Ім’я та вік бачитимуть інші. Прізвище не потрібне.';
+
+  @override
+  String get rg_name_label => 'Ім’я';
+
+  @override
+  String get rg_birth_label => 'Дата народження';
+
+  @override
+  String get rg_pick_date => 'оберіть дату';
+
+  @override
+  String get rg_age_gate =>
+      'Застосунок тільки для повнолітніх. Ми перевіряємо вік при реєстрації.';
+
+  @override
+  String get rg_password_note =>
+      'Пароль дає змогу увійти, навіть якщо втратите доступ до номера.';
+
+  @override
+  String get login_sub =>
+      'Увійдіть тим самим способом, що й реєструвались — інакше створиться другий профіль.';
+
+  @override
+  String get or_by_phone => 'або номером';
+
+  @override
+  String get phone_label => 'номер';
+
+  @override
+  String get show_password => 'Показати';
+
+  @override
+  String get hide_password => 'Сховати';
+
+  @override
+  String get nav_feed => 'Стрічка';
+
+  @override
+  String get nav_chats => 'Чати';
+
+  @override
+  String get nav_matches => 'Збіги';
+
+  @override
+  String get nav_profile => 'Профіль';
 }

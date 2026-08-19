@@ -17,7 +17,7 @@
   "success": "Success",
   "registration": "Registration",
   "login": "Login",
-  "login_title": "Login",
+  "login_title": "Welcome back",
   "step": "Step",
   "of_text": "of",
   "phone_number": "Phone number",
@@ -433,9 +433,9 @@
   "pr_limit": "Limit",
   "rg_meet": "Getting to know you",
   "rg_how_to_call": "What should we call you?",
-  "rg_your_phone": "Your phone number",
-  "rg_check_free": "We will check whether this number is available",
-  "rg_sms_title": "SMS confirmation",
+  "rg_your_phone": "Your number",
+  "rg_check_free": "We’ll send a confirmation code. Only you can see your number.",
+  "rg_sms_title": "Code from SMS",
   "rg_enter_6": "Enter the 6 digits sent to your number",
   "rg_code_incomplete": "Enter the full code",
   "rg_age": "Age",
@@ -677,5 +677,41 @@
   "have_account": "Already have an account?",
   "continue_with_phone": "Continue with phone number",
   "or_divider": "or",
-  "social_soon": "Google and Apple sign-in are coming soon"
+  "social_soon": "Google and Apple sign-in are coming soon",
+  "rg_phone_note": "We never show your number to anyone else, and we never send ads.",
+  "rg_sms_sent_to": "Sent to {phone}",
+  "@rg_sms_sent_to": {
+    "placeholders": {
+      "phone": {
+        "type": "String"
+      }
+    }
+  },
+  "rg_resend_in": "You can resend in {time}",
+  "@rg_resend_in": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "rg_resend_now": "Resend the code",
+  "rg_confirm": "Confirm",
+  "rg_next": "Next",
+  "rg_about_title": "What’s your name",
+  "rg_about_sub": "Others will see your name and age. No surname needed.",
+  "rg_name_label": "Name",
+  "rg_birth_label": "Date of birth",
+  "rg_pick_date": "pick a date",
+  "rg_age_gate": "The app is for adults only. We check your age when you sign up.",
+  "rg_password_note": "A password lets you sign in even if you lose access to your number.",
+  "login_sub": "Sign in the same way you signed up — otherwise you’ll end up with a second profile.",
+  "or_by_phone": "or by phone",
+  "phone_label": "phone",
+  "show_password": "Show",
+  "hide_password": "Hide",
+  "nav_feed": "Feed",
+  "nav_chats": "Chats",
+  "nav_matches": "Matches",
+  "nav_profile": "Profile"
 }

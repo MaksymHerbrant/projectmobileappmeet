@@ -1,14 +1,19 @@
-import '../theme/app_theme.dart';
+import 'package:dating_app/l10n/gen/app_localizations.dart';
 import 'package:flutter/material.dart';
-import 'forgot_password_screen.dart';
 import 'package:provider/provider.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';// Для обробки помилок
+
 import '../providers/locale_provider.dart';
 import '../service/auth_service.dart';
+import '../theme/app_theme.dart';
+import '../theme/design_kit.dart';
+import 'forgot_password_screen.dart';
 import 'main_navigation_screen.dart';
-import 'package:dating_app/l10n/gen/app_localizations.dart';
 
-
+/// Вхід.
+///
+/// Оформлення з `design/Login.dc.html`: соцкнопки першими, роздільник,
+/// потім номер і пароль. Порядок не випадковий — попередження про другий
+/// профіль має сенс лише тоді, коли обидва способи видно поруч.
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
 
@@ -18,11 +23,10 @@ class LoginScreen extends StatefulWidget {
 
 class _LoginScreenState extends State<LoginScreen> {
   final _authService = AuthService();
-  
-  // Контролери
+
   final _phoneController = TextEditingController();
   final _passwordController = TextEditingController();
-  
+
   bool _isLoading = false;
   bool _isPasswordVisible = false;
 
@@ -34,13 +38,17 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 
   Future<void> _handleLogin() async {
+    final t = AppLocalizations.of(context)!;
+
     // Проста валідація
     if (_phoneController.text.length < 9) {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(AppLocalizations.of(context)!.enter_valid_phone)));
+      ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text(t.enter_valid_phone)));
       return;
     }
     if (_passwordController.text.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(AppLocalizations.of(context)!.enter_password)));
+      ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text(t.enter_password)));
       return;
     }
 
@@ -49,8 +57,8 @@ class _LoginScreenState extends State<LoginScreen> {
     try {
       // 👇 Викликаємо вхід за паролем
       await _authService.signInWithPassword(
-        _phoneController.text, 
-        _passwordController.text
+        _phoneController.text,
+        _passwordController.text,
       );
 
       if (mounted) {
@@ -64,8 +72,9 @@ class _LoginScreenState extends State<LoginScreen> {
         // Показуємо помилку (наприклад, невірний пароль)
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text(AppLocalizations.of(context)!.wrong_phone_or_password), 
-            backgroundColor: Theme.of(context).colorScheme.error
+            content:
+                Text(AppLocalizations.of(context)!.wrong_phone_or_password),
+            backgroundColor: Theme.of(context).colorScheme.error,
           ),
         );
       }
@@ -80,114 +89,77 @@ class _LoginScreenState extends State<LoginScreen> {
       builder: (context, localeProvider, child) {
         final t = AppLocalizations.of(context)!;
 
-        return Scaffold(
-          backgroundColor: Theme.of(context).colorScheme.surface,
-          body: SafeArea(
+        return DsScreen(
+          top: DsTopBar(onBack: () => Navigator.pop(context)),
+          bottom: DsActionBar(
+            child: DsButton(
+              label: t.enter,
+              loading: _isLoading,
+              onPressed: _isLoading ? null : _handleLogin,
+            ),
+          ),
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.only(bottom: 24),
             child: Padding(
-              padding: const EdgeInsets.all(20),
+              padding: Ds.pad,
               child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+                crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  // Кнопка назад
-                  IconButton(
-                    onPressed: () => Navigator.pop(context),
-                    icon: const Icon(Icons.arrow_back, size: 28),
+                  const SizedBox(height: 10),
+                  Text(t.login_title, style: Ds.h1(context)),
+                  const SizedBox(height: 10),
+                  Text(t.login_sub, style: Ds.sub(context)),
+                  const SizedBox(height: 28),
+                  const DsSocialRow(),
+                  const SizedBox(height: 14),
+                  DsOrDivider(label: t.or_by_phone),
+                  const SizedBox(height: 14),
+                  Text(t.phone_label.toUpperCase(), style: Ds.label(context)),
+                  const SizedBox(height: 8),
+                  DsTextField(
+                    controller: _phoneController,
+                    icon: Icons.phone_outlined,
+                    prefix: '+380',
+                    hint: '67 123 45 67',
+                    keyboardType: TextInputType.phone,
+                    maxLength: 9,
+                    enabled: !_isLoading,
                   ),
-                  
-                  const SizedBox(height: 20),
-                  
-                  // Заголовок
-                  Text(
-                    t.login_title, // AppLocalizations.of(context)!.sign_in_title
-                    style: const TextStyle(fontSize: 28, fontWeight: FontWeight.bold),
-                  ),
-                  
-                  const SizedBox(height: 30),
-                  
-                  // --- ПОЛЕ ТЕЛЕФОНУ ---
-                  Container(
-                    decoration: BoxDecoration(
-                      border: Border.all(color: Theme.of(context).colorScheme.outlineVariant), 
-                      borderRadius: BorderRadius.circular(12)
-                    ),
-                    child: Row(
-                      children: [
-                        Padding(
-                          padding: const EdgeInsets.all(12),
-                          child: Row(children: [
-                            Image.asset('assets/icons/ukraine.png', width: 25),
-                            const SizedBox(width: 8),
-                            const Text('+380', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500)),
-                          ]),
-                        ),
-                        Container(width: 1, height: 40, color: Theme.of(context).colorScheme.outlineVariant),
-                        Expanded(
-                          child: TextField(
-                            controller: _phoneController,
-                            keyboardType: TextInputType.phone,
-                            maxLength: 9,
-                            decoration: InputDecoration(
-                              hintText: t.phone_number,
-                              border: InputBorder.none, 
-                              contentPadding: const EdgeInsets.all(16),
-                              counterText: '', // Ховає лічильник символів
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  
-                  const SizedBox(height: 20),
-                  
-                  // --- ПОЛЕ ПАРОЛЯ ---
-                  TextField(
+                  const SizedBox(height: 12),
+                  Text(t.password.toUpperCase(), style: Ds.label(context)),
+                  const SizedBox(height: 8),
+                  DsTextField(
                     controller: _passwordController,
-                    obscureText: !_isPasswordVisible,
-                    decoration: InputDecoration(
-                      hintText: t.password, // AppLocalizations.of(context)!.password
-                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
-                      contentPadding: const EdgeInsets.all(16),
-                      suffixIcon: IconButton(
-                        icon: Icon(
-                          _isPasswordVisible ? Icons.visibility : Icons.visibility_off,
-                          color: Theme.of(context).colorScheme.onSurfaceVariant,
+                    obscure: !_isPasswordVisible,
+                    hint: '••••••••',
+                    enabled: !_isLoading,
+                    suffix: GestureDetector(
+                      onTap: () => setState(
+                          () => _isPasswordVisible = !_isPasswordVisible),
+                      child: Text(
+                        _isPasswordVisible ? t.hide_password : t.show_password,
+                        style: Ds.tiny(context).copyWith(
+                          color: context.scheme.primary,
+                          fontWeight: FontWeight.w600,
                         ),
-                        onPressed: () => setState(() => _isPasswordVisible = !_isPasswordVisible),
                       ),
                     ),
                   ),
-                  
-                  const SizedBox(height: 30),
-                  
-                  // --- КНОПКА ВХОДУ ---
-                  SizedBox(
-                    width: double.infinity,
-                    child: ElevatedButton(
-                      onPressed: _isLoading ? null : _handleLogin,
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Theme.of(context).colorScheme.primary,
-                        foregroundColor: Colors.white,
-                        padding: const EdgeInsets.symmetric(vertical: 16),
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                  const SizedBox(height: 12),
+                  Align(
+                    alignment: Alignment.centerRight,
+                    child: GestureDetector(
+                      onTap: () => Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const ForgotPasswordScreen(),
+                        ),
                       ),
-                      child: _isLoading 
-                        ? const SizedBox(height: 20, width: 20, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2))
-                        : Text(t.enter, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600)),
-                    ),
-                  ),
-                  
-                  // Кнопка "Забули пароль?" (Можна додати пізніше)
-                  Center(
-                    child: TextButton(
-                      onPressed: () {
-                        // 👇 Переходимо на екран відновлення
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(builder: (context) => const ForgotPasswordScreen()),
-                        );
-                      },
-                      child: Text(AppLocalizations.of(context)!.forgot_password, style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant)),
+                      child: Text(
+                        t.forgot_password,
+                        style: Ds.tiny(context)
+                            .copyWith(color: context.scheme.primary),
+                      ),
                     ),
                   ),
                 ],

@@ -60,7 +60,7 @@ class AppLocalizationsPt extends AppLocalizations {
   String get login => 'Entrar';
 
   @override
-  String get login_title => 'Entrar';
+  String get login_title => 'Bem-vindo de volta';
 
   @override
   String get step => 'Passo';
@@ -1179,13 +1179,14 @@ class AppLocalizationsPt extends AppLocalizations {
   String get rg_how_to_call => 'Como te podemos chamar?';
 
   @override
-  String get rg_your_phone => 'O teu número de telefone';
+  String get rg_your_phone => 'O seu número';
 
   @override
-  String get rg_check_free => 'Vamos verificar se este número está livre';
+  String get rg_check_free =>
+      'Vamos enviar um código de confirmação. Só você vê o seu número.';
 
   @override
-  String get rg_sms_title => 'Confirmação por SMS';
+  String get rg_sms_title => 'Código do SMS';
 
   @override
   String get rg_enter_6 => 'Introduz os 6 dígitos enviados para o teu número';
@@ -1563,4 +1564,79 @@ class AppLocalizationsPt extends AppLocalizations {
   @override
   String get social_soon =>
       'O início de sessão com Google e Apple chega em breve';
+
+  @override
+  String get rg_phone_note =>
+      'Nunca mostramos o seu número a outras pessoas nem enviamos publicidade.';
+
+  @override
+  String rg_sms_sent_to(String phone) {
+    return 'Enviado para $phone';
+  }
+
+  @override
+  String rg_resend_in(String time) {
+    return 'Pode reenviar em $time';
+  }
+
+  @override
+  String get rg_resend_now => 'Reenviar o código';
+
+  @override
+  String get rg_confirm => 'Confirmar';
+
+  @override
+  String get rg_next => 'Seguinte';
+
+  @override
+  String get rg_about_title => 'Como se chama';
+
+  @override
+  String get rg_about_sub =>
+      'As outras pessoas veem o seu nome e a sua idade. Não precisa do apelido.';
+
+  @override
+  String get rg_name_label => 'Nome';
+
+  @override
+  String get rg_birth_label => 'Data de nascimento';
+
+  @override
+  String get rg_pick_date => 'escolha uma data';
+
+  @override
+  String get rg_age_gate =>
+      'A aplicação é apenas para maiores de idade. Verificamos a idade no registo.';
+
+  @override
+  String get rg_password_note =>
+      'A palavra-passe permite entrar mesmo que perca o acesso ao número.';
+
+  @override
+  String get login_sub =>
+      'Inicie sessão da mesma forma que se registou — caso contrário, será criado um segundo perfil.';
+
+  @override
+  String get or_by_phone => 'ou pelo número';
+
+  @override
+  String get phone_label => 'número';
+
+  @override
+  String get show_password => 'Mostrar';
+
+  @override
+  String get hide_password => 'Ocultar';
+
+  @override
+  String get nav_feed => 'Descobrir';
+
+  @override
+  String get nav_chats => 'Conversas';
+
+  @override
+  String get nav_matches => 'Correspondências';
+
+  @override
+  String get nav_profile => 'Perfil';
 }

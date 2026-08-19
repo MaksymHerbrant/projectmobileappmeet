@@ -60,7 +60,7 @@ class AppLocalizationsPl extends AppLocalizations {
   String get login => 'Zaloguj się';
 
   @override
-  String get login_title => 'Logowanie';
+  String get login_title => 'Witaj ponownie';
 
   @override
   String get step => 'Krok';
@@ -1178,13 +1178,14 @@ class AppLocalizationsPl extends AppLocalizations {
   String get rg_how_to_call => 'Jak się do Ciebie zwracać?';
 
   @override
-  String get rg_your_phone => 'Twój numer telefonu';
+  String get rg_your_phone => 'Twój numer';
 
   @override
-  String get rg_check_free => 'Sprawdzimy, czy ten numer jest wolny';
+  String get rg_check_free =>
+      'Wyślemy kod potwierdzający. Numer widzisz tylko Ty.';
 
   @override
-  String get rg_sms_title => 'Potwierdzenie SMS';
+  String get rg_sms_title => 'Kod z SMS-a';
 
   @override
   String get rg_enter_6 => 'Wpisz 6 cyfr wysłanych na Twój numer';
@@ -1559,4 +1560,79 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get social_soon => 'Logowanie przez Google i Apple wkrótce';
+
+  @override
+  String get rg_phone_note =>
+      'Nie pokazujemy numeru innym i nie wysyłamy reklam.';
+
+  @override
+  String rg_sms_sent_to(String phone) {
+    return 'Wysłaliśmy na $phone';
+  }
+
+  @override
+  String rg_resend_in(String time) {
+    return 'Ponowne wysłanie za $time';
+  }
+
+  @override
+  String get rg_resend_now => 'Wyślij kod ponownie';
+
+  @override
+  String get rg_confirm => 'Potwierdź';
+
+  @override
+  String get rg_next => 'Dalej';
+
+  @override
+  String get rg_about_title => 'Jak masz na imię';
+
+  @override
+  String get rg_about_sub =>
+      'Inni zobaczą imię i wiek. Nazwisko nie jest potrzebne.';
+
+  @override
+  String get rg_name_label => 'Imię';
+
+  @override
+  String get rg_birth_label => 'Data urodzenia';
+
+  @override
+  String get rg_pick_date => 'wybierz datę';
+
+  @override
+  String get rg_age_gate =>
+      'Aplikacja jest tylko dla osób pełnoletnich. Wiek sprawdzamy przy rejestracji.';
+
+  @override
+  String get rg_password_note =>
+      'Hasło pozwala się zalogować, nawet jeśli stracisz dostęp do numeru.';
+
+  @override
+  String get login_sub =>
+      'Zaloguj się tak samo, jak przy rejestracji — inaczej powstanie drugi profil.';
+
+  @override
+  String get or_by_phone => 'albo numerem';
+
+  @override
+  String get phone_label => 'numer';
+
+  @override
+  String get show_password => 'Pokaż';
+
+  @override
+  String get hide_password => 'Ukryj';
+
+  @override
+  String get nav_feed => 'Odkrywaj';
+
+  @override
+  String get nav_chats => 'Czaty';
+
+  @override
+  String get nav_matches => 'Dopasowania';
+
+  @override
+  String get nav_profile => 'Profil';
 }

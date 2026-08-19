@@ -17,7 +17,7 @@
   "success": "Sukces",
   "registration": "Rejestracja",
   "login": "Zaloguj się",
-  "login_title": "Logowanie",
+  "login_title": "Witaj ponownie",
   "step": "Krok",
   "of_text": "z",
   "phone_number": "Numer telefonu",
@@ -378,9 +378,9 @@
   "pr_limit": "Ograniczenie",
   "rg_meet": "Poznajmy się",
   "rg_how_to_call": "Jak się do Ciebie zwracać?",
-  "rg_your_phone": "Twój numer telefonu",
-  "rg_check_free": "Sprawdzimy, czy ten numer jest wolny",
-  "rg_sms_title": "Potwierdzenie SMS",
+  "rg_your_phone": "Twój numer",
+  "rg_check_free": "Wyślemy kod potwierdzający. Numer widzisz tylko Ty.",
+  "rg_sms_title": "Kod z SMS-a",
   "rg_enter_6": "Wpisz 6 cyfr wysłanych na Twój numer",
   "rg_code_incomplete": "Wpisz pełny kod",
   "rg_age": "Wiek",
@@ -490,5 +490,41 @@
   "have_account": "Masz już konto?",
   "continue_with_phone": "Kontynuuj z numerem",
   "or_divider": "albo",
-  "social_soon": "Logowanie przez Google i Apple wkrótce"
+  "social_soon": "Logowanie przez Google i Apple wkrótce",
+  "rg_phone_note": "Nie pokazujemy numeru innym i nie wysyłamy reklam.",
+  "rg_sms_sent_to": "Wysłaliśmy na {phone}",
+  "@rg_sms_sent_to": {
+    "placeholders": {
+      "phone": {
+        "type": "String"
+      }
+    }
+  },
+  "rg_resend_in": "Ponowne wysłanie za {time}",
+  "@rg_resend_in": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "rg_resend_now": "Wyślij kod ponownie",
+  "rg_confirm": "Potwierdź",
+  "rg_next": "Dalej",
+  "rg_about_title": "Jak masz na imię",
+  "rg_about_sub": "Inni zobaczą imię i wiek. Nazwisko nie jest potrzebne.",
+  "rg_name_label": "Imię",
+  "rg_birth_label": "Data urodzenia",
+  "rg_pick_date": "wybierz datę",
+  "rg_age_gate": "Aplikacja jest tylko dla osób pełnoletnich. Wiek sprawdzamy przy rejestracji.",
+  "rg_password_note": "Hasło pozwala się zalogować, nawet jeśli stracisz dostęp do numeru.",
+  "login_sub": "Zaloguj się tak samo, jak przy rejestracji — inaczej powstanie drugi profil.",
+  "or_by_phone": "albo numerem",
+  "phone_label": "numer",
+  "show_password": "Pokaż",
+  "hide_password": "Ukryj",
+  "nav_feed": "Odkrywaj",
+  "nav_chats": "Czaty",
+  "nav_matches": "Dopasowania",
+  "nav_profile": "Profil"
 }

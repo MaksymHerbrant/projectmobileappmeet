@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import 'package:dating_app/l10n/gen/app_localizations.dart';
 import '../providers/locale_provider.dart';
 import '../theme/app_theme.dart';
+import '../theme/design_kit.dart';
 import 'login_screen.dart';
 import 'registration_screen.dart';
 
@@ -51,7 +52,7 @@ class LandingScreen extends StatelessWidget {
                   return Stack(
                     children: [
                       Positioned.fill(
-                        child: _DistanceRings(
+                        child: DsRings(
                           centerY: markTop + _markSize / 2,
                           startRadius: _markSize / 2 + 26,
                         ),
@@ -112,12 +113,14 @@ class LandingScreen extends StatelessWidget {
                                   ),
                                   SizedBox(height: short ? 24 : 0),
                                   const Spacer(),
-                                  const _SocialRow(),
+                                  const DsSocialRow(),
                                   const SizedBox(height: 12),
-                                  const _OrDivider(),
+                                  DsOrDivider(label: t.or_divider),
                                   const SizedBox(height: 12),
-                                  _PhoneButton(
-                                    onTap: () => Navigator.of(context).push(
+                                  DsButton(
+                                    label: t.continue_with_phone,
+                                    icon: Icons.phone_outlined,
+                                    onPressed: () => Navigator.of(context).push(
                                       MaterialPageRoute(
                                         builder: (_) =>
                                             const RegistrationScreen(),
@@ -152,77 +155,7 @@ class LandingScreen extends StatelessWidget {
 
 /// Концентричні кола, що розходяться від знака.
 ///
-/// Малюються painter-ом, а не набором контейнерів: так крок між кільцями
-/// математично однаковий, а їх кількість сама підлаштовується під екран —
-/// на маленькому їх менше, на планшеті більше, і жодне не обривається.
-class _DistanceRings extends StatelessWidget {
-  const _DistanceRings({required this.centerY, required this.startRadius});
 
-  /// Відстань від верху до центру знака.
-  final double centerY;
-
-  /// Радіус першого кільця. Відлічується від краю знака, щоб воно його не різало.
-  final double startRadius;
-
-  static const double _gap = 74;
-
-  @override
-  Widget build(BuildContext context) {
-    return IgnorePointer(
-      child: ClipRect(
-        child: CustomPaint(
-          painter: _RingsPainter(
-            color: Theme.of(context).colorScheme.outlineVariant.withValues(alpha: 0.55),
-            centerY: centerY,
-            startRadius: startRadius,
-            gap: _gap,
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-class _RingsPainter extends CustomPainter {
-  const _RingsPainter({
-    required this.color,
-    required this.centerY,
-    required this.startRadius,
-    required this.gap,
-  });
-
-  final Color color;
-  final double centerY, startRadius, gap;
-
-  @override
-  void paint(Canvas canvas, Size size) {
-    final paint = Paint()
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = 1
-      ..color = color;
-
-    final center = Offset(size.width / 2, centerY);
-
-    // Найдальший видимий кут визначає, скільки кілець узагалі має сенс малювати.
-    final maxRadius = [
-      Offset(0, 0),
-      Offset(size.width, 0),
-      Offset(0, size.height),
-      Offset(size.width, size.height),
-    ].map((c) => (c - center).distance).reduce((a, b) => a > b ? a : b);
-
-    for (var r = startRadius; r <= maxRadius; r += gap) {
-      canvas.drawCircle(center, r, paint);
-    }
-  }
-
-  @override
-  bool shouldRepaint(_RingsPainter old) =>
-      old.color != color ||
-      old.centerY != centerY ||
-      old.startRadius != startRadius ||
-      old.gap != gap;
-}
 
 class _Mark extends StatelessWidget {
   const _Mark({required this.scheme});
@@ -251,135 +184,9 @@ class _Mark extends StatelessWidget {
   }
 }
 
-/// Google і Apple. Поки що показують пояснення замість дії — кнопка, яка
-/// мовчки нічого не робить, гірша за її відсутність.
-class _SocialRow extends StatelessWidget {
-  const _SocialRow();
 
-  void _soon(BuildContext context) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(AppLocalizations.of(context)!.social_soon)),
-    );
-  }
 
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      children: [
-        Expanded(
-          child: _GhostButton(
-            onTap: () => _soon(context),
-            icon: Image.asset('assets/icons/google.png', width: 20, height: 20),
-            label: 'Google',
-          ),
-        ),
-        const SizedBox(width: 10),
-        Expanded(
-          child: _GhostButton(
-            onTap: () => _soon(context),
-            icon: Icon(Icons.apple,
-                size: 22, color: Theme.of(context).colorScheme.onSurface),
-            label: 'Apple',
-          ),
-        ),
-      ],
-    );
-  }
-}
 
-class _GhostButton extends StatelessWidget {
-  const _GhostButton({
-    required this.onTap,
-    required this.icon,
-    required this.label,
-  });
-  final VoidCallback onTap;
-  final Widget icon;
-  final String label;
-
-  @override
-  Widget build(BuildContext context) {
-    final scheme = Theme.of(context).colorScheme;
-    return SizedBox(
-      height: 52,
-      child: OutlinedButton(
-        onPressed: onTap,
-        style: OutlinedButton.styleFrom(
-          foregroundColor: scheme.primary,
-          side: BorderSide(color: scheme.outlineVariant, width: 1.5),
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-          padding: EdgeInsets.zero,
-        ),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            icon,
-            const SizedBox(width: 10),
-            Text(label,
-                style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600)),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class _OrDivider extends StatelessWidget {
-  const _OrDivider();
-
-  @override
-  Widget build(BuildContext context) {
-    final scheme = Theme.of(context).colorScheme;
-    final line = Expanded(child: Container(height: 1, color: scheme.outlineVariant));
-    return Row(
-      children: [
-        line,
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 12),
-          child: Text(
-            AppLocalizations.of(context)!.or_divider,
-            style: TextStyle(fontSize: 12, color: scheme.onSurfaceVariant),
-          ),
-        ),
-        line,
-      ],
-    );
-  }
-}
-
-class _PhoneButton extends StatelessWidget {
-  const _PhoneButton({required this.onTap});
-  final VoidCallback onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    final scheme = Theme.of(context).colorScheme;
-    return SizedBox(
-      width: double.infinity,
-      height: 52,
-      child: ElevatedButton(
-        onPressed: onTap,
-        style: ElevatedButton.styleFrom(
-          backgroundColor: scheme.primary,
-          foregroundColor: scheme.onPrimary,
-          elevation: 0,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        ),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            const Icon(Icons.phone_outlined, size: 20),
-            const SizedBox(width: 8),
-            Text(
-              AppLocalizations.of(context)!.continue_with_phone,
-              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
 
 class _FootNote extends StatelessWidget {
   const _FootNote({required this.onSignIn});

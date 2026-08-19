@@ -15,7 +15,7 @@
   "success": "Успішно",
   "registration": "Реєстрація",
   "login": "Увійти",
-  "login_title": "Вхід",
+  "login_title": "З поверненням",
   "step": "Крок",
   "of_text": "з",
   "phone_number": "Номер телефону",
@@ -378,9 +378,9 @@
   "pr_limit": "Обмеження",
   "rg_meet": "Знайомство",
   "rg_how_to_call": "Як до вас звертатися?",
-  "rg_your_phone": "Ваш номер телефону",
-  "rg_check_free": "Ми перевіримо, чи вільний цей номер",
-  "rg_sms_title": "Підтвердження SMS",
+  "rg_your_phone": "Ваш номер",
+  "rg_check_free": "Надішлемо код підтвердження. Номер бачите тільки ви.",
+  "rg_sms_title": "Код із SMS",
   "rg_enter_6": "Введіть 6 цифр, що надійшли на номер",
   "rg_code_incomplete": "Введіть код повністю",
   "rg_age": "Вік",
@@ -490,5 +490,41 @@
   "have_account": "Уже маєте акаунт?",
   "continue_with_phone": "Продовжити з номером",
   "or_divider": "або",
-  "social_soon": "Вхід через Google та Apple буде незабаром"
+  "social_soon": "Вхід через Google та Apple буде незабаром",
+  "rg_phone_note": "Ми не показуємо номер іншим і не надсилаємо рекламу.",
+  "rg_sms_sent_to": "Надіслали на {phone}",
+  "@rg_sms_sent_to": {
+    "placeholders": {
+      "phone": {
+        "type": "String"
+      }
+    }
+  },
+  "rg_resend_in": "Надіслати ще раз можна через {time}",
+  "@rg_resend_in": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "rg_resend_now": "Надіслати код ще раз",
+  "rg_confirm": "Підтвердити",
+  "rg_next": "Далі",
+  "rg_about_title": "Як вас звати",
+  "rg_about_sub": "Ім’я та вік бачитимуть інші. Прізвище не потрібне.",
+  "rg_name_label": "Ім’я",
+  "rg_birth_label": "Дата народження",
+  "rg_pick_date": "оберіть дату",
+  "rg_age_gate": "Застосунок тільки для повнолітніх. Ми перевіряємо вік при реєстрації.",
+  "rg_password_note": "Пароль дає змогу увійти, навіть якщо втратите доступ до номера.",
+  "login_sub": "Увійдіть тим самим способом, що й реєструвались — інакше створиться другий профіль.",
+  "or_by_phone": "або номером",
+  "phone_label": "номер",
+  "show_password": "Показати",
+  "hide_password": "Сховати",
+  "nav_feed": "Стрічка",
+  "nav_chats": "Чати",
+  "nav_matches": "Збіги",
+  "nav_profile": "Профіль"
 }

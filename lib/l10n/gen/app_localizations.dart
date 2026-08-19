@@ -209,7 +209,7 @@ abstract class AppLocalizations {
   /// No description provided for @login_title.
   ///
   /// In en, this message translates to:
-  /// **'Login'**
+  /// **'Welcome back'**
   String get login_title;
 
   /// No description provided for @step.
@@ -2375,19 +2375,19 @@ abstract class AppLocalizations {
   /// No description provided for @rg_your_phone.
   ///
   /// In en, this message translates to:
-  /// **'Your phone number'**
+  /// **'Your number'**
   String get rg_your_phone;
 
   /// No description provided for @rg_check_free.
   ///
   /// In en, this message translates to:
-  /// **'We will check whether this number is available'**
+  /// **'We’ll send a confirmation code. Only you can see your number.'**
   String get rg_check_free;
 
   /// No description provided for @rg_sms_title.
   ///
   /// In en, this message translates to:
-  /// **'SMS confirmation'**
+  /// **'Code from SMS'**
   String get rg_sms_title;
 
   /// No description provided for @rg_enter_6.
@@ -3049,6 +3049,138 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Google and Apple sign-in are coming soon'**
   String get social_soon;
+
+  /// No description provided for @rg_phone_note.
+  ///
+  /// In en, this message translates to:
+  /// **'We never show your number to anyone else, and we never send ads.'**
+  String get rg_phone_note;
+
+  /// No description provided for @rg_sms_sent_to.
+  ///
+  /// In en, this message translates to:
+  /// **'Sent to {phone}'**
+  String rg_sms_sent_to(String phone);
+
+  /// No description provided for @rg_resend_in.
+  ///
+  /// In en, this message translates to:
+  /// **'You can resend in {time}'**
+  String rg_resend_in(String time);
+
+  /// No description provided for @rg_resend_now.
+  ///
+  /// In en, this message translates to:
+  /// **'Resend the code'**
+  String get rg_resend_now;
+
+  /// No description provided for @rg_confirm.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirm'**
+  String get rg_confirm;
+
+  /// No description provided for @rg_next.
+  ///
+  /// In en, this message translates to:
+  /// **'Next'**
+  String get rg_next;
+
+  /// No description provided for @rg_about_title.
+  ///
+  /// In en, this message translates to:
+  /// **'What’s your name'**
+  String get rg_about_title;
+
+  /// No description provided for @rg_about_sub.
+  ///
+  /// In en, this message translates to:
+  /// **'Others will see your name and age. No surname needed.'**
+  String get rg_about_sub;
+
+  /// No description provided for @rg_name_label.
+  ///
+  /// In en, this message translates to:
+  /// **'Name'**
+  String get rg_name_label;
+
+  /// No description provided for @rg_birth_label.
+  ///
+  /// In en, this message translates to:
+  /// **'Date of birth'**
+  String get rg_birth_label;
+
+  /// No description provided for @rg_pick_date.
+  ///
+  /// In en, this message translates to:
+  /// **'pick a date'**
+  String get rg_pick_date;
+
+  /// No description provided for @rg_age_gate.
+  ///
+  /// In en, this message translates to:
+  /// **'The app is for adults only. We check your age when you sign up.'**
+  String get rg_age_gate;
+
+  /// No description provided for @rg_password_note.
+  ///
+  /// In en, this message translates to:
+  /// **'A password lets you sign in even if you lose access to your number.'**
+  String get rg_password_note;
+
+  /// No description provided for @login_sub.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign in the same way you signed up — otherwise you’ll end up with a second profile.'**
+  String get login_sub;
+
+  /// No description provided for @or_by_phone.
+  ///
+  /// In en, this message translates to:
+  /// **'or by phone'**
+  String get or_by_phone;
+
+  /// No description provided for @phone_label.
+  ///
+  /// In en, this message translates to:
+  /// **'phone'**
+  String get phone_label;
+
+  /// No description provided for @show_password.
+  ///
+  /// In en, this message translates to:
+  /// **'Show'**
+  String get show_password;
+
+  /// No description provided for @hide_password.
+  ///
+  /// In en, this message translates to:
+  /// **'Hide'**
+  String get hide_password;
+
+  /// No description provided for @nav_feed.
+  ///
+  /// In en, this message translates to:
+  /// **'Feed'**
+  String get nav_feed;
+
+  /// No description provided for @nav_chats.
+  ///
+  /// In en, this message translates to:
+  /// **'Chats'**
+  String get nav_chats;
+
+  /// No description provided for @nav_matches.
+  ///
+  /// In en, this message translates to:
+  /// **'Matches'**
+  String get nav_matches;
+
+  /// No description provided for @nav_profile.
+  ///
+  /// In en, this message translates to:
+  /// **'Profile'**
+  String get nav_profile;
 }
 
 class _AppLocalizationsDelegate
