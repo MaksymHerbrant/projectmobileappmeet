@@ -18,6 +18,11 @@ import 'registration_screen.dart';
 class LandingScreen extends StatelessWidget {
   const LandingScreen({super.key});
 
+  /// Відступ від верху безпечної зони до знака й розмір самого знака.
+  /// Кільця беруть центр саме звідси, тому ці числа в одному місці.
+  static const double _markTop = 64;
+  static const double _markSize = 76;
+
   @override
   Widget build(BuildContext context) {
     return Consumer<LocaleProvider>(
@@ -34,77 +39,109 @@ class LandingScreen extends StatelessWidget {
                 colors: AppTheme.backgroundGradient(context),
               ),
             ),
-            child: Stack(
-              children: [
-                const Positioned.fill(child: _DistanceRings()),
-                SafeArea(
-                  child: Padding(
-                    padding: const EdgeInsets.fromLTRB(20, 0, 20, 40),
-                    child: Column(
-                      children: [
-                        const SizedBox(height: 64),
-                        _Mark(scheme: scheme),
-                        const SizedBox(height: 20),
-                        Text(
-                          t.landing_eyebrow.toUpperCase(),
-                          style: TextStyle(
-                            fontSize: 11,
-                            fontWeight: FontWeight.w700,
-                            letterSpacing: 1.1,
-                            color: scheme.onSurfaceVariant,
-                          ),
+            child: SafeArea(
+              child: LayoutBuilder(
+                builder: (context, constraints) {
+                  // На низьких екранах (SE) верхній відступ і кегль заголовка
+                  // стискаються, інакше нижній текст не влазить.
+                  final short = constraints.maxHeight < 700;
+                  final markTop = short ? 26.0 : _markTop;
+                  final headline = short ? 28.0 : 34.0;
+
+                  return Stack(
+                    children: [
+                      Positioned.fill(
+                        child: _DistanceRings(
+                          centerY: markTop + _markSize / 2,
+                          startRadius: _markSize / 2 + 26,
                         ),
-                        const SizedBox(height: 12),
-                        ConstrainedBox(
-                          constraints: const BoxConstraints(maxWidth: 280),
-                          child: Text(
-                            t.landing_headline,
-                            textAlign: TextAlign.center,
-                            style: TextStyle(
-                              fontSize: 34,
-                              height: 1.12,
-                              fontWeight: FontWeight.w800,
-                              letterSpacing: -0.6,
-                              color: scheme.onSurface,
+                      ),
+                      // Прокрутка як запобіжник: якщо вміст усе одно не влазить
+                      // (великий системний шрифт, вузький екран), він
+                      // прокручується замість того, щоб обрізатись.
+                      SingleChildScrollView(
+                        child: ConstrainedBox(
+                          constraints:
+                              BoxConstraints(minHeight: constraints.maxHeight),
+                          child: IntrinsicHeight(
+                            child: Padding(
+                              padding: const EdgeInsets.fromLTRB(20, 0, 20, 28),
+                              child: Column(
+                                children: [
+                                  SizedBox(height: markTop),
+                                  _Mark(scheme: scheme),
+                                  const SizedBox(height: 20),
+                                  Text(
+                                    t.landing_eyebrow.toUpperCase(),
+                                    style: TextStyle(
+                                      fontSize: 11,
+                                      fontWeight: FontWeight.w700,
+                                      letterSpacing: 1.1,
+                                      color: scheme.onSurfaceVariant,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 12),
+                                  ConstrainedBox(
+                                    constraints:
+                                        const BoxConstraints(maxWidth: 280),
+                                    child: Text(
+                                      t.landing_headline,
+                                      textAlign: TextAlign.center,
+                                      style: TextStyle(
+                                        fontSize: headline,
+                                        height: 1.12,
+                                        fontWeight: FontWeight.w800,
+                                        letterSpacing: -0.6,
+                                        color: scheme.onSurface,
+                                      ),
+                                    ),
+                                  ),
+                                  const SizedBox(height: 12),
+                                  ConstrainedBox(
+                                    constraints:
+                                        const BoxConstraints(maxWidth: 290),
+                                    child: Text(
+                                      t.landing_sub,
+                                      textAlign: TextAlign.center,
+                                      style: TextStyle(
+                                        fontSize: 14.5,
+                                        height: 1.5,
+                                        color: scheme.onSurfaceVariant,
+                                      ),
+                                    ),
+                                  ),
+                                  SizedBox(height: short ? 24 : 0),
+                                  const Spacer(),
+                                  const _SocialRow(),
+                                  const SizedBox(height: 12),
+                                  const _OrDivider(),
+                                  const SizedBox(height: 12),
+                                  _PhoneButton(
+                                    onTap: () => Navigator.of(context).push(
+                                      MaterialPageRoute(
+                                        builder: (_) =>
+                                            const RegistrationScreen(),
+                                      ),
+                                    ),
+                                  ),
+                                  const SizedBox(height: 12),
+                                  _FootNote(
+                                    onSignIn: () => Navigator.of(context).push(
+                                      MaterialPageRoute(
+                                        builder: (_) => const LoginScreen(),
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
                             ),
                           ),
                         ),
-                        const SizedBox(height: 12),
-                        ConstrainedBox(
-                          constraints: const BoxConstraints(maxWidth: 290),
-                          child: Text(
-                            t.landing_sub,
-                            textAlign: TextAlign.center,
-                            style: TextStyle(
-                              fontSize: 14.5,
-                              height: 1.5,
-                              color: scheme.onSurfaceVariant,
-                            ),
-                          ),
-                        ),
-                        const Spacer(),
-                        const _SocialRow(),
-                        const SizedBox(height: 12),
-                        const _OrDivider(),
-                        const SizedBox(height: 12),
-                        _PhoneButton(
-                          onTap: () => Navigator.of(context).push(
-                            MaterialPageRoute(
-                              builder: (_) => const RegistrationScreen(),
-                            ),
-                          ),
-                        ),
-                        const SizedBox(height: 12),
-                        _FootNote(
-                          onSignIn: () => Navigator.of(context).push(
-                            MaterialPageRoute(builder: (_) => const LoginScreen()),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              ],
+                      ),
+                    ],
+                  );
+                },
+              ),
             ),
           ),
         );
@@ -113,40 +150,78 @@ class LandingScreen extends StatelessWidget {
   }
 }
 
-/// Концентричні кола: «радіус пошуку» як графіка.
+/// Концентричні кола, що розходяться від знака.
 ///
-/// Діаметри й зсув центру взяті з макета (280/430/580/730 при центрі трохи
-/// вище середини екрана).
+/// Малюються painter-ом, а не набором контейнерів: так крок між кільцями
+/// математично однаковий, а їх кількість сама підлаштовується під екран —
+/// на маленькому їх менше, на планшеті більше, і жодне не обривається.
 class _DistanceRings extends StatelessWidget {
-  const _DistanceRings();
+  const _DistanceRings({required this.centerY, required this.startRadius});
+
+  /// Відстань від верху до центру знака.
+  final double centerY;
+
+  /// Радіус першого кільця. Відлічується від краю знака, щоб воно його не різало.
+  final double startRadius;
+
+  static const double _gap = 74;
 
   @override
   Widget build(BuildContext context) {
-    final line = Theme.of(context).colorScheme.outlineVariant;
     return IgnorePointer(
-      // Без обрізання кільце в 880px розсуває сторінку вшир, і решта екрана
-      // з'їжджає за правий край.
       child: ClipRect(
-        child: Align(
-        alignment: const Alignment(0, -0.05),
-        child: Stack(
-          alignment: Alignment.center,
-          children: [
-            for (final d in const [280.0, 430.0, 580.0, 730.0, 880.0])
-              Container(
-                width: d,
-                height: d,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  border: Border.all(color: line.withValues(alpha: 0.55)),
-                ),
-              ),
-            ],
+        child: CustomPaint(
+          painter: _RingsPainter(
+            color: Theme.of(context).colorScheme.outlineVariant.withValues(alpha: 0.55),
+            centerY: centerY,
+            startRadius: startRadius,
+            gap: _gap,
           ),
         ),
       ),
     );
   }
+}
+
+class _RingsPainter extends CustomPainter {
+  const _RingsPainter({
+    required this.color,
+    required this.centerY,
+    required this.startRadius,
+    required this.gap,
+  });
+
+  final Color color;
+  final double centerY, startRadius, gap;
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final paint = Paint()
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 1
+      ..color = color;
+
+    final center = Offset(size.width / 2, centerY);
+
+    // Найдальший видимий кут визначає, скільки кілець узагалі має сенс малювати.
+    final maxRadius = [
+      Offset(0, 0),
+      Offset(size.width, 0),
+      Offset(0, size.height),
+      Offset(size.width, size.height),
+    ].map((c) => (c - center).distance).reduce((a, b) => a > b ? a : b);
+
+    for (var r = startRadius; r <= maxRadius; r += gap) {
+      canvas.drawCircle(center, r, paint);
+    }
+  }
+
+  @override
+  bool shouldRepaint(_RingsPainter old) =>
+      old.color != color ||
+      old.centerY != centerY ||
+      old.startRadius != startRadius ||
+      old.gap != gap;
 }
 
 class _Mark extends StatelessWidget {
