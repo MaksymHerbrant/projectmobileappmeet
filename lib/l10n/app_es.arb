@@ -487,5 +487,8 @@
   "terms_line": "Al continuar aceptas los {terms} y la {privacy}",
   "terms": "Términos",
   "privacy_policy": "Política de Privacidad",
-  "have_account": "¿Ya tienes cuenta?"
+  "have_account": "¿Ya tienes cuenta?",
+  "continue_with_phone": "Continuar con el teléfono",
+  "or_divider": "o",
+  "social_soon": "El acceso con Google y Apple llegará pronto"
 }

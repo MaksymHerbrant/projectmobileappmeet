@@ -1554,4 +1554,13 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get have_account => '¿Ya tienes cuenta?';
+
+  @override
+  String get continue_with_phone => 'Continuar con el teléfono';
+
+  @override
+  String get or_divider => 'o';
+
+  @override
+  String get social_soon => 'El acceso con Google y Apple llegará pronto';
 }

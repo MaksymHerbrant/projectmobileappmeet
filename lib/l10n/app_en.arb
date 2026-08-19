@@ -674,5 +674,8 @@
   },
   "terms": "Terms",
   "privacy_policy": "Privacy Policy",
-  "have_account": "Already have an account?"
+  "have_account": "Already have an account?",
+  "continue_with_phone": "Continue with phone number",
+  "or_divider": "or",
+  "social_soon": "Google and Apple sign-in are coming soon"
 }

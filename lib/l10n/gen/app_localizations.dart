@@ -3031,6 +3031,24 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Already have an account?'**
   String get have_account;
+
+  /// No description provided for @continue_with_phone.
+  ///
+  /// In en, this message translates to:
+  /// **'Continue with phone number'**
+  String get continue_with_phone;
+
+  /// No description provided for @or_divider.
+  ///
+  /// In en, this message translates to:
+  /// **'or'**
+  String get or_divider;
+
+  /// No description provided for @social_soon.
+  ///
+  /// In en, this message translates to:
+  /// **'Google and Apple sign-in are coming soon'**
+  String get social_soon;
 }
 
 class _AppLocalizationsDelegate

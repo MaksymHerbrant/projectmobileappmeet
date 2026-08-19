@@ -1546,4 +1546,13 @@ class AppLocalizationsUk extends AppLocalizations {
 
   @override
   String get have_account => 'Уже маєте акаунт?';
+
+  @override
+  String get continue_with_phone => 'Продовжити з номером';
+
+  @override
+  String get or_divider => 'або';
+
+  @override
+  String get social_soon => 'Вхід через Google та Apple буде незабаром';
 }

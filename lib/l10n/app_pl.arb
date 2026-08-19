@@ -487,5 +487,8 @@
   "terms_line": "Kontynuując, akceptujesz {terms} i {privacy}",
   "terms": "Warunki",
   "privacy_policy": "Politykę prywatności",
-  "have_account": "Masz już konto?"
+  "have_account": "Masz już konto?",
+  "continue_with_phone": "Kontynuuj z numerem",
+  "or_divider": "albo",
+  "social_soon": "Logowanie przez Google i Apple wkrótce"
 }

@@ -487,5 +487,8 @@
   "terms_line": "Продовжуючи, ви приймаєте {terms} та {privacy}",
   "terms": "Умови",
   "privacy_policy": "Політику конфіденційності",
-  "have_account": "Уже маєте акаунт?"
+  "have_account": "Уже маєте акаунт?",
+  "continue_with_phone": "Продовжити з номером",
+  "or_divider": "або",
+  "social_soon": "Вхід через Google та Apple буде незабаром"
 }

@@ -1549,4 +1549,13 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get have_account => 'Already have an account?';
+
+  @override
+  String get continue_with_phone => 'Continue with phone number';
+
+  @override
+  String get or_divider => 'or';
+
+  @override
+  String get social_soon => 'Google and Apple sign-in are coming soon';
 }

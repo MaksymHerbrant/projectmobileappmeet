@@ -1550,4 +1550,13 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get have_account => 'Masz już konto?';
+
+  @override
+  String get continue_with_phone => 'Kontynuuj z numerem';
+
+  @override
+  String get or_divider => 'albo';
+
+  @override
+  String get social_soon => 'Logowanie przez Google i Apple wkrótce';
 }
