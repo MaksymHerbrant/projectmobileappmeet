@@ -1530,4 +1530,28 @@ class AppLocalizationsEs extends AppLocalizations {
   String city_prefix(String city) {
     return '$city';
   }
+
+  @override
+  String get landing_headline => 'Tu gente está más cerca de lo que crees';
+
+  @override
+  String get landing_sub =>
+      'Te mostramos a gente cercana con tus mismos intereses. Después, un café, la montaña o un quiz.';
+
+  @override
+  String get landing_eyebrow => 'amigos cerca';
+
+  @override
+  String terms_line(String terms, String privacy) {
+    return 'Al continuar aceptas los $terms y la $privacy';
+  }
+
+  @override
+  String get terms => 'Términos';
+
+  @override
+  String get privacy_policy => 'Política de Privacidad';
+
+  @override
+  String get have_account => '¿Ya tienes cuenta?';
 }

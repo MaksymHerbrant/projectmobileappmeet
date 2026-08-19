@@ -1,388 +1,274 @@
-import '../theme/app_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../providers/locale_provider.dart';
-import 'registration_screen.dart';
-import 'login_screen.dart';
-import 'main_navigation_screen.dart';
+
 import 'package:dating_app/l10n/gen/app_localizations.dart';
+import '../providers/locale_provider.dart';
+import '../theme/app_theme.dart';
+import 'login_screen.dart';
+import 'registration_screen.dart';
+
+/// Перший екран застосунку.
+///
+/// Замість колажу зі стокових облич — кільця відстані. Це фірмовий мотив
+/// продукту: усе тут будується навколо того, хто поруч, і перший екран має це
+/// показувати, а не обіцяти обличчями, яких у застосунку ще немає.
 class LandingScreen extends StatelessWidget {
   const LandingScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
     return Consumer<LocaleProvider>(
-      builder: (context, localeProvider, child) {
-        debugPrint('Landing screen - Current locale: ${localeProvider.effectiveLocale.languageCode}_${localeProvider.effectiveLocale.countryCode}');
-        debugPrint('Landing screen - already_have_account: ${AppLocalizations.of(context)!.already_have_account}');
-        debugPrint('Landing screen - enter: ${AppLocalizations.of(context)!.enter}');
-        final screenWidth = MediaQuery.of(context).size.width;
-        final screenHeight = MediaQuery.of(context).size.height;
-        final imageSize = screenWidth; // Базова ширина для позиціювання
-        
-        // Визначаємо чи це маленький екран (iPhone SE тощо)
-        final isSmallScreen = screenHeight < 700;
-    
-    return Scaffold(
-      body: Container(
-        decoration: BoxDecoration(
-            gradient: LinearGradient(
-            begin: Alignment.bottomCenter,
-            end: Alignment.topCenter,
-            colors: AppTheme.backgroundGradient(context),
-          ),
-        ),
-        child: Stack(
-          children: [
-            // Текст Bondee
-            Positioned(
-              top: 40,
-              left: 24,
-              child: Text(
-                AppLocalizations.of(context)!.app_name,
-                style: TextStyle(
-                  fontSize: 32,
-                  fontWeight: FontWeight.bold,
-                  color: Theme.of(context).colorScheme.onSurface,
-                  fontFamily: 'Arial',
-                ),
-              ),
-            ),
-            
-            // 📸 Колаж із 7 круглих фото з точними координатами
-            Positioned(
-              top: 80,
-              left: 0,
-              right: 0,
-              child: SizedBox(
-                height: MediaQuery.of(context).size.height * 0.5,
-                child: Stack(
-                  children: [
-                    // Центральне фото (найбільше)
-                    Positioned(
-                      top: screenWidth * (isSmallScreen ? 0.3 : 0.4), // Вище на маленьких екранах
-                      left: screenWidth * 0.25,
-                      child: Container(
-                        width: screenWidth * (isSmallScreen ? 0.22 : 0.25) * 2, // Збільшено до 44% для маленьких екранів
-                        height: screenWidth * (isSmallScreen ? 0.22 : 0.25) * 2, // Збільшено до 44% для маленьких екранів
-                        decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          image: DecorationImage(
-                            image: AssetImage('assets/images/portrait-man-laughing.jpg'),
-                            fit: BoxFit.cover,
-                          ),
-                          border: Border.all(color: Colors.white, width: 3),
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.black.withOpacity(0.2),
-                              blurRadius: 8,
-                              offset: Offset(0, 4),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                    // Ліве верхнє фото
-                    Positioned(
-                      top: screenWidth * 0.02,
-                      left: screenWidth * 0.05,
-                      child: Container(
-                        width: screenWidth * (isSmallScreen ? 0.18 : 0.2) * 2, // Збільшено до 36% для маленьких екранів
-                        height: screenWidth * (isSmallScreen ? 0.18 : 0.2) * 2, // Збільшено до 36% для маленьких екранів
-                        decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          image: DecorationImage(
-                            image: AssetImage('assets/images/close-up-portrait-curly-handsome-european-male.jpg'),
-                            fit: BoxFit.cover,
-                          ),
-                          border: Border.all(color: Colors.white, width: 3),
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.black.withOpacity(0.2),
-                              blurRadius: 8,
-                              offset: Offset(0, 4),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                    // Праве верхнє фото
-                    Positioned(
-                      top: screenWidth * -0.01,
-                      right: screenWidth * 0.01,
-                      child: Container(
-                        width: screenWidth * (isSmallScreen ? 0.18 : 0.22) * 2, // Залишено 36% для маленьких екранів
-                        height: screenWidth * (isSmallScreen ? 0.18 : 0.22) * 2, // Залишено 36% для маленьких екранів
-                        decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          image: DecorationImage(
-                            image: AssetImage('assets/images/pleased-smiling-man-with-beard-looking-camera.jpg'),
-                            fit: BoxFit.cover,
-                          ),
-                          border: Border.all(color: Colors.white, width: 3),
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.black.withOpacity(0.2),
-                              blurRadius: 8,
-                              offset: Offset(0, 4),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                    // Ліве нижнє фото
-                    Positioned(
-                      bottom: screenWidth * 0.3,
-                      left: screenWidth * -0.1,
-                      child: Container(
-                        width: screenWidth * (isSmallScreen ? 0.15 : 0.16) * 2, // Збільшено до 30% для маленьких екранів
-                        height: screenWidth * (isSmallScreen ? 0.13 : 0.16) * 2, // Збільшено до 30% для маленьких екранів
-                        decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          image: DecorationImage(
-                            image: AssetImage('assets/images/selfie-portrait-videocall.jpg'),
-                            fit: BoxFit.cover,
-                          ),
-                          border: Border.all(color: Colors.white, width: 3),
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.black.withOpacity(0.2),
-                              blurRadius: 8,
-                              offset: Offset(0, 4),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                    // Праве нижнє фото
-                    Positioned(
-                      bottom: screenWidth * 0.2,
-                      right: screenWidth * -0.09,
-                      child: Container(
-                        width: screenWidth * (isSmallScreen ? 0.15 : 0.16) * 2, // Збільшено до 30% для маленьких екранів
-                        height: screenWidth * (isSmallScreen ? 0.15 : 0.16) * 2, // Збільшено до 30% для маленьких екранів
-                        decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          image: DecorationImage(
-                            image: AssetImage('assets/images/portrait-man-laughing.jpg'),
-                            fit: BoxFit.cover,
-                          ),
-                          border: Border.all(color: Colors.white, width: 3),
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.black.withOpacity(0.2),
-                              blurRadius: 8,
-                              offset: Offset(0, 4),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
+      builder: (context, _, __) {
+        final t = AppLocalizations.of(context)!;
+        final scheme = Theme.of(context).colorScheme;
 
-            SafeArea(
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 0),
-                child: Column(
-                  children: [
-                    SizedBox(height: isSmallScreen ? 300 : 370), // Менший відступ для маленьких екранів
-                
-                    // Нижній блок - займає решту простору
-                    Expanded(
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          // Заголовок
-                          RichText(
-                            textAlign: TextAlign.center,
-                            text: TextSpan(
-                              style: TextStyle(
-                                fontSize: isSmallScreen ? 22 : 26, // Менший шрифт для маленьких екранів
-                                fontWeight: FontWeight.bold,
-                                color: Theme.of(context).colorScheme.onSurface,
-                                height: isSmallScreen ? 1.2 : 1.25, // Менша висота для маленьких екранів
-                              ),
-                              children: [
-                                TextSpan(text: AppLocalizations.of(context)!.find_your_wave),
-                              ],
-                            ),
-                          ),
-                          
-                          const SizedBox(height: 12),
-                          
-                          // Підзаголовок
-                          Text(
-                            AppLocalizations.of(context)!.become_part_of_community,
-                            style: TextStyle(
-                              fontSize: isSmallScreen ? 13 : 15, // Менший шрифт для маленьких екранів
-                              color: Theme.of(context).colorScheme.onSurfaceVariant,
-                              fontWeight: FontWeight.w400,
-                            ),
-                            textAlign: TextAlign.center,
-                          ),
-                          
-                          SizedBox(height: isSmallScreen ? 20 : 30), // Менший відступ для маленьких екранів
-                          
-                          // Кнопка "Почнімо"
-                          SizedBox(
-                            width: double.infinity,
-                            child: ElevatedButton(
-                              onPressed: () {
-                                Navigator.of(context).push(
-                                  MaterialPageRoute(
-                                    builder: (context) => const RegistrationScreen(),
-                                  ),
-                                );
-                              },
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: Theme.of(context).colorScheme.primary, foregroundColor: Theme.of(context).colorScheme.onPrimary,
-                                padding: const EdgeInsets.symmetric(vertical: 14), // Зменшено з 18 до 14
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(12),
-                                ),
-                                elevation: 0,
-                              ),
-                              child: Row(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  Text(
-                                    AppLocalizations.of(context)!.lets_start,
-                                    style: const TextStyle(
-                                      fontSize: 16,
-                                      fontWeight: FontWeight.w600,
-                                    ),
-                                  ),
-                                  SizedBox(width: 8),
-                                  Icon(
-                                    Icons.arrow_forward_ios,
-                                    size: 16,
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ),
-                          
-                          SizedBox(height: isSmallScreen ? 16 : 20), // Менший відступ для маленьких екранів
-                          
-                          // Текст "Продовжити через"
-                          Text(
-                            AppLocalizations.of(context)!.continue_with,
-                            style: TextStyle(
-                              fontSize: 14,
-                              color: Theme.of(context).colorScheme.onSurfaceVariant,
-                              fontWeight: FontWeight.w400,
-                            ),
-                          ),
-                          
-                          SizedBox(height: isSmallScreen ? 12 : 16), // Менший відступ для маленьких екранів
-                          
-                          // Кнопки соціальних мереж
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              // Google кнопка
-                              Container(
-                                width: 50,
-                                height: 50,
-                                decoration: BoxDecoration(
-                                  color: Theme.of(context).colorScheme.surface,
-                                  border: Border.all(color: Theme.of(context).colorScheme.outlineVariant),
-                                  borderRadius: BorderRadius.circular(12),
-                                  boxShadow: [
-                                    BoxShadow(
-                                      color: Colors.black.withOpacity(0.05),
-                                      blurRadius: 4,
-                                      offset: const Offset(0, 2),
-                                    ),
-                                  ],
-                                ),
-                                child: Padding(
-                                  padding: const EdgeInsets.all(8),
-                                  child: Image.asset(
-                                    'assets/icons/google.png',
-                                    width: 20,
-                                    height: 20,
-                                  ),
-                                ),
-                              ),
-                              
-                              const SizedBox(width: 10),
-                              
-                              // Apple кнопка
-                              Container(
-                                width: 50,
-                                height: 50,
-                                decoration: BoxDecoration(
-                                  color: Theme.of(context).colorScheme.surface,
-                                  border: Border.all(color: Theme.of(context).colorScheme.outlineVariant),
-                                  borderRadius: BorderRadius.circular(12),
-                                  boxShadow: [
-                                    BoxShadow(
-                                      color: Colors.black.withOpacity(0.05),
-                                      blurRadius: 4,
-                                      offset: const Offset(0, 2),
-                                    ),
-                                  ],
-                                ),
-                                child: Icon(
-                                  Icons.apple,
-                                  size: 45, // Збільшено на 30%
-                                  color: Theme.of(context).colorScheme.onSurface,
-                                ),
-                              ),
-                            ],
-                          ),
-                          
-                          SizedBox(height: isSmallScreen ? 20 : 24), // Менший відступ для маленьких екранів
-                          
-                          // Текст "Вже маєте акаунт?"
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Text(
-                                '${AppLocalizations.of(context)!.already_have_account} ',
-                                style: TextStyle(
-                                  fontSize: 14,
-                                  color: Theme.of(context).colorScheme.onSurfaceVariant,
-                                  fontWeight: FontWeight.w400,
-                                ),
-                              ),
-                              GestureDetector(
-                                onTap: () {
-                                  Navigator.of(context).push(
-                                    MaterialPageRoute(
-                                      builder: (context) => const LoginScreen(),
-                                    ),
-                                  );
-                                },
-                                child: Text(
-                                  AppLocalizations.of(context)!.enter,
-                                  style: TextStyle(
-                                    fontSize: 14,
-                                    color: Theme.of(context).colorScheme.primary,
-                                    fontWeight: FontWeight.w600,
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-                          
-                          SizedBox(height: isSmallScreen ? 12 : 16), // Менший відступ для маленьких екранів // Повернуто з 8 до 16
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
+        return Scaffold(
+          body: Container(
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
+                colors: AppTheme.backgroundGradient(context),
               ),
             ),
+            child: Stack(
+              children: [
+                const Positioned.fill(child: _DistanceRings()),
+                SafeArea(
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 20),
+                    child: Column(
+                      children: [
+                        const Spacer(flex: 2),
+                        _Mark(scheme: scheme),
+                        const SizedBox(height: 22),
+                        Text(
+                          t.landing_eyebrow.toUpperCase(),
+                          style: TextStyle(
+                            fontSize: 11,
+                            fontWeight: FontWeight.w700,
+                            letterSpacing: 1.1,
+                            color: scheme.onSurfaceVariant,
+                          ),
+                        ),
+                        const SizedBox(height: 14),
+                        Text(
+                          t.landing_headline,
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            fontSize: 32,
+                            height: 1.12,
+                            fontWeight: FontWeight.w800,
+                            letterSpacing: -0.6,
+                            color: scheme.onSurface,
+                          ),
+                        ),
+                        const SizedBox(height: 14),
+                        ConstrainedBox(
+                          constraints: const BoxConstraints(maxWidth: 300),
+                          child: Text(
+                            t.landing_sub,
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                              fontSize: 14.5,
+                              height: 1.5,
+                              color: scheme.onSurfaceVariant,
+                            ),
+                          ),
+                        ),
+                        const Spacer(flex: 3),
+                        _PrimaryButton(
+                          label: t.lets_start,
+                          onTap: () => Navigator.of(context).push(
+                            MaterialPageRoute(
+                              builder: (_) => const RegistrationScreen(),
+                            ),
+                          ),
+                        ),
+                        const SizedBox(height: 16),
+                        _SignInLine(
+                          onTap: () => Navigator.of(context).push(
+                            MaterialPageRoute(builder: (_) => const LoginScreen()),
+                          ),
+                        ),
+                        const SizedBox(height: 14),
+                        const _TermsLine(),
+                        const SizedBox(height: 26),
+                      ],
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+}
+
+/// Концентричні кола від центру логотипа: «радіус пошуку» як графіка.
+class _DistanceRings extends StatelessWidget {
+  const _DistanceRings();
+
+  @override
+  Widget build(BuildContext context) {
+    final line = Theme.of(context).colorScheme.outlineVariant;
+    return IgnorePointer(
+      child: Align(
+        alignment: const Alignment(0, -0.42),
+        child: Stack(
+          alignment: Alignment.center,
+          children: [
+            for (final d in const [300.0, 460.0, 620.0, 790.0])
+              Container(
+                width: d,
+                height: d,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  border: Border.all(color: line.withValues(alpha: 0.55)),
+                ),
+              ),
           ],
         ),
       ),
     );
-      },
+  }
+}
+
+class _Mark extends StatelessWidget {
+  const _Mark({required this.scheme});
+  final ColorScheme scheme;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: 76,
+      height: 76,
+      decoration: BoxDecoration(
+        color: scheme.primary,
+        borderRadius: BorderRadius.circular(26),
+        boxShadow: [
+          BoxShadow(
+            color: scheme.primary.withValues(alpha: 0.32),
+            blurRadius: 26,
+            offset: const Offset(0, 10),
+          ),
+        ],
+      ),
+      alignment: Alignment.center,
+      child: Text(
+        'M',
+        style: TextStyle(
+          fontSize: 30,
+          fontWeight: FontWeight.w800,
+          letterSpacing: -1,
+          color: scheme.onPrimary,
+        ),
+      ),
     );
   }
-} 
+}
+
+class _PrimaryButton extends StatelessWidget {
+  const _PrimaryButton({required this.label, required this.onTap});
+  final String label;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+    return SizedBox(
+      width: double.infinity,
+      height: 52,
+      child: ElevatedButton(
+        onPressed: onTap,
+        style: ElevatedButton.styleFrom(
+          backgroundColor: scheme.primary,
+          foregroundColor: scheme.onPrimary,
+          elevation: 0,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Text(label,
+                style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600)),
+            const SizedBox(width: 8),
+            const Icon(Icons.arrow_forward_ios, size: 15),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _SignInLine extends StatelessWidget {
+  const _SignInLine({required this.onTap});
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final t = AppLocalizations.of(context)!;
+    final scheme = Theme.of(context).colorScheme;
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        Text(t.have_account,
+            style: TextStyle(fontSize: 14, color: scheme.onSurfaceVariant)),
+        const SizedBox(width: 6),
+        GestureDetector(
+          onTap: onTap,
+          child: Text(
+            t.login,
+            style: TextStyle(
+              fontSize: 14,
+              fontWeight: FontWeight.w700,
+              color: scheme.primary,
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _TermsLine extends StatelessWidget {
+  const _TermsLine();
+
+  @override
+  Widget build(BuildContext context) {
+    final t = AppLocalizations.of(context)!;
+    final scheme = Theme.of(context).colorScheme;
+    final base =
+        TextStyle(fontSize: 11.5, height: 1.5, color: scheme.onSurfaceVariant);
+    final link =
+        base.copyWith(color: scheme.primary, fontWeight: FontWeight.w600);
+
+    // Порядок слів у реченні різний у кожній мові, тому речення збирається з
+    // локалізованого шаблону, а не склеюванням шматків.
+    const tMark = '@@T@@';
+    const pMark = '@@P@@';
+    final parts = t
+        .terms_line(tMark, pMark)
+        .split(RegExp('(?=@@[TP]@@)|(?<=@@[TP]@@)'));
+
+    return ConstrainedBox(
+      constraints: const BoxConstraints(maxWidth: 300),
+      child: Text.rich(
+        TextSpan(
+          children: [
+            for (final part in parts)
+              if (part == tMark)
+                TextSpan(text: t.terms, style: link)
+              else if (part == pMark)
+                TextSpan(text: t.privacy_policy, style: link)
+              else
+                TextSpan(text: part, style: base),
+          ],
+        ),
+        textAlign: TextAlign.center,
+      ),
+    );
+  }
+}

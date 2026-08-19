@@ -657,5 +657,22 @@
         "type": "String"
       }
     }
-  }
+  },
+  "landing_headline": "Your people are closer than you think",
+  "landing_sub": "We show people nearby who are into the same things. Then it is coffee, mountains or a quiz night.",
+  "landing_eyebrow": "friends nearby",
+  "terms_line": "By continuing you accept the {terms} and {privacy}",
+  "@terms_line": {
+    "placeholders": {
+      "terms": {
+        "type": "String"
+      },
+      "privacy": {
+        "type": "String"
+      }
+    }
+  },
+  "terms": "Terms",
+  "privacy_policy": "Privacy Policy",
+  "have_account": "Already have an account?"
 }

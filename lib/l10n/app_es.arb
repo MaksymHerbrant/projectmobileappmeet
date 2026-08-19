@@ -480,5 +480,12 @@
   "ended_badge": "FINALIZADO",
   "default_bio": "¡Hola! Soy nuevo aquí…",
   "default_country": "Ucrania",
-  "city_prefix": "{city}"
+  "city_prefix": "{city}",
+  "landing_headline": "Tu gente está más cerca de lo que crees",
+  "landing_sub": "Te mostramos a gente cercana con tus mismos intereses. Después, un café, la montaña o un quiz.",
+  "landing_eyebrow": "amigos cerca",
+  "terms_line": "Al continuar aceptas los {terms} y la {privacy}",
+  "terms": "Términos",
+  "privacy_policy": "Política de Privacidad",
+  "have_account": "¿Ya tienes cuenta?"
 }

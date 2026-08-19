@@ -1522,4 +1522,28 @@ class AppLocalizationsUk extends AppLocalizations {
   String city_prefix(String city) {
     return 'м. $city';
   }
+
+  @override
+  String get landing_headline => 'Свої люди ближче, ніж здається';
+
+  @override
+  String get landing_sub =>
+      'Показуємо тих, хто поруч і кому цікаве те саме. Далі — на каву, у гори або на квіз.';
+
+  @override
+  String get landing_eyebrow => 'знайомства поруч';
+
+  @override
+  String terms_line(String terms, String privacy) {
+    return 'Продовжуючи, ви приймаєте $terms та $privacy';
+  }
+
+  @override
+  String get terms => 'Умови';
+
+  @override
+  String get privacy_policy => 'Політику конфіденційності';
+
+  @override
+  String get have_account => 'Уже маєте акаунт?';
 }

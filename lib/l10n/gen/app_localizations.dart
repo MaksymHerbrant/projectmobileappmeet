@@ -2989,6 +2989,48 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'{city}'**
   String city_prefix(String city);
+
+  /// No description provided for @landing_headline.
+  ///
+  /// In en, this message translates to:
+  /// **'Your people are closer than you think'**
+  String get landing_headline;
+
+  /// No description provided for @landing_sub.
+  ///
+  /// In en, this message translates to:
+  /// **'We show people nearby who are into the same things. Then it is coffee, mountains or a quiz night.'**
+  String get landing_sub;
+
+  /// No description provided for @landing_eyebrow.
+  ///
+  /// In en, this message translates to:
+  /// **'friends nearby'**
+  String get landing_eyebrow;
+
+  /// No description provided for @terms_line.
+  ///
+  /// In en, this message translates to:
+  /// **'By continuing you accept the {terms} and {privacy}'**
+  String terms_line(String terms, String privacy);
+
+  /// No description provided for @terms.
+  ///
+  /// In en, this message translates to:
+  /// **'Terms'**
+  String get terms;
+
+  /// No description provided for @privacy_policy.
+  ///
+  /// In en, this message translates to:
+  /// **'Privacy Policy'**
+  String get privacy_policy;
+
+  /// No description provided for @have_account.
+  ///
+  /// In en, this message translates to:
+  /// **'Already have an account?'**
+  String get have_account;
 }
 
 class _AppLocalizationsDelegate

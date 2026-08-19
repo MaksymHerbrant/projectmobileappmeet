@@ -480,5 +480,12 @@
   "ended_badge": "ЗАКІНЧЕНО",
   "default_bio": "Привіт! Я новий користувач...",
   "default_country": "Україна",
-  "city_prefix": "м. {city}"
+  "city_prefix": "м. {city}",
+  "landing_headline": "Свої люди ближче, ніж здається",
+  "landing_sub": "Показуємо тих, хто поруч і кому цікаве те саме. Далі — на каву, у гори або на квіз.",
+  "landing_eyebrow": "знайомства поруч",
+  "terms_line": "Продовжуючи, ви приймаєте {terms} та {privacy}",
+  "terms": "Умови",
+  "privacy_policy": "Політику конфіденційності",
+  "have_account": "Уже маєте акаунт?"
 }
