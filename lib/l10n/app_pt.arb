@@ -34,7 +34,7 @@
   "forgot_password": "Esqueceu a senha?",
   "already_have_account": "Já tem uma conta?",
   "for_you": "Para você",
-  "events_nearby": "Eventos próximos",
+  "events_nearby": "Eventos",
   "like": "Curtir",
   "dislike": "Não curtir",
   "super_like": "Super curtir",
@@ -526,5 +526,34 @@
   "nav_feed": "Descobrir",
   "nav_chats": "Conversas",
   "nav_matches": "Correspondências",
-  "nav_profile": "Perfil"
+  "nav_profile": "Perfil",
+  "match_percent": "{percent}% de afinidade",
+  "@match_percent": {
+    "placeholders": {
+      "percent": {
+        "type": "int"
+      }
+    }
+  },
+  "likes_you": "Gosta de si",
+  "dist_km_short": "{km} km",
+  "@dist_km_short": {
+    "placeholders": {
+      "km": {
+        "type": "String"
+      }
+    }
+  },
+  "search_events": "Procurar eventos",
+  "seats_of": "{taken} de {total} lugares",
+  "@seats_of": {
+    "placeholders": {
+      "taken": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  }
 }

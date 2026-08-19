@@ -1,4 +1,7 @@
 import '../theme/app_theme.dart';
+import '../theme/design_kit.dart';
+import '../l10n/interest_labels.dart';
+import '../providers/app_state_provider.dart';
 import 'dart:async';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:ui'; // Для ефекту блюру
@@ -200,15 +203,10 @@ class _MainFeedScreenState extends State<MainFeedScreen> {
     return Consumer<LocaleProvider>(
       builder: (context, localeProvider, child) {
         return Scaffold(
-          resizeToAvoidBottomInset: false, 
+          resizeToAvoidBottomInset: false,
+          backgroundColor: Colors.transparent,
           body: Container(
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                begin: Alignment.bottomCenter,
-                end: Alignment.topCenter,
-                colors: AppTheme.backgroundGradient(context),
-              ),
-            ),
+            decoration: Ds.background(context),
             child: SafeArea(
               child: Column(
                 children: [
@@ -279,72 +277,50 @@ class _MainFeedScreenState extends State<MainFeedScreen> {
   }
 
   Widget _buildTopBar() {
-     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 15),
+    final t = AppLocalizations.of(context)!;
+
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(20, 6, 20, 10),
       child: Column(
         children: [
-          Container(
-            margin: const EdgeInsets.only(bottom: 15),
-            child: TextField(
-              controller: _searchController,
-              focusNode: _searchFocusNode,
-              decoration: InputDecoration(
-                hintText: AppLocalizations.of(context)!.search_people, 
-                prefixIcon: Icon(Icons.search, color: Theme.of(context).colorScheme.onSurfaceVariant),
-                suffixIcon: _searchController.text.isNotEmpty 
-                  ? IconButton(
-                      icon: Icon(Icons.clear, color: Theme.of(context).colorScheme.onSurfaceVariant),
-                      onPressed: () {
-                        _searchController.clear();
-                        FocusScope.of(context).unfocus();
-                        _loadUsers();
-                      },
-                    )
-                  : null,
-                filled: true,
-                fillColor: Theme.of(context).colorScheme.surface.withOpacity(0.9),
-                border: OutlineInputBorder(borderRadius: BorderRadius.circular(25), borderSide: BorderSide.none),
-                contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+          Row(
+            children: [
+              Expanded(
+                child: DsSearchField(
+                  hint: t.search_people,
+                  controller: _searchController,
+                  onChanged: _onSearchChanged,
+                ),
               ),
-              onChanged: _onSearchChanged, 
-            ),
-          ),
-          
-          if (!_isSearchActive)
-            Row(
-              children: [
-                Expanded(
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      GestureDetector(
-                        onTap: () => setState(() => _selectedTab = 0),
-                        child: Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
-                          decoration: BoxDecoration(
-                            color: _selectedTab == 0 ? Colors.black : Colors.transparent,
-                            borderRadius: BorderRadius.circular(20),
-                          ),
-                          child: Text(AppLocalizations.of(context)!.for_you, style: TextStyle(color: _selectedTab == 0 ? Theme.of(context).colorScheme.onPrimary : Theme.of(context).colorScheme.onSurface, fontWeight: FontWeight.w600, fontSize: 16)),
-                        ),
-                      ),
-                      const SizedBox(width: 20),
-                      GestureDetector(
-                        onTap: () => Navigator.of(context).push(MaterialPageRoute(builder: (context) => const EventsScreen())),
-                        child: Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
-                          decoration: BoxDecoration(
-                            color: _selectedTab == 1 ? Colors.black : Colors.transparent,
-                            borderRadius: BorderRadius.circular(20),
-                          ),
-                          child: Text(AppLocalizations.of(context)!.events_nearby, style: TextStyle(color: _selectedTab == 1 ? Theme.of(context).colorScheme.onPrimary : Theme.of(context).colorScheme.onSurface, fontWeight: FontWeight.w600, fontSize: 16)),
-                        ),
-                      ),
-                    ],
-                  ),
+              if (_searchController.text.isNotEmpty) ...[
+                const SizedBox(width: 12),
+                DsIconButton(
+                  icon: Icons.close_rounded,
+                  onTap: () {
+                    _searchController.clear();
+                    FocusScope.of(context).unfocus();
+                    _loadUsers();
+                  },
                 ),
               ],
+            ],
+          ),
+          if (!_isSearchActive) ...[
+            const SizedBox(height: 12),
+            DsSegmented(
+              items: [t.for_you, t.events_nearby],
+              index: _selectedTab,
+              onChanged: (i) {
+                if (i == 0) {
+                  setState(() => _selectedTab = 0);
+                } else {
+                  Navigator.of(context).push(
+                    MaterialPageRoute(builder: (context) => const EventsScreen()),
+                  );
+                }
+              },
             ),
+          ],
         ],
       ),
     );
@@ -365,40 +341,23 @@ class _MainFeedScreenState extends State<MainFeedScreen> {
     final t = AppLocalizations.of(context)!;
     if (!_hasLocation) return const SizedBox.shrink();
 
+    // Крок нерівномірний навмисно: між 5 і 10 км різниця відчутна, між 100 і
+    // 105 — ні, тож повзунок ходить по заздалегідь обраних значеннях.
+    final index = _radiusSteps.indexOf(_radiusKm).clamp(0, _radiusSteps.length - 1);
+
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 20),
-      child: Row(
-        children: [
-          Icon(Icons.place_outlined, size: 18, color: Theme.of(context).colorScheme.onSurfaceVariant),
-          const SizedBox(width: 6),
-          Text(
-            t.radius_km(_radiusKm),
-            style: TextStyle(
-              fontSize: 13,
-              fontWeight: FontWeight.w600,
-              color: Theme.of(context).colorScheme.onSurface,
-            ),
-          ),
-          Expanded(
-            child: SliderTheme(
-              data: SliderTheme.of(context).copyWith(
-                trackHeight: 2,
-                thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 7),
-                overlayShape: const RoundSliderOverlayShape(overlayRadius: 14),
-              ),
-              child: Slider(
-                value: _radiusSteps.indexOf(_radiusKm).toDouble().clamp(0, (_radiusSteps.length - 1).toDouble()),
-                min: 0,
-                max: (_radiusSteps.length - 1).toDouble(),
-                divisions: _radiusSteps.length - 1,
-                activeColor: Colors.black87,
-                inactiveColor: Colors.black12,
-                onChanged: (v) => setState(() => _radiusKm = _radiusSteps[v.round()]),
-                onChangeEnd: (v) => _setRadius(_radiusSteps[v.round()]),
-              ),
-            ),
-          ),
-        ],
+      padding: const EdgeInsets.fromLTRB(20, 4, 20, 8),
+      child: DsRadiusSlider(
+        km: index,
+        min: 0,
+        max: _radiusSteps.length - 1,
+        format: (i) => t.radius_km(_radiusSteps[i]),
+        onChanged: (i) {
+          final km = _radiusSteps[i];
+          if (km == _radiusKm) return;
+          setState(() => _radiusKm = km);
+          _setRadius(km);
+        },
       ),
     );
   }
@@ -478,232 +437,237 @@ class _MainFeedScreenState extends State<MainFeedScreen> {
 
   Widget _buildUserCard(UserProfile user) {
     final controller = _createControllerForUser(user.id);
+    final t = AppLocalizations.of(context)!;
+    final scheme = Theme.of(context).colorScheme;
+    final photoIndex = _currentPhotoIndex[user.id] ?? 0;
 
     return Container(
-      // 🔥 1. ВАЖЛИВО: Робимо картку непрозорою, щоб не бачити наступну
       decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.surface, // Білий фон перекриває картку знизу
-        borderRadius: BorderRadius.circular(20),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.15), 
-            blurRadius: 15, 
-            offset: const Offset(0, 8)
-          )
-        ],
+        // Непрозорий фон обов'язковий: під карткою лежить наступна.
+        color: scheme.surface,
+        borderRadius: BorderRadius.circular(Ds.rCard),
+        boxShadow: Ds.shadow(context),
       ),
       child: ClipRRect(
-        borderRadius: BorderRadius.circular(20),
-        child: Stack(
+        borderRadius: BorderRadius.circular(Ds.rCard),
+        child: Column(
           children: [
-            // 1. Карусель фото
-            Positioned.fill(
-              // 🔥 2. Додаємо білий фон під фото, щоб при завантаженні не було "дірки"
-              child: Container(
-                color: Theme.of(context).colorScheme.surfaceContainerHighest,
-                child: PageView.builder(
-                  controller: controller,
-                  physics: const NeverScrollableScrollPhysics(),
-                  itemCount: user.photos.isEmpty ? 1 : user.photos.length,
-                  itemBuilder: (context, photoIndex) {
-                    final photo = user.photos.isNotEmpty ? user.photos[photoIndex] : null;
-
-                    if (photo != null && photo.startsWith('http')) {
-                      return CachedNetworkImage(
-                        imageUrl: photo,
-                        fit: BoxFit.cover,
-                        width: double.infinity,
-                        height: double.infinity,
-                        // 🔥 3. Замість прозорості показуємо сірий блок
-                        placeholder: (context, url) => Container(
-                          color: Theme.of(context).colorScheme.outlineVariant, 
-                          child: Center(
-                            child: SizedBox(
-                              width: 30, height: 30, 
-                              child: CircularProgressIndicator(strokeWidth: 2, color: Theme.of(context).colorScheme.onSurfaceVariant)
-                            )
-                          ),
-                        ),
-                        errorWidget: (context, url, error) => Container(color: Theme.of(context).colorScheme.outlineVariant),
-                        // 🔥 4. Вимикаємо плавну появу (fade-in), бо вона створює прозорість на 0.5с
-                        fadeInDuration: Duration.zero, 
-                        fadeOutDuration: Duration.zero,
-                      );
-                    }
-
-                    // Для локальних фото
-                    return Image(
-                      image: _getSingleImageProvider(photo),
-                      fit: BoxFit.cover,
-                      width: double.infinity,
-                      height: double.infinity,
-                      // Те саме для звичайних фото - білий фон при помилці
-                      errorBuilder: (context, error, stackTrace) => Container(color: Theme.of(context).colorScheme.outlineVariant),
-                    );
-                  },
-                  onPageChanged: (index) {
-                    setState(() => _currentPhotoIndex[user.id] = index);
-                  },
-                ),
-              ),
-            ),
-
-            // 2. Градієнт (Тінь знизу)
-            Positioned.fill(
-              child: Container(
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    begin: Alignment.topCenter,
-                    end: Alignment.bottomCenter,
-                    colors: [
-                      Colors.transparent, 
-                      Colors.black.withOpacity(0.3), 
-                      Colors.black.withOpacity(0.9)
-                    ],
-                    stops: const [0.0, 0.6, 1.0],
-                  ),
-                ),
-              ),
-            ),
-
-            // 3. Тап-зони (Для перемикання фото)
-            if (user.photos.length > 1)
-              Row(
-                children: [
-                  Expanded(
-                    child: GestureDetector(
-                      behavior: HitTestBehavior.translucent, // Пропускає натискання
-                      onTap: () {
-                        controller.previousPage(duration: const Duration(milliseconds: 200), curve: Curves.easeOut);
-                        if ((_currentPhotoIndex[user.id] ?? 0) > 0) {
-                          setState(() => _currentPhotoIndex[user.id] = (_currentPhotoIndex[user.id] ?? 0) - 1);
-                        }
-                      },
-                      child: Container(color: Colors.transparent),
-                    ),
-                  ),
-                  Expanded(
-                    child: GestureDetector(
-                      behavior: HitTestBehavior.translucent,
-                      onTap: () {
-                        controller.nextPage(duration: const Duration(milliseconds: 200), curve: Curves.easeOut);
-                        if ((_currentPhotoIndex[user.id] ?? 0) < user.photos.length - 1) {
-                          setState(() => _currentPhotoIndex[user.id] = (_currentPhotoIndex[user.id] ?? 0) + 1);
-                        }
-                      },
-                      child: Container(color: Colors.transparent),
-                    ),
-                  ),
-                ],
-              ),
-
-            // 4. Індикатори (Крапки зверху)
-            if (user.photos.length > 1)
-              Positioned(
-                top: 20, left: 0, right: 0,
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: List.generate(user.photos.length, (index) {
-                    bool isActive = (_currentPhotoIndex[user.id] ?? 0) == index;
-                    return AnimatedContainer(
-                      duration: const Duration(milliseconds: 200),
-                      margin: const EdgeInsets.symmetric(horizontal: 3),
-                      width: isActive ? 24 : 6,
-                      height: 4,
-                      decoration: BoxDecoration(
-                        color: isActive ? Colors.white : Colors.white.withOpacity(0.5),
-                        borderRadius: BorderRadius.circular(2),
-                      ),
-                    );
-                  }),
-                ),
-              ),
-
-            // 5. Кнопка Інфо (i)
-            Positioned(
-              top: 20, right: 20,
-              child: GestureDetector(
-                onTap: () {
-                  Navigator.of(context).push(
-                    MaterialPageRoute(
-                      builder: (context) => ProfileDetailScreen(profile: {
-                        'name': user.name,
-                        'age': user.age,
-                        'description': user.description,
-                        'photos': user.photos,
-                        'location': user.location,
-                        'hobbies': user.hobbies,
-                        'aboutMe': user.description,
-                        'distance': AppLocalizations.of(context)!.distance,
-                      }),
-                    ),
-                  );
-                },
-                child: Container(
-                  padding: const EdgeInsets.all(8),
-                  decoration: BoxDecoration(
-                    color: Theme.of(context).colorScheme.surface.withOpacity(0.2), 
-                    borderRadius: BorderRadius.circular(20)
-                  ),
-                  child: const Icon(Icons.info_outline, color: Colors.white, size: 20),
-                ),
-              ),
-            ),
-
-            // 6. Текстова інформація (Ім'я, вік, місто)
-            Positioned(
-              bottom: 0, left: 0, right: 0,
-              child: IgnorePointer(
-                child: Container(
-                  padding: const EdgeInsets.all(20),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        '${user.name}, ${user.age}', 
-                        style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontSize: 24, fontWeight: FontWeight.bold),
-                        maxLines: 1,
-                      ),
-                      const SizedBox(height: 4),
-                      Row(
-                        children: [
-                          Icon(Icons.location_on, color: Theme.of(context).colorScheme.onSurfaceVariant, size: 16),
-                          const SizedBox(width: 4),
-                          Text(
-                            user.location.isNotEmpty ? user.location : 'Ukraine', 
-                            style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant, fontSize: 16)
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 12),
-                      Text(
-                        user.description, 
-                        style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontSize: 14), 
-                        maxLines: 2, 
-                        overflow: TextOverflow.ellipsis
-                      ),
-                      const SizedBox(height: 12),
-                      Wrap(
-                        spacing: 8, runSpacing: 4,
-                        children: user.hobbies.take(3).map((hobby) => Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                          decoration: BoxDecoration(
-                            color: Theme.of(context).colorScheme.surface.withOpacity(0.2), 
-                            borderRadius: BorderRadius.circular(15)
-                          ),
-                          child: Text(hobby, style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontSize: 12)),
-                        )).toList(),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            ),
+            Expanded(child: _cardPhoto(user, controller, photoIndex, t)),
+            _cardInfo(user, t, scheme),
           ],
         ),
       ),
     );
   }
+
+  /// Верхня половина картки: фото, відстань і смужки гортання.
+  Widget _cardPhoto(
+    UserProfile user,
+    PageController controller,
+    int photoIndex,
+    AppLocalizations t,
+  ) {
+    return Stack(
+      fit: StackFit.expand,
+      children: [
+        DsPhotoBlock(
+          radius: 0,
+          fontSize: 64,
+          initial: user.name.isEmpty ? null : user.name,
+          child: user.photos.isEmpty
+              ? null
+              : PageView.builder(
+                  controller: controller,
+                  physics: const NeverScrollableScrollPhysics(),
+                  itemCount: user.photos.length,
+                  itemBuilder: (context, i) => _photo(user.photos[i]),
+                  onPageChanged: (i) => setState(() => _currentPhotoIndex[user.id] = i),
+                ),
+        ),
+
+        // Тап-зони для гортання фото.
+        if (user.photos.length > 1)
+          Row(
+            children: [
+              Expanded(
+                child: GestureDetector(
+                  behavior: HitTestBehavior.translucent,
+                  onTap: () => _stepPhoto(user, controller, -1),
+                  child: const SizedBox.expand(),
+                ),
+              ),
+              Expanded(
+                child: GestureDetector(
+                  behavior: HitTestBehavior.translucent,
+                  onTap: () => _stepPhoto(user, controller, 1),
+                  child: const SizedBox.expand(),
+                ),
+              ),
+            ],
+          ),
+
+        if (user.distanceKm != null)
+          Positioned(
+            top: 14,
+            left: 14,
+            child: DsPill(
+              icon: Icons.place_outlined,
+              label: t.dist_km_short(_formatKm(user.distanceKm!)),
+            ),
+          ),
+
+        // Смужки замість крапок — видно, скільки фото лишилось.
+        if (user.photos.length > 1)
+          Positioned(
+            top: 14,
+            right: 14,
+            child: Row(
+              children: [
+                for (var i = 0; i < user.photos.length; i++) ...[
+                  if (i > 0) const SizedBox(width: 5),
+                  Container(
+                    width: 26,
+                    height: 3,
+                    decoration: BoxDecoration(
+                      color: i == photoIndex ? Colors.white : Colors.white54,
+                      borderRadius: BorderRadius.circular(2),
+                    ),
+                  ),
+                ],
+              ],
+            ),
+          ),
+      ],
+    );
+  }
+
+  /// Нижня половина: ім'я, збіг, опис, інтереси.
+  ///
+  /// Раніше цей текст лежав просто на фото під темним градієнтом і брав колір
+  /// із теми — на світлій темі виходив майже чорний текст на майже чорному
+  /// тлі. Тепер він на власній поверхні, тож читається завжди.
+  Widget _cardInfo(UserProfile user, AppLocalizations t, ColorScheme scheme) {
+    final mine = context.read<AppStateProvider>().currentUserProfile?.hobbies ?? const <String>[];
+
+    return Container(
+      width: double.infinity,
+      color: scheme.surface,
+      padding: const EdgeInsets.fromLTRB(18, 16, 18, 18),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.end,
+            children: [
+              Expanded(
+                child: Text(
+                  '${user.name}, ${user.age}',
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: Ds.h2(context),
+                ),
+              ),
+              const SizedBox(width: 10),
+              if (user.likesMe)
+                DsChip(label: t.likes_you, small: true, selected: true, icon: Icons.favorite_rounded)
+              else if (user.affinity != null && user.affinity! > 0)
+                DsChip(
+                  label: t.match_percent((user.affinity! * 100).round()),
+                  small: true,
+                  selected: true,
+                  onTap: () => _openProfile(user),
+                ),
+            ],
+          ),
+          if (user.description.isNotEmpty) ...[
+            const SizedBox(height: 10),
+            Text(
+              user.description,
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+              style: Ds.sub(context).copyWith(color: scheme.onSurface),
+            ),
+          ],
+          if (user.hobbies.isNotEmpty) ...[
+            const SizedBox(height: 10),
+            Wrap(
+              spacing: 8,
+              runSpacing: 8,
+              children: [
+                // Спільні інтереси підсвічені — саме вони пояснюють, чому ця
+                // картка тут.
+                for (final hobby in user.hobbies.take(4))
+                  DsChip(
+                    label: InterestLabels.of(context, hobby),
+                    small: true,
+                    selected: mine.contains(hobby),
+                  ),
+              ],
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+
+  void _stepPhoto(UserProfile user, PageController controller, int delta) {
+    final next = (_currentPhotoIndex[user.id] ?? 0) + delta;
+    if (next < 0 || next >= user.photos.length) return;
+    controller.animateToPage(
+      next,
+      duration: const Duration(milliseconds: 200),
+      curve: Curves.easeOut,
+    );
+    setState(() => _currentPhotoIndex[user.id] = next);
+  }
+
+  Widget _photo(String photo) {
+    if (photo.startsWith('http')) {
+      return CachedNetworkImage(
+        imageUrl: photo,
+        fit: BoxFit.cover,
+        width: double.infinity,
+        height: double.infinity,
+        // Плавна поява робить картку напівпрозорою на пів секунди, і крізь неї
+        // видно наступну — тому вимкнена.
+        fadeInDuration: Duration.zero,
+        fadeOutDuration: Duration.zero,
+        placeholder: (context, url) => const DsPhotoBlock(radius: 0),
+        errorWidget: (context, url, error) => const DsPhotoBlock(radius: 0),
+      );
+    }
+    return Image(
+      image: _getSingleImageProvider(photo),
+      fit: BoxFit.cover,
+      width: double.infinity,
+      height: double.infinity,
+      errorBuilder: (context, error, stackTrace) => const DsPhotoBlock(radius: 0),
+    );
+  }
+
+  /// «0,9 км» — з комою, як заведено в українській, і без зайвого нуля.
+  String _formatKm(double km) {
+    final s = km < 10 ? km.toStringAsFixed(1) : km.round().toString();
+    return s.replaceAll('.', ',');
+  }
+
+  void _openProfile(UserProfile user) {
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (context) => ProfileDetailScreen(profile: {
+          'name': user.name,
+          'age': user.age,
+          'description': user.description,
+          'photos': user.photos,
+          'location': user.location,
+          'hobbies': user.hobbies,
+          'aboutMe': user.description,
+          'distance': AppLocalizations.of(context)!.distance,
+        }),
+      ),
+    );
+  }
+
   // --- ХЕЛПЕР (Для старих ImageProvider) ---
   ImageProvider _getSingleImageProvider(String? path) {
     if (path == null || path.isEmpty) return const NetworkImage('https://ui-avatars.com/api/?name=User&background=random');
@@ -713,26 +677,52 @@ class _MainFeedScreenState extends State<MainFeedScreen> {
   }
 
   Widget _buildBottomActions() {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 50, vertical: 20),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-        children: [
-          // Замість controller.swipeLeft()
-          _buildActionButton(Icons.close, Theme.of(context).colorScheme.error, () => _cardSwiperController.swipe(CardSwiperDirection.left), size: 65),
+    final scheme = Theme.of(context).colorScheme;
 
-          // Замість controller.swipeRight()
-          _buildActionButton(Icons.favorite, Theme.of(context).colorScheme.primary, () => _cardSwiperController.swipe(CardSwiperDirection.right), size: 65),
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(0, 18, 0, 12),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          _actionButton(
+            icon: Icons.close_rounded,
+            size: 60,
+            background: scheme.surface,
+            foreground: scheme.onSurfaceVariant,
+            onTap: () => _cardSwiperController.swipe(CardSwiperDirection.left),
+          ),
+          const SizedBox(width: 26),
+          _actionButton(
+            icon: Icons.favorite_rounded,
+            size: 68,
+            background: scheme.primary,
+            foreground: scheme.onPrimary,
+            onTap: () => _cardSwiperController.swipe(CardSwiperDirection.right),
+          ),
         ],
       ),
     );
   }
-  
-  Widget _buildActionButton(IconData icon, Color backgroundColor, VoidCallback onTap, {Color? borderColor, double size = 60}) {
-     return GestureDetector(onTap: onTap, child: Container(
-       width: size, height: size, 
-       decoration: BoxDecoration(color: backgroundColor, shape: BoxShape.circle, border: borderColor != null ? Border.all(color: borderColor) : null),
-       child: Icon(icon, color: Colors.white),
-     ));
+
+  Widget _actionButton({
+    required IconData icon,
+    required double size,
+    required Color background,
+    required Color foreground,
+    required VoidCallback onTap,
+  }) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        width: size,
+        height: size,
+        decoration: BoxDecoration(
+          color: background,
+          shape: BoxShape.circle,
+          boxShadow: Ds.shadow(context),
+        ),
+        child: Icon(icon, size: 22, color: foreground),
+      ),
+    );
   }
 }

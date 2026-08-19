@@ -1,4 +1,6 @@
 import '../theme/app_theme.dart';
+import '../theme/design_kit.dart';
+import '../l10n/interest_labels.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_card_swiper/flutter_card_swiper.dart';
@@ -68,20 +70,6 @@ class _EventsScreenState extends State<EventsScreen> {
   }
 
   // Хелпер для фото (з фіксом помилки 404)
-  ImageProvider _getImageProvider(List<String>? photos) {
-    if (photos == null || photos.isEmpty) {
-      return const NetworkImage('https://ui-avatars.com/api/?name=Event&background=random'); 
-    }
-    final String path = photos.first;
-    if (path.startsWith('http')) {
-      return NetworkImage(path);
-    }
-    // Фікс для старих посилань або placeholder
-    if (path.contains('placeholder')) {
-       return const NetworkImage('https://ui-avatars.com/api/?name=Event&background=random');
-    }
-    return AssetImage(path);
-  }
 
   ImageProvider _getSingleImageProvider(String? path) {
     if (path == null || path.isEmpty) {
@@ -102,15 +90,10 @@ class _EventsScreenState extends State<EventsScreen> {
       builder: (context, localeProvider, child) {
         return Scaffold(
           // resizeToAvoidBottomInset: false дозволяє клавіатурі відкриватися поверх, не ламаючи верстку
-          resizeToAvoidBottomInset: false, 
+          resizeToAvoidBottomInset: false,
+          backgroundColor: Colors.transparent,
           body: Container(
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                begin: Alignment.bottomCenter,
-                end: Alignment.topCenter,
-                colors: AppTheme.backgroundGradient(context),
-              ),
-            ),
+            decoration: Ds.background(context),
             child: SafeArea(
               child: Column(
                 children: [
@@ -134,39 +117,24 @@ class _EventsScreenState extends State<EventsScreen> {
     );
   }
 
-  // ... _buildTopBar залишаємо без змін ...
   Widget _buildTopBar() {
-     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 15),
-      child: Row(
+    final t = AppLocalizations.of(context)!;
+
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(20, 6, 20, 10),
+      child: Column(
         children: [
-          Expanded(
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                GestureDetector(
-                  onTap: () => Navigator.of(context).pop(),
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
-                    child: Text(AppLocalizations.of(context)!.for_you, style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontWeight: FontWeight.w600, fontSize: 16)),
-                  ),
-                ),
-                const SizedBox(width: 20),
-                Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
-                  decoration: BoxDecoration(color: Theme.of(context).colorScheme.onSurface, borderRadius: BorderRadius.circular(20)),
-                  child: Text(AppLocalizations.of(context)!.events, style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontWeight: FontWeight.w600, fontSize: 16)),
-                ),
-              ],
-            ),
+          DsSearchField(hint: t.search_events),
+          const SizedBox(height: 12),
+          DsSegmented(
+            items: [t.for_you, t.events],
+            index: 1,
+            // Стрічка людей лежить під цим екраном у стеку — повертаємось на
+            // неї, а не відкриваємо другу копію.
+            onChanged: (i) {
+              if (i == 0) Navigator.of(context).pop();
+            },
           ),
-          const SizedBox(width: 16),
-          // Кнопка фільтрів (поки заглушка)
-           Container(
-              padding: const EdgeInsets.all(8),
-              decoration: BoxDecoration(color: Theme.of(context).colorScheme.surface.withOpacity(0.8), borderRadius: BorderRadius.circular(12)),
-              child: Icon(Icons.filter_list, size: 20, color: Theme.of(context).colorScheme.onSurface),
-            ),
         ],
       ),
     );
@@ -251,183 +219,200 @@ class _EventsScreenState extends State<EventsScreen> {
       _photoControllers[event.id] = PageController();
       _currentPhotoIndex[event.id] = 0;
     }
-    
+
     final pageController = _photoControllers[event.id]!;
-    
-    return AnimatedContainer(
-      duration: const Duration(milliseconds: 300),
-      curve: Curves.easeInOut,
-      margin: const EdgeInsets.all(20),
+    final scheme = Theme.of(context).colorScheme;
+
+    return Container(
+      margin: const EdgeInsets.fromLTRB(20, 4, 20, 4),
       decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(20),
-        boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.1), blurRadius: 10, offset: const Offset(0, 5))],
+        color: scheme.surface,
+        borderRadius: BorderRadius.circular(Ds.rCard),
+        boxShadow: Ds.shadow(context),
       ),
       child: ClipRRect(
-        borderRadius: BorderRadius.circular(20),
-        child: Stack(
+        borderRadius: BorderRadius.circular(Ds.rCard),
+        child: Column(
           children: [
-            // 1. Карусель фото (Свайп ВИМКНЕНО)
-            SizedBox(
-              height: double.infinity,
-              child: PageView.builder(
-                controller: pageController,
-                // 🔴 ВАЖЛИВО: Вимикаємо свайп самого PageView, щоб не конфліктував з карткою
-                physics: const NeverScrollableScrollPhysics(), 
-                onPageChanged: (index) {
-                  setState(() => _currentPhotoIndex[event.id] = index);
-                },
-                itemCount: event.photos.isEmpty ? 1 : event.photos.length,
-                itemBuilder: (context, photoIndex) {
-                  final photo = event.photos.isNotEmpty ? event.photos[photoIndex] : null;
-                  return Image(
-                    image: _getSingleImageProvider(photo), 
-                    fit: BoxFit.cover,
-                    width: double.infinity,
-                    height: double.infinity,
-                    errorBuilder: (context, error, stackTrace) => Container(color: Theme.of(context).colorScheme.outlineVariant),
-                  );
-                },
+            Expanded(child: _eventPhoto(event, pageController)),
+            InkWell(
+              onTap: () => Navigator.of(context).push(
+                MaterialPageRoute(builder: (context) => EventDetailScreen(event: event)),
               ),
-            ),
-            
-            // 2. Градієнт
-            Positioned.fill(
-              child: Container(
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    begin: Alignment.topCenter,
-                    end: Alignment.bottomCenter,
-                    colors: [Colors.transparent, Colors.black.withOpacity(0.3), Colors.black.withOpacity(0.7)],
-                    stops: const [0.0, 0.6, 1.0],
-                  ),
-                ),
-              ),
-            ),
-
-            // 🟢 3. ЗОНИ НАТИСКАННЯ (Для гортання фото)
-            if (event.photos.length > 1)
-              Row(
-                children: [
-                  // Ліва половина - НАЗАД
-                  Expanded(
-                    child: GestureDetector(
-                      behavior: HitTestBehavior.translucent, // Пропускає свайпи картки, але ловить тапи
-                      onTap: () {
-                        pageController.previousPage(
-                          duration: const Duration(milliseconds: 250), 
-                          curve: Curves.easeInOut
-                        );
-                      },
-                      child: Container(color: Colors.transparent),
-                    ),
-                  ),
-                  // Права половина - ВПЕРЕД
-                  Expanded(
-                    child: GestureDetector(
-                      behavior: HitTestBehavior.translucent,
-                      onTap: () {
-                        pageController.nextPage(
-                          duration: const Duration(milliseconds: 250), 
-                          curve: Curves.easeInOut
-                        );
-                      },
-                      child: Container(color: Colors.transparent),
-                    ),
-                  ),
-                ],
-              ),
-            
-            // 4. Індикатори (Крапки зверху)
-            if (event.photos.length > 1)
-              Positioned(
-                top: 10, left: 0, right: 0,
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: List.generate(
-                    event.photos.length,
-                    (index) {
-                       // Отримуємо поточний індекс безпечно
-                       final currentIndex = _currentPhotoIndex[event.id] ?? 0;
-                       return Container(
-                        margin: const EdgeInsets.symmetric(horizontal: 3),
-                        width: currentIndex == index ? 24 : 6, // Активна риска довша
-                        height: 6,
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(3),
-                          color: currentIndex == index ? Colors.white : Colors.white.withOpacity(0.5),
-                        ),
-                      );
-                    },
-                  ),
-                ),
-              ),
-            
-            // 5. Інфо іконка
-            Positioned(
-              top: 20, right: 20,
-              child: GestureDetector(
-                onTap: () {
-                  Navigator.of(context).push(MaterialPageRoute(builder: (context) => EventDetailScreen(event: event)));
-                },
-                child: Container(
-                  padding: const EdgeInsets.all(8),
-                  decoration: BoxDecoration(color: Theme.of(context).colorScheme.surface.withOpacity(0.2), borderRadius: BorderRadius.circular(20)),
-                  child: const Icon(Icons.info_outline, color: Colors.white, size: 20),
-                ),
-              ),
-            ),
-            
-            // 6. Інформація про захід (Текст знизу)
-            Positioned(
-              bottom: 0, left: 0, right: 0,
-              // `IgnorePointer` дозволяє тапати "крізь" текст, щоб перемикати фото,
-              // або можна прибрати його, якщо хочеш, щоб текст не був клікабельним для фото.
-              child: IgnorePointer( 
-                child: Container(
-                  padding: const EdgeInsets.all(20),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(event.title, style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontSize: 24, fontWeight: FontWeight.bold)),
-                      const SizedBox(height: 4),
-                      Row(
-                        children: [
-                          Icon(Icons.location_on, color: Theme.of(context).colorScheme.onSurfaceVariant, size: 16),
-                          const SizedBox(width: 4),
-                          Expanded(child: Text(event.location, style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant, fontSize: 16), overflow: TextOverflow.ellipsis)),
-                        ],
-                      ),
-                      const SizedBox(height: 12),
-                      // ... інші віджети (дата, учасники, теги)
-                      Row(
-                        children: [
-                          Icon(Icons.access_time, color: Theme.of(context).colorScheme.onSurfaceVariant, size: 16),
-                          const SizedBox(width: 4),
-                          Text('${event.dateTime.day}.${event.dateTime.month}.${event.dateTime.year}', style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant, fontSize: 14)),
-                          const SizedBox(width: 16),
-                          Icon(Icons.people, color: Theme.of(context).colorScheme.onSurfaceVariant, size: 16),
-                          const SizedBox(width: 4),
-                          Text(AppLocalizations.of(context)!.participants_count(event.participantsCount), style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant, fontSize: 14)),
-                        ],
-                      ),
-                      const SizedBox(height: 12),
-                      Wrap(
-                        spacing: 8, runSpacing: 4,
-                        children: event.tags.take(3).map((tag) => Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                          decoration: BoxDecoration(color: Theme.of(context).colorScheme.surface.withOpacity(0.2), borderRadius: BorderRadius.circular(15)),
-                          child: Text(tag, style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontSize: 12)),
-                        )).toList(),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
+              child: _eventInfo(event, scheme),
             ),
           ],
         ),
       ),
     );
+  }
+
+  Widget _eventPhoto(Event event, PageController pageController) {
+    final t = AppLocalizations.of(context)!;
+    final current = _currentPhotoIndex[event.id] ?? 0;
+
+    return Stack(
+      fit: StackFit.expand,
+      children: [
+        DsPhotoBlock(
+          radius: 0,
+          fontSize: 40,
+          initial: event.title.isEmpty ? null : event.title,
+          child: event.photos.isEmpty
+              ? null
+              : PageView.builder(
+                  controller: pageController,
+                  // Свайп самого PageView вимкнено, щоб не конфліктував з карткою.
+                  physics: const NeverScrollableScrollPhysics(),
+                  onPageChanged: (index) => setState(() => _currentPhotoIndex[event.id] = index),
+                  itemCount: event.photos.length,
+                  itemBuilder: (context, i) => Image(
+                    image: _getSingleImageProvider(event.photos[i]),
+                    fit: BoxFit.cover,
+                    width: double.infinity,
+                    height: double.infinity,
+                    errorBuilder: (context, error, stackTrace) =>
+                        const DsPhotoBlock(radius: 0),
+                  ),
+                ),
+        ),
+
+        if (event.photos.length > 1)
+          Row(
+            children: [
+              Expanded(
+                child: GestureDetector(
+                  behavior: HitTestBehavior.translucent,
+                  onTap: () => pageController.previousPage(
+                    duration: const Duration(milliseconds: 250),
+                    curve: Curves.easeInOut,
+                  ),
+                  child: const SizedBox.expand(),
+                ),
+              ),
+              Expanded(
+                child: GestureDetector(
+                  behavior: HitTestBehavior.translucent,
+                  onTap: () => pageController.nextPage(
+                    duration: const Duration(milliseconds: 250),
+                    curve: Curves.easeInOut,
+                  ),
+                  child: const SizedBox.expand(),
+                ),
+              ),
+            ],
+          ),
+
+        Positioned(
+          top: 12,
+          left: 12,
+          child: DsPill(icon: Icons.schedule_rounded, label: _whenLabel(event, t)),
+        ),
+
+        Positioned(
+          top: 12,
+          right: 12,
+          child: Row(
+            children: [
+              if (event.distanceKm != null)
+                DsPill(label: t.dist_km_short(_formatKm(event.distanceKm!))),
+              if (event.photos.length > 1) ...[
+                const SizedBox(width: 8),
+                for (var i = 0; i < event.photos.length; i++) ...[
+                  if (i > 0) const SizedBox(width: 5),
+                  Container(
+                    width: 26,
+                    height: 3,
+                    decoration: BoxDecoration(
+                      color: i == current ? Colors.white : Colors.white54,
+                      borderRadius: BorderRadius.circular(2),
+                    ),
+                  ),
+                ],
+              ],
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _eventInfo(Event event, ColorScheme scheme) {
+    final t = AppLocalizations.of(context)!;
+
+    return Container(
+      width: double.infinity,
+      color: scheme.surface,
+      padding: const EdgeInsets.fromLTRB(16, 14, 16, 16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            event.title,
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
+            style: Ds.h2(context).copyWith(fontSize: 17),
+          ),
+          const SizedBox(height: 6),
+          Row(
+            children: [
+              Icon(Icons.place_outlined, size: 15, color: scheme.onSurfaceVariant),
+              const SizedBox(width: 4),
+              Expanded(
+                child: Text(
+                  event.location,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: Ds.tiny(context),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 10),
+          Row(
+            children: [
+              Icon(Icons.people_outline_rounded, size: 15, color: scheme.onSurfaceVariant),
+              const SizedBox(width: 6),
+              Text(t.participants_count(event.participantsCount), style: Ds.tiny(context)),
+              const Spacer(),
+              if (event.tags.isNotEmpty)
+                Flexible(
+                  child: Wrap(
+                    alignment: WrapAlignment.end,
+                    spacing: 6,
+                    children: [
+                      for (final tag in event.tags.take(2))
+                        DsChip(label: InterestLabels.of(context, tag), small: true),
+                    ],
+                  ),
+                ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  /// «сьогодні, 18:30» — дата в макеті подана як людський орієнтир, а не
+  /// як повний штамп часу.
+  String _whenLabel(Event event, AppLocalizations t) {
+    final now = DateTime.now();
+    final d = event.dateTime;
+    final time = '${d.hour}:${d.minute.toString().padLeft(2, '0')}';
+    final days = DateTime(d.year, d.month, d.day)
+        .difference(DateTime(now.year, now.month, now.day))
+        .inDays;
+
+    return switch (days) {
+      0 => '${t.today.toLowerCase()}, $time',
+      1 => '${t.tomorrow.toLowerCase()}, $time',
+      _ => '${d.day}.${d.month.toString().padLeft(2, '0')}, $time',
+    };
+  }
+
+  String _formatKm(double km) {
+    final s = km < 10 ? km.toStringAsFixed(1) : km.round().toString();
+    return s.replaceAll('.', ',');
   }
 
   // 🟢 ГОЛОВНА ЛОГІКА СВАЙПІВ
@@ -473,24 +458,61 @@ class _EventsScreenState extends State<EventsScreen> {
   }
 
   Widget _buildBottomActions() {
-      return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 20),
+    final scheme = Theme.of(context).colorScheme;
+
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(0, 18, 0, 12),
       child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          _buildActionButton(Icons.close, Theme.of(context).colorScheme.error, () => controller.swipe(CardSwiperDirection.left), size: 65),
-          
-          // 🟢 Кнопка ПОВІДОМЛЕННЯ
-          _buildActionButton(
-            Icons.chat_bubble_outline,
-            Colors.white,
-            _showMessageDialog, // 👈 Викликаємо діалог
-            borderColor: Theme.of(context).colorScheme.outlineVariant,
-            size: 55,
+          _actionButton(
+            icon: Icons.close_rounded,
+            size: 60,
+            background: scheme.surface,
+            foreground: scheme.onSurfaceVariant,
+            onTap: () => controller.swipe(CardSwiperDirection.left),
           ),
-          
-         _buildActionButton(Icons.favorite ,Theme.of(context).colorScheme.primary, () => controller.swipe(CardSwiperDirection.right), size: 65),
+          const SizedBox(width: 20),
+          // Приєднатись із повідомленням — окрема дія, бо заявка з текстом
+          // приймається помітно частіше за мовчазну.
+          _actionButton(
+            icon: Icons.chat_bubble_outline_rounded,
+            size: 52,
+            background: scheme.surface,
+            foreground: scheme.onSurfaceVariant,
+            onTap: _showMessageDialog,
+          ),
+          const SizedBox(width: 20),
+          _actionButton(
+            icon: Icons.favorite_rounded,
+            size: 68,
+            background: scheme.primary,
+            foreground: scheme.onPrimary,
+            onTap: () => controller.swipe(CardSwiperDirection.right),
+          ),
         ],
+      ),
+    );
+  }
+
+  Widget _actionButton({
+    required IconData icon,
+    required double size,
+    required Color background,
+    required Color foreground,
+    required VoidCallback onTap,
+  }) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        width: size,
+        height: size,
+        decoration: BoxDecoration(
+          color: background,
+          shape: BoxShape.circle,
+          boxShadow: Ds.shadow(context),
+        ),
+        child: Icon(icon, size: 22, color: foreground),
       ),
     );
   }
@@ -539,42 +561,20 @@ class _EventsScreenState extends State<EventsScreen> {
     );
   }
 
-   Widget _buildActionButton(IconData icon, Color backgroundColor, VoidCallback onTap, {Color? borderColor, double size = 60}) {
-     return GestureDetector(onTap: onTap, child: Container(
-       width: size, height: size, 
-       decoration: BoxDecoration(color: backgroundColor, shape: BoxShape.circle, border: borderColor != null ? Border.all(color: borderColor) : null),
-       child: Icon(icon, color: backgroundColor == Colors.white ? Colors.black : Colors.white),
-     ));
-   }
-   
-   // ... (BottomNavigationBar без змін) ...
-    Widget _buildBottomNavigationBar() {
-    return Container(
-      color: Theme.of(context).colorScheme.primaryContainer,
-      padding: const EdgeInsets.only(top: 20, bottom: 30),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-        children: [
-          _buildBottomNavItem(icon: 'assets/icons/cards_8531803.png', index: 0, isActive: true, onTap: () => Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (context) => const MainNavigationScreen(initialIndex: 0)))),
-          _buildBottomNavItem(icon: 'assets/icons/email_2099199.png', index: 1, onTap: () => Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (context) => const MainNavigationScreen(initialIndex: 1)))),
-          _buildBottomNavItem(icon: 'assets/icons/heart-2.png', index: 2, onTap: () => Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (context) => const MainNavigationScreen(initialIndex: 2)))),
-          _buildBottomNavItem(icon: 'assets/icons/user_12289885.png', index: 3, onTap: () => Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (context) => const MainNavigationScreen(initialIndex: 3)))),
-        ],
-      ),
-    );
-  }
+  Widget _buildBottomNavigationBar() {
+    final t = AppLocalizations.of(context)!;
 
-  Widget _buildBottomNavItem({required String icon, required int index, required VoidCallback onTap, bool isActive = false}) {
-    return GestureDetector(
-      onTap: onTap,
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 200),
-        padding: const EdgeInsets.all(10),
-        decoration: BoxDecoration(color: isActive ? Colors.white.withOpacity(0.3) : Colors.transparent, borderRadius: BorderRadius.circular(12)),
-        child: Image.asset(icon, width: 28, height: 28, color: isActive ? Colors.black : Colors.grey,
-          errorBuilder: (context, error, stackTrace) => Icon(Icons.circle, color: isActive ? Colors.black : Colors.grey),
-        ),
+    return DsNavBar(
+      index: 0,
+      onChanged: (i) => Navigator.of(context).pushReplacement(
+        MaterialPageRoute(builder: (context) => MainNavigationScreen(initialIndex: i)),
       ),
+      items: [
+        DsNavItem(icon: Icons.style_outlined, label: t.nav_feed),
+        DsNavItem(icon: Icons.mail_outline_rounded, label: t.nav_chats),
+        DsNavItem(icon: Icons.favorite_border_rounded, label: t.nav_matches),
+        DsNavItem(icon: Icons.person_outline_rounded, label: t.nav_profile),
+      ],
     );
   }
 }

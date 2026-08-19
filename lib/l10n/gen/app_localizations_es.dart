@@ -111,7 +111,7 @@ class AppLocalizationsEs extends AppLocalizations {
   String get for_you => 'Para ti';
 
   @override
-  String get events_nearby => 'Eventos cercanos';
+  String get events_nearby => 'Eventos';
 
   @override
   String get like => 'Me gusta';
@@ -1639,4 +1639,25 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get nav_profile => 'Perfil';
+
+  @override
+  String match_percent(int percent) {
+    return '$percent% de afinidad';
+  }
+
+  @override
+  String get likes_you => 'Le gustas';
+
+  @override
+  String dist_km_short(String km) {
+    return '$km km';
+  }
+
+  @override
+  String get search_events => 'Buscar eventos';
+
+  @override
+  String seats_of(int taken, int total) {
+    return '$taken de $total plazas';
+  }
 }

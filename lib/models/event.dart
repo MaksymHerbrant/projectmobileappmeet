@@ -12,6 +12,10 @@ class Event {
   final String? meetingPoint;
   final String? additionalInfo;
 
+  /// Відстань і схожість інтересів приходять із `get_event_feed()`.
+  final double? distanceKm;
+  final double? affinity;
+
   Event({
     required this.id,
     required this.title,
@@ -25,6 +29,8 @@ class Event {
     this.privateLocation,
     this.meetingPoint,
     this.additionalInfo,
+    this.distanceKm,
+    this.affinity,
   });
 
   // 🟢 ФАБРИЧНИЙ МЕТОД для подій
@@ -51,6 +57,8 @@ class Event {
       privateLocation: map['private_location'],
       meetingPoint: map['meeting_point'],
       additionalInfo: map['additional_info'],
+      distanceKm: (map['dist_km'] as num?)?.toDouble(),
+      affinity: (map['affinity'] as num?)?.toDouble(),
     );
   }
 }

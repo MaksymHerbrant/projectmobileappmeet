@@ -526,5 +526,34 @@
   "nav_feed": "Odkrywaj",
   "nav_chats": "Czaty",
   "nav_matches": "Dopasowania",
-  "nav_profile": "Profil"
+  "nav_profile": "Profil",
+  "match_percent": "{percent}% zgodności",
+  "@match_percent": {
+    "placeholders": {
+      "percent": {
+        "type": "int"
+      }
+    }
+  },
+  "likes_you": "Polubił(a) Cię",
+  "dist_km_short": "{km} km",
+  "@dist_km_short": {
+    "placeholders": {
+      "km": {
+        "type": "String"
+      }
+    }
+  },
+  "search_events": "Szukaj wydarzeń",
+  "seats_of": "{taken} z {total} miejsc",
+  "@seats_of": {
+    "placeholders": {
+      "taken": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  }
 }

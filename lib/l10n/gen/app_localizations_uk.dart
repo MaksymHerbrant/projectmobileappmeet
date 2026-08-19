@@ -111,7 +111,7 @@ class AppLocalizationsUk extends AppLocalizations {
   String get for_you => 'Для вас';
 
   @override
-  String get events_nearby => 'Заходи поблизу';
+  String get events_nearby => 'Події';
 
   @override
   String get like => 'Подобається';
@@ -162,7 +162,7 @@ class AppLocalizationsUk extends AppLocalizations {
   String get new_message => 'Нове повідомлення';
 
   @override
-  String get events => 'Заходи';
+  String get events => 'Події';
 
   @override
   String get event_details => 'Деталі заходу';
@@ -1631,4 +1631,25 @@ class AppLocalizationsUk extends AppLocalizations {
 
   @override
   String get nav_profile => 'Профіль';
+
+  @override
+  String match_percent(int percent) {
+    return '$percent% збіг';
+  }
+
+  @override
+  String get likes_you => 'Ви подобаєтесь';
+
+  @override
+  String dist_km_short(String km) {
+    return '$km км';
+  }
+
+  @override
+  String get search_events => 'Пошук подій';
+
+  @override
+  String seats_of(int taken, int total) {
+    return '$taken з $total місць';
+  }
 }

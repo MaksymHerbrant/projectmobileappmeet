@@ -1635,4 +1635,25 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get nav_profile => 'Profil';
+
+  @override
+  String match_percent(int percent) {
+    return '$percent% zgodności';
+  }
+
+  @override
+  String get likes_you => 'Polubił(a) Cię';
+
+  @override
+  String dist_km_short(String km) {
+    return '$km km';
+  }
+
+  @override
+  String get search_events => 'Szukaj wydarzeń';
+
+  @override
+  String seats_of(int taken, int total) {
+    return '$taken z $total miejsc';
+  }
 }

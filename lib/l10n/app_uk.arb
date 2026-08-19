@@ -32,7 +32,7 @@
   "forgot_password": "Забули пароль?",
   "already_have_account": "Вже маєте акаунт?",
   "for_you": "Для вас",
-  "events_nearby": "Заходи поблизу",
+  "events_nearby": "Події",
   "like": "Подобається",
   "dislike": "Не подобається",
   "super_like": "Супер лайк",
@@ -49,7 +49,7 @@
   "typing": "Друкує...",
   "send": "Надіслати",
   "new_message": "Нове повідомлення",
-  "events": "Заходи",
+  "events": "Події",
   "event_details": "Деталі заходу",
   "participants": "учасників",
   "date": "Дата",
@@ -526,5 +526,34 @@
   "nav_feed": "Стрічка",
   "nav_chats": "Чати",
   "nav_matches": "Збіги",
-  "nav_profile": "Профіль"
+  "nav_profile": "Профіль",
+  "match_percent": "{percent}% збіг",
+  "@match_percent": {
+    "placeholders": {
+      "percent": {
+        "type": "int"
+      }
+    }
+  },
+  "likes_you": "Ви подобаєтесь",
+  "dist_km_short": "{km} км",
+  "@dist_km_short": {
+    "placeholders": {
+      "km": {
+        "type": "String"
+      }
+    }
+  },
+  "search_events": "Пошук подій",
+  "seats_of": "{taken} з {total} місць",
+  "@seats_of": {
+    "placeholders": {
+      "taken": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  }
 }

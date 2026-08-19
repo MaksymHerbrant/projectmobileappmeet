@@ -311,7 +311,7 @@ abstract class AppLocalizations {
   /// No description provided for @events_nearby.
   ///
   /// In en, this message translates to:
-  /// **'Events nearby'**
+  /// **'Events'**
   String get events_nearby;
 
   /// No description provided for @like.
@@ -3181,6 +3181,36 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Profile'**
   String get nav_profile;
+
+  /// No description provided for @match_percent.
+  ///
+  /// In en, this message translates to:
+  /// **'{percent}% match'**
+  String match_percent(int percent);
+
+  /// No description provided for @likes_you.
+  ///
+  /// In en, this message translates to:
+  /// **'Likes you'**
+  String get likes_you;
+
+  /// No description provided for @dist_km_short.
+  ///
+  /// In en, this message translates to:
+  /// **'{km} km'**
+  String dist_km_short(String km);
+
+  /// No description provided for @search_events.
+  ///
+  /// In en, this message translates to:
+  /// **'Search events'**
+  String get search_events;
+
+  /// No description provided for @seats_of.
+  ///
+  /// In en, this message translates to:
+  /// **'{taken} of {total} seats'**
+  String seats_of(int taken, int total);
 }
 
 class _AppLocalizationsDelegate

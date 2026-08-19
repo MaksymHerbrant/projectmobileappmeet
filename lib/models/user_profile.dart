@@ -7,6 +7,15 @@ class UserProfile {
   final String location;
   final List<String> hobbies;
 
+  /// Відстань у кілометрах і схожість інтересів приходять із `get_feed()`.
+  /// Порожні там, де профіль зчитано не зі стрічки — картка тоді просто не
+  /// показує ці позначки.
+  final double? distanceKm;
+  final double? affinity;
+
+  /// Чи ця людина вже лайкнула нас. Найцінніші картки в колоді.
+  final bool likesMe;
+
   UserProfile({
     required this.id,
     required this.name,
@@ -15,6 +24,9 @@ class UserProfile {
     required this.photos,
     required this.location,
     required this.hobbies,
+    this.distanceKm,
+    this.affinity,
+    this.likesMe = false,
   });
 
   // 🟢 ФАБРИЧНИЙ МЕТОД (Конвертує дані з бази Supabase у наш об'єкт)
@@ -49,6 +61,9 @@ class UserProfile {
       hobbies: map['hobbies'] != null 
           ? List<String>.from(map['hobbies']) 
           : [],
+      distanceKm: (map['dist_km'] as num?)?.toDouble(),
+      affinity: (map['affinity'] as num?)?.toDouble(),
+      likesMe: map['likes_me'] == true,
     );
   }
   // Додай це всередину класу UserProfile
