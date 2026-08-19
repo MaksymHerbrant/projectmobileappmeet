@@ -555,5 +555,8 @@
         "type": "int"
       }
     }
-  }
+  },
+  "online_now": "En línea ahora",
+  "profile_add_about": "Cuenta algo sobre ti →",
+  "profile_add_interests": "Añadir intereses →"
 }

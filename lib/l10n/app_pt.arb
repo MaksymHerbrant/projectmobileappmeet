@@ -555,5 +555,8 @@
         "type": "int"
       }
     }
-  }
+  },
+  "online_now": "Online agora",
+  "profile_add_about": "Fale sobre si →",
+  "profile_add_interests": "Adicionar interesses →"
 }

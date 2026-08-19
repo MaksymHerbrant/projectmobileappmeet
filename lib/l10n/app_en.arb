@@ -742,5 +742,8 @@
         "type": "int"
       }
     }
-  }
+  },
+  "online_now": "Online now",
+  "profile_add_about": "Tell people about yourself →",
+  "profile_add_interests": "Add your interests →"
 }

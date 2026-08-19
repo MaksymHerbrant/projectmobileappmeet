@@ -555,5 +555,8 @@
         "type": "int"
       }
     }
-  }
+  },
+  "online_now": "Teraz online",
+  "profile_add_about": "Opowiedz o sobie →",
+  "profile_add_interests": "Dodaj zainteresowania →"
 }

@@ -555,5 +555,8 @@
         "type": "int"
       }
     }
-  }
+  },
+  "online_now": "Зараз онлайн",
+  "profile_add_about": "Розкажіть про себе →",
+  "profile_add_interests": "Додати інтереси →"
 }

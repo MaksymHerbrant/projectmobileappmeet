@@ -3211,6 +3211,24 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'{taken} of {total} seats'**
   String seats_of(int taken, int total);
+
+  /// No description provided for @online_now.
+  ///
+  /// In en, this message translates to:
+  /// **'Online now'**
+  String get online_now;
+
+  /// No description provided for @profile_add_about.
+  ///
+  /// In en, this message translates to:
+  /// **'Tell people about yourself →'**
+  String get profile_add_about;
+
+  /// No description provided for @profile_add_interests.
+  ///
+  /// In en, this message translates to:
+  /// **'Add your interests →'**
+  String get profile_add_interests;
 }
 
 class _AppLocalizationsDelegate

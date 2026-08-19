@@ -148,7 +148,16 @@ class DsTopBar extends StatelessWidget {
   final String? trailingText;
   final Widget? trailing;
 
-  const DsTopBar({super.key, this.onBack, this.trailingText, this.trailing});
+  /// Заголовок поруч із кнопкою «назад» — як на екрані налаштувань.
+  final String? title;
+
+  const DsTopBar({
+    super.key,
+    this.onBack,
+    this.trailingText,
+    this.trailing,
+    this.title,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -1270,6 +1279,133 @@ class DsActionBar extends StatelessWidget {
       // відступу, бо саму смугу вже враховано.
       padding: EdgeInsets.fromLTRB(20, 12, 20, inset > 0 ? 12 + inset : 36),
       child: child,
+    );
+  }
+}
+
+/// Розділ налаштувань за `design/Settings.dc.html`: підпис над карткою,
+/// а всередині — рядки, розділені лінією з відступом під іконку.
+class DsSection extends StatelessWidget {
+  final String title;
+  final List<Widget> rows;
+
+  const DsSection({super.key, required this.title, required this.rows});
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Padding(
+          padding: const EdgeInsets.only(left: 4, bottom: 6),
+          child: Text(title.toUpperCase(), style: Ds.label(context)),
+        ),
+        Container(
+          decoration: BoxDecoration(
+            color: context.scheme.surface,
+            borderRadius: BorderRadius.circular(Ds.rCard),
+            boxShadow: Ds.shadow(context),
+          ),
+          padding: const EdgeInsets.symmetric(horizontal: 16),
+          child: Column(
+            children: [
+              for (var i = 0; i < rows.length; i++) ...[
+                if (i > 0)
+                  Padding(
+                    // Лінія починається під текстом, а не під іконкою — так
+                    // рядки читаються як список, а не як таблиця.
+                    padding: const EdgeInsets.only(left: 32),
+                    child: Divider(height: 1, color: context.scheme.outlineVariant),
+                  ),
+                rows[i],
+              ],
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+/// Рядок усередині `DsSection`.
+class DsRow extends StatelessWidget {
+  final String label;
+  final String? subtitle;
+  final IconData? icon;
+  final VoidCallback? onTap;
+  final bool selected;
+  final bool destructive;
+  final Widget? trailing;
+
+  const DsRow({
+    super.key,
+    required this.label,
+    this.subtitle,
+    this.icon,
+    this.onTap,
+    this.selected = false,
+    this.destructive = false,
+    this.trailing,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final scheme = context.scheme;
+    final accent = destructive
+        ? scheme.error
+        : selected
+            ? scheme.primary
+            : scheme.onSurface;
+
+    return InkWell(
+      onTap: onTap,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 13),
+        child: Row(
+          children: [
+            SizedBox(
+              width: 20,
+              child: icon == null
+                  ? null
+                  : Icon(
+                      icon,
+                      size: 20,
+                      color: destructive
+                          ? scheme.error
+                          : selected
+                              ? scheme.primary
+                              : scheme.onSurfaceVariant,
+                    ),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    label,
+                    style: TextStyle(
+                      fontSize: 15.5,
+                      fontWeight: selected ? FontWeight.w600 : FontWeight.w500,
+                      color: accent,
+                    ),
+                  ),
+                  if (subtitle != null) ...[
+                    const SizedBox(height: 2),
+                    Text(subtitle!, style: Ds.tiny(context)),
+                  ],
+                ],
+              ),
+            ),
+            if (trailing != null)
+              trailing!
+            else if (selected)
+              Icon(Icons.check_rounded, size: 20, color: scheme.primary)
+            else if (onTap != null)
+              Icon(Icons.chevron_right_rounded, size: 20, color: scheme.onSurfaceVariant),
+          ],
+        ),
+      ),
     );
   }
 }

@@ -1652,4 +1652,13 @@ class AppLocalizationsUk extends AppLocalizations {
   String seats_of(int taken, int total) {
     return '$taken з $total місць';
   }
+
+  @override
+  String get online_now => 'Зараз онлайн';
+
+  @override
+  String get profile_add_about => 'Розкажіть про себе →';
+
+  @override
+  String get profile_add_interests => 'Додати інтереси →';
 }

@@ -1,5 +1,8 @@
 import '../l10n/interest_labels.dart';
 import 'package:flutter/material.dart';
+
+import '../theme/app_theme.dart';
+import '../theme/design_kit.dart';
 import 'package:provider/provider.dart';
 import 'edit_profile_screen.dart';
 import 'settings_screen.dart';
@@ -109,32 +112,21 @@ class _ProfileScreenState extends State<ProfileScreen> {
     return Consumer<LocaleProvider>(
       builder: (context, localeProvider, child) {
         if (_isLoading) {
-          return const Scaffold(
-            body: Center(child: CircularProgressIndicator()),
-          );
+          return const Scaffold(body: Center(child: CircularProgressIndicator()));
         }
 
         return Scaffold(
-          backgroundColor: Theme.of(context).colorScheme.surface,
+          backgroundColor: Colors.transparent,
           body: Container(
-            child: SafeArea(
+            decoration: Ds.background(context),
+            // Фото йде під статусний рядок, тому SafeArea тут немає: кнопки
+            // згори самі відступають на висоту вирізу.
+            child: SingleChildScrollView(
+              padding: EdgeInsets.zero,
               child: Column(
                 children: [
-                  _buildTopBar(),
-                  Expanded(
-                    child: SingleChildScrollView(
-                      child: Column(
-                        children: [
-                          _buildProfileCard(), // 🟢 Оновлена картка
-                          const SizedBox(height: 24),
-                          _buildAboutMeSection(),
-                          const SizedBox(height: 24),
-                          _buildHobbiesSection(),
-                          const SizedBox(height: 100),
-                        ],
-                      ),
-                    ),
-                  ),
+                  _buildPhotoHeader(),
+                  _buildSheet(),
                 ],
               ),
             ),
@@ -144,91 +136,244 @@ class _ProfileScreenState extends State<ProfileScreen> {
     );
   }
 
-  Widget _buildTopBar() {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
-      child: Row(
-        children: [
-          Expanded(
-            child: Text(
-              AppLocalizations.of(context)!.my_profile,
-              style: TextStyle(
-                fontSize: 24,
-                fontWeight: FontWeight.bold,
-                color: Theme.of(context).colorScheme.onSurface,
-              ),
-              textAlign: TextAlign.center,
-            ),
-          ),
-          GestureDetector(
-            onTap: _openEditProfile,
-            child: Container(
-              padding: const EdgeInsets.all(8),
-              decoration: BoxDecoration(
-                color: Theme.of(context).colorScheme.surfaceContainerHighest,
-                borderRadius: BorderRadius.circular(20),
-              ),
-              child: Icon(Icons.edit, color: Theme.of(context).colorScheme.onSurface, size: 20),
-            ),
-          ),
-          const SizedBox(width: 12),
-          GestureDetector(
-            onTap: _openSettings,
-            child: Container(
-              padding: const EdgeInsets.all(8),
-              decoration: BoxDecoration(
-                color: Theme.of(context).colorScheme.surfaceContainerHighest,
-                borderRadius: BorderRadius.circular(20),
-              ),
-              child: Icon(Icons.settings, color: Theme.of(context).colorScheme.onSurface, size: 20),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
+  /// Шапка з фото за `design/Profile.dc.html`: 330px, ім'я внизу зліва,
+  /// смужки гортання внизу справа, кнопки згори справа.
+  Widget _buildPhotoHeader() {
+    final t = AppLocalizations.of(context)!;
+    final top = MediaQuery.paddingOf(context).top;
 
-  // 🟢 ЗМІНЕНО: Логіка вибору віджета (Фото або Кнопка)
-  Widget _buildProfileCard() {
-    return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 20),
-      height: 400,
+    return SizedBox(
+      height: 330,
       child: Stack(
+        fit: StackFit.expand,
         children: [
           if (userPhotos.isEmpty)
-             _buildNoPhotosPlaceholder() // Якщо пусто -> показуємо кнопку
+            _buildNoPhotosPlaceholder()
           else
-             _buildPhotosPageView(),     // Якщо є фото -> показуємо слайдер
+            PageView.builder(
+              controller: _photoController,
+              onPageChanged: (index) => setState(() => _currentPhotoIndex = index),
+              itemCount: userPhotos.length,
+              itemBuilder: (context, index) => Image.network(
+                userPhotos[index],
+                fit: BoxFit.cover,
+                errorBuilder: (_, __, ___) =>
+                    DsPhotoBlock(radius: 0, fontSize: 76, initial: userName),
+              ),
+            ),
+
+          // Затемнення тільки внизу — щоб білий підпис читався на будь-якому фото.
+          if (userPhotos.isNotEmpty)
+            Positioned.fill(
+              child: IgnorePointer(
+                child: DecoratedBox(
+                  decoration: const BoxDecoration(
+                    gradient: LinearGradient(
+                      begin: Alignment.center,
+                      end: Alignment.bottomCenter,
+                      colors: [Colors.transparent, Color(0x8C000000)],
+                    ),
+                  ),
+                ),
+              ),
+            ),
+
+          Positioned(
+            top: top + 8,
+            right: 20,
+            child: Row(
+              children: [
+                DsIconButton(
+                  icon: Icons.edit_outlined,
+                  onTap: _openEditProfile,
+                  semanticLabel: t.edit_profile,
+                ),
+                const SizedBox(width: 10),
+                DsIconButton(
+                  icon: Icons.settings_outlined,
+                  onTap: _openSettings,
+                  semanticLabel: t.settings,
+                ),
+              ],
+            ),
+          ),
+
+          Positioned(
+            left: 20,
+            right: 20,
+            bottom: 40,
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children: [
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        userAge > 0 ? '$userName, $userAge' : userName,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: const TextStyle(
+                          // Білий навмисно, а не з теми: підпис лежить на фото,
+                          // де колір теми на світлій темі був майже чорним.
+                          color: Colors.white,
+                          fontSize: 27,
+                          fontWeight: FontWeight.w800,
+                          letterSpacing: -0.5,
+                          shadows: [Shadow(color: Color(0x80000000), blurRadius: 12, offset: Offset(0, 2))],
+                        ),
+                      ),
+                      const SizedBox(height: 4),
+                      Row(
+                        children: [
+                          const Icon(Icons.place_outlined, size: 15, color: Colors.white),
+                          const SizedBox(width: 6),
+                          Flexible(
+                            child: Text(
+                              userLocation ?? t.default_country,
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontSize: 13.5,
+                                shadows: [Shadow(color: Color(0x80000000), blurRadius: 12)],
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+                if (userPhotos.length > 1)
+                  Row(
+                    children: [
+                      for (var i = 0; i < userPhotos.length; i++) ...[
+                        if (i > 0) const SizedBox(width: 5),
+                        Container(
+                          width: 22,
+                          height: 3,
+                          decoration: BoxDecoration(
+                            color: i == _currentPhotoIndex ? Colors.white : Colors.white54,
+                            borderRadius: BorderRadius.circular(2),
+                          ),
+                        ),
+                      ],
+                    ],
+                  ),
+              ],
+            ),
+          ),
         ],
       ),
     );
   }
 
-  // 🟢 НОВЕ: Віджет "Немає фото" (Тупа кнопка)
-  Widget _buildNoPhotosPlaceholder() {
-    return GestureDetector(
-      onTap: _openEditProfile, // Веде в редагування
+  /// Аркуш, що наїжджає на фото — рівно як у макеті: скруглення 22 і зсув -22.
+  Widget _buildSheet() {
+    final t = AppLocalizations.of(context)!;
+    final about = (aboutMe ?? '').trim();
+    final localizedHobbies = _getLocalizedHobbies(hobbies, context);
+
+    return Transform.translate(
+      offset: const Offset(0, -22),
       child: Container(
         width: double.infinity,
-        height: double.infinity,
         decoration: BoxDecoration(
-          color: Theme.of(context).colorScheme.outlineVariant,
-          borderRadius: BorderRadius.circular(20),
-          border: Border.all(color: Theme.of(context).colorScheme.onSurfaceVariant!, width: 2),
+          color: AppTheme.backgroundGradient(context).last,
+          borderRadius: const BorderRadius.vertical(top: Radius.circular(22)),
         ),
+        padding: const EdgeInsets.fromLTRB(20, 20, 20, 40),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(t.about_me.toUpperCase(), style: Ds.label(context)),
+            const SizedBox(height: 8),
+            if (about.isEmpty)
+              // Порожній розділ має пропонувати дію, а не показувати прочерк.
+              GestureDetector(
+                onTap: _openEditProfile,
+                child: Text(
+                  t.profile_add_about,
+                  style: Ds.sub(context).copyWith(color: Theme.of(context).colorScheme.primary),
+                ),
+              )
+            else ...[
+              Text(
+                _showFullAboutMe || about.length <= 160
+                    ? about
+                    : '${about.substring(0, 160)}…',
+                style: Ds.sub(context).copyWith(color: Theme.of(context).colorScheme.onSurface),
+              ),
+              if (about.length > 160) ...[
+                const SizedBox(height: 8),
+                GestureDetector(
+                  onTap: () => setState(() => _showFullAboutMe = !_showFullAboutMe),
+                  child: Text(
+                    _showFullAboutMe ? t.less : t.more,
+                    style: Ds.tiny(context).copyWith(
+                      color: Theme.of(context).colorScheme.primary,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ),
+              ],
+            ],
+            const SizedBox(height: 20),
+            Text(t.hobbies.toUpperCase(), style: Ds.label(context)),
+            const SizedBox(height: 10),
+            if (localizedHobbies.isEmpty)
+              GestureDetector(
+                onTap: _openEditProfile,
+                child: Text(
+                  t.profile_add_interests,
+                  style: Ds.sub(context).copyWith(color: Theme.of(context).colorScheme.primary),
+                ),
+              )
+            else
+              Wrap(
+                spacing: 8,
+                runSpacing: 8,
+                children: [
+                  for (final hobby in _showFullHobbies
+                      ? localizedHobbies
+                      : localizedHobbies.take(6))
+                    DsChip(label: hobby, small: true),
+                  if (localizedHobbies.length > 6)
+                    DsChip(
+                      label: _showFullHobbies ? t.less : t.more,
+                      small: true,
+                      selected: true,
+                      onTap: () => setState(() => _showFullHobbies = !_showFullHobbies),
+                    ),
+                ],
+              ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  /// Заглушка, коли фото ще немає.
+  Widget _buildNoPhotosPlaceholder() {
+    return GestureDetector(
+      onTap: _openEditProfile,
+      child: DsPhotoBlock(
+        radius: 0,
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(Icons.add_a_photo, size: 50, color: Theme.of(context).colorScheme.onSurfaceVariant),
-            const SizedBox(height: 10),
+            Icon(
+              Icons.add_a_photo_outlined,
+              size: 44,
+              color: Theme.of(context).colorScheme.onSurfaceVariant,
+            ),
+            const SizedBox(height: 12),
             Text(
               AppLocalizations.of(context)!.no_photos_tap_to_add,
               textAlign: TextAlign.center,
-              style: TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.bold,
-                color: Theme.of(context).colorScheme.onSurfaceVariant,
-              ),
+              style: Ds.sub(context),
             ),
           ],
         ),
@@ -236,269 +381,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
     );
   }
 
-  // 🟢 НОВЕ: Слайдер фото (винесено в окремий метод)
-  Widget _buildPhotosPageView() {
-    return Stack(
-      children: [
-        PageView.builder(
-          controller: _photoController,
-          onPageChanged: (index) => setState(() => _currentPhotoIndex = index),
-          physics: const BouncingScrollPhysics(),
-          itemCount: userPhotos.length,
-          itemBuilder: (context, index) {
-            return Container(
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(20),
-                image: DecorationImage(
-                  image: NetworkImage(userPhotos[index]), // 🟢 Використовуємо інтернет-фото
-                  fit: BoxFit.cover,
-                ),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withOpacity(0.2),
-                    blurRadius: 20,
-                    offset: const Offset(0, 10),
-                  ),
-                ],
-              ),
-              child: Container(
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(20),
-                  gradient: LinearGradient(
-                    begin: Alignment.topCenter,
-                    end: Alignment.bottomCenter,
-                    colors: [Colors.transparent, Colors.transparent, Colors.black.withOpacity(0.7)],
-                  ),
-                ),
-                child: Padding(
-                  padding: const EdgeInsets.all(20),
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.end,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        '$userName $userAge',
-                        style: TextStyle(
-                          color: Theme.of(context).colorScheme.onSurface,
-                          fontSize: 28,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      const SizedBox(height: 8),
-                      Text(
-                        (userLocation ?? AppLocalizations.of(context)!.default_country),
-                        style: TextStyle(
-                          color: Theme.of(context).colorScheme.onSurface,
-                          fontSize: 18,
-                          fontWeight: FontWeight.w500,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            );
-          },
-        ),
-        // Індикатори фото
-        if (userPhotos.length > 1)
-          Positioned(
-            bottom: 80,
-            left: 0,
-            right: 0,
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: List.generate(
-                userPhotos.length,
-                (index) => AnimatedContainer(
-                  duration: const Duration(milliseconds: 300),
-                  curve: Curves.easeInOut,
-                  width: _currentPhotoIndex == index ? 12 : 8,
-                  height: 8,
-                  margin: const EdgeInsets.symmetric(horizontal: 4),
-                  decoration: BoxDecoration(
-                    color: _currentPhotoIndex == index ? Colors.white : Colors.white.withOpacity(0.5),
-                    shape: BoxShape.circle,
-                  ),
-                ),
-              ),
-            ),
-          ),
-      ],
-    );
-  }
-
-  Widget _buildAboutMeSection() {
-    final displayText = _showFullAboutMe 
-        ? (aboutMe ?? AppLocalizations.of(context)!.loading_info) 
-        : (aboutMe ?? AppLocalizations.of(context)!.loading_info).length > 100 
-            ? '${(aboutMe ?? AppLocalizations.of(context)!.loading_info).substring(0, 100)}...' 
-            : (aboutMe ?? AppLocalizations.of(context)!.loading_info);
-    
-    return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 20),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            AppLocalizations.of(context)!.about_me,
-            style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Theme.of(context).colorScheme.onSurface),
-          ),
-          const SizedBox(height: 12),
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Expanded(
-                child: Text(
-                  displayText,
-                  style: TextStyle(fontSize: 16, color: Theme.of(context).colorScheme.onSurface, height: 1.5),
-                ),
-              ),
-              if ((aboutMe ?? AppLocalizations.of(context)!.loading_info).length > 100) ...[
-                const SizedBox(width: 12),
-                GestureDetector(
-                  onTap: () {
-                    setState(() {
-                      _showFullAboutMe = !_showFullAboutMe;
-                    });
-                  },
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                    decoration: BoxDecoration(
-                      color: Theme.of(context).colorScheme.primaryContainer,
-                      borderRadius: BorderRadius.circular(20),
-                    ),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Text(
-                          _showFullAboutMe 
-                            ? AppLocalizations.of(context)!.less
-                            : AppLocalizations.of(context)!.more,
-                          style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500, color: Theme.of(context).colorScheme.onSurface),
-                        ),
-                        const SizedBox(width: 4),
-                        Icon(
-                          _showFullAboutMe ? Icons.keyboard_arrow_up : Icons.arrow_forward,
-                          size: 16, color: Theme.of(context).colorScheme.onSurface,
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              ],
-            ],
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildHobbiesSection() {
-    final localizedHobbies = _getLocalizedHobbies(hobbies, context);
-    final displayHobbies = _showFullHobbies 
-        ? localizedHobbies 
-        : localizedHobbies.take(3).toList();
-    
-    return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 20),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            AppLocalizations.of(context)!.hobbies,
-            style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Theme.of(context).colorScheme.onSurface),
-          ),
-          const SizedBox(height: 12),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Wrap(
-                spacing: 8,
-                runSpacing: 8,
-                children: displayHobbies.map((hobby) => _buildHobbyTag(hobby)).toList(),
-              ),
-              if (localizedHobbies.length > 3) ...[
-                const SizedBox(height: 12),
-                GestureDetector(
-                  onTap: () {
-                    setState(() {
-                      _showFullHobbies = !_showFullHobbies;
-                    });
-                  },
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                    decoration: BoxDecoration(
-                      color: Theme.of(context).colorScheme.primaryContainer,
-                      borderRadius: BorderRadius.circular(20),
-                    ),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Text(
-                          _showFullHobbies 
-                            ? AppLocalizations.of(context)!.less
-                            : AppLocalizations.of(context)!.more,
-                          style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500, color: Theme.of(context).colorScheme.onSurface),
-                        ),
-                        const SizedBox(width: 4),
-                        Icon(
-                          _showFullHobbies ? Icons.keyboard_arrow_up : Icons.arrow_forward,
-                          size: 16, color: Theme.of(context).colorScheme.onSurface,
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              ],
-            ],
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildHobbyTag(String hobby) {
-    String iconPath;
-    switch (hobby) {
-      case 'Геймінг': iconPath = 'assets/icons/joystick.png'; break;
-      case 'Настільні ігри': iconPath = 'assets/icons/board-game.png'; break;
-      case 'Музика Lo-Fi': iconPath = 'assets/icons/music.png'; break;
-      case 'Похід з наметом': iconPath = 'assets/icons/tent.png'; break;
-      case 'Фентезі книги': iconPath = 'assets/icons/book.png'; break;
-      case 'Фотографія': iconPath = 'assets/icons/picture.png'; break;
-      case 'Подорожі': iconPath = 'assets/icons/heart-2.png'; break;
-      case 'Кулінарія': iconPath = 'assets/icons/heart-2.png'; break;
-      case 'Спорт': iconPath = 'assets/icons/heart-2.png'; break;
-      case 'Читання': iconPath = 'assets/icons/book.png'; break;
-      case 'Музика': iconPath = 'assets/icons/music.png'; break;
-      case 'Танці': iconPath = 'assets/icons/heart-2.png'; break;
-      default: iconPath = 'assets/icons/heart-2.png';
-    }
-
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
-      decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.surfaceContainerHighest,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: Theme.of(context).colorScheme.outlineVariant),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Image.asset(iconPath, width: 14, height: 14),
-          const SizedBox(width: 4),
-          Flexible(
-            child: Text(
-              hobby,
-              style: TextStyle(fontSize: 12, fontWeight: FontWeight.w500, color: Theme.of(context).colorScheme.onSurface),
-              overflow: TextOverflow.ellipsis,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
 
   void _openEditProfile() async {
     final profileData = {

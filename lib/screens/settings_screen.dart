@@ -1,5 +1,6 @@
-import '../theme/app_theme.dart';
 import 'package:flutter/material.dart';
+
+import '../theme/design_kit.dart';
 import 'package:provider/provider.dart';
 import '../providers/locale_provider.dart';
 import '../providers/theme_provider.dart';
@@ -19,89 +20,36 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
   // Стан налаштувань (тимчасові локальні змінні)
   bool _notificationsEnabled = true;
-  bool _darkModeEnabled = false;
   bool _locationEnabled = true;
 
   @override
   Widget build(BuildContext context) {
     return Consumer<LocaleProvider>(
       builder: (context, localeProvider, child) {
-        return Scaffold(
-          body: Container(
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                begin: Alignment.bottomCenter,
-                end: Alignment.topCenter,
-                colors: AppTheme.backgroundGradient(context),
-              ),
-            ),
-            child: SafeArea(
-              child: Column(
-                children: [
-                  _buildTopBar(),
-                  Expanded(
-                    child: SingleChildScrollView(
-                      padding: const EdgeInsets.all(20),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          _buildLanguageSection(),
-                          const SizedBox(height: 24),
-
-                          _buildAppearanceSection(),
-                          const SizedBox(height: 24),
-                          
-                          _buildNotificationsSection(),
-                          const SizedBox(height: 24),
-                          
-                          _buildPrivacySection(),
-                          const SizedBox(height: 24),
-                          
-                          // ВИДАЛЕНО: Секція параметрів пошуку (_buildPreferencesSection)
-                          
-                          _buildAccountSection(), // Тут кнопка виходу
-                          const SizedBox(height: 40),
-                        ],
-                      ),
-                    ),
-                  ),
-                ],
-              ),
+        return DsScreen(
+          top: DsTopBar(
+            onBack: () => Navigator.of(context).pop(),
+            title: AppLocalizations.of(context)!.settings,
+          ),
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.fromLTRB(20, 4, 20, 40),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                _buildLanguageSection(),
+                const SizedBox(height: 18),
+                _buildAppearanceSection(),
+                const SizedBox(height: 18),
+                _buildNotificationsSection(),
+                const SizedBox(height: 18),
+                _buildPrivacySection(),
+                const SizedBox(height: 18),
+                _buildAccountSection(), // Тут кнопка виходу
+              ],
             ),
           ),
         );
       },
-    );
-  }
-
-  Widget _buildTopBar() {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
-      child: Row(
-        children: [
-          GestureDetector(
-            onTap: () => Navigator.of(context).pop(),
-            child: Container(
-              padding: const EdgeInsets.all(8),
-              decoration: BoxDecoration(
-                color: Theme.of(context).colorScheme.surface.withValues(alpha: 0.85),
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: Icon(Icons.arrow_back,
-                  color: Theme.of(context).colorScheme.onSurface),
-            ),
-          ),
-          const SizedBox(width: 16),
-          Text(
-            AppLocalizations.of(context)!.settings,
-            style: TextStyle(
-              fontSize: 20,
-              fontWeight: FontWeight.bold,
-              color: Theme.of(context).colorScheme.onSurface,
-            ),
-          ),
-        ],
-      ),
     );
   }
 
@@ -183,11 +131,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
     final t = AppLocalizations.of(context)!;
     final provider = context.watch<LocaleProvider>();
 
-    return _buildSectionCard(
+    return DsSection(
       title: t.language,
-      icon: Icons.language,
-      child: Column(
-        children: [
+      rows: [
           _buildChoiceTile(
             label: t.language_system,
             // Показуємо, яку саме мову дав телефон, інакше «як у телефоні»
@@ -204,7 +150,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
             selected: provider.followSystem,
             onTap: provider.useSystemLanguage,
           ),
-          const Divider(height: 1),
           ...LocaleProvider.languageCodes.map((code) {
             return _buildChoiceTile(
               label: LocaleProvider.getLanguageName(code),
@@ -213,8 +158,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
               onTap: () => provider.changeLanguageByCode(code),
             );
           }),
-        ],
-      ),
+      ],
     );
   }
 
@@ -230,22 +174,17 @@ class _SettingsScreenState extends State<SettingsScreen> {
       (ThemeMode.dark, t.theme_dark, Icons.dark_mode),
     ];
 
-    return _buildSectionCard(
+    return DsSection(
       title: t.appearance,
-      icon: Icons.palette_outlined,
-      child: Column(
-        children: [
-          for (final (mode, label, icon) in options) ...[
-            _buildChoiceTile(
-              label: label,
-              leading: icon,
-              selected: provider.mode == mode,
-              onTap: () => provider.setMode(mode),
-            ),
-            if (mode != options.last.$1) const Divider(height: 1),
-          ],
-        ],
-      ),
+      rows: [
+        for (final (mode, label, icon) in options)
+          _buildChoiceTile(
+            label: label,
+            leading: icon,
+            selected: provider.mode == mode,
+            onTap: () => provider.setMode(mode),
+          ),
+      ],
     );
   }
 
@@ -256,25 +195,11 @@ class _SettingsScreenState extends State<SettingsScreen> {
     IconData? leading,
     String? trailing,
   }) {
-    final scheme = Theme.of(context).colorScheme;
-    return ListTile(
-      contentPadding: EdgeInsets.zero,
-      leading: leading == null
-          ? null
-          : Icon(leading,
-              color: selected ? scheme.primary : scheme.onSurfaceVariant),
-      title: Text(
-        label,
-        style: TextStyle(
-          fontSize: 16,
-          fontWeight: selected ? FontWeight.w600 : FontWeight.normal,
-          color: selected ? scheme.primary : scheme.onSurface,
-        ),
-      ),
-      subtitle: trailing == null
-          ? null
-          : Text(trailing, style: TextStyle(color: scheme.onSurfaceVariant)),
-      trailing: selected ? Icon(Icons.check, color: scheme.primary) : null,
+    return DsRow(
+      label: label,
+      subtitle: trailing,
+      icon: leading,
+      selected: selected,
       onTap: onTap,
     );
   }
@@ -282,11 +207,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
   // --- СЕКЦІЯ АКАУНТА (З ВИХОДОМ) ---
   Widget _buildAccountSection() {
     final t = AppLocalizations.of(context)!;
-    return _buildSectionCard(
+    return DsSection(
       title: AppLocalizations.of(context)!.account,
-      icon: Icons.account_circle,
-      child: Column(
-        children: [
+      rows: [
           _buildListTile(
             title: AppLocalizations.of(context)!.change_password,
             subtitle: AppLocalizations.of(context)!.st_update_password,
@@ -314,9 +237,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
             onTap: _showDeleteAccountDialog, // 👇 ДОДАНО
             isDestructive: true,
           ),
-          
-        ],
-      ),
+      ],
     );
   }
 // --- ЛОГІКА ВИДАЛЕННЯ АКАУНТА ---
@@ -397,71 +318,48 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
   // --- ДОПОМІЖНІ ВІДЖЕТИ (ШАБЛОНИ) ---
 
-  Widget _buildSectionCard({required String title, required IconData icon, required Widget child}) {
-    return Container(
-      margin: const EdgeInsets.only(bottom: 16),
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.surface,
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(
-                alpha: Theme.of(context).brightness == Brightness.dark ? 0.30 : 0.05),
-            blurRadius: 10,
-          )
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(children: [
-            Icon(icon, color: Theme.of(context).colorScheme.primary),
-            const SizedBox(width: 12),
-            Text(title,
-                style: TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                    color: Theme.of(context).colorScheme.onSurface)),
-          ]),
-          const SizedBox(height: 16),
-          child,
-        ],
-      ),
-    );
-  }
-
-  Widget _buildListTile({required String title, required String subtitle, required IconData icon, required VoidCallback onTap, bool isDestructive = false}) {
-    return ListTile(
-      leading: Icon(icon,
-          color: isDestructive
-              ? Theme.of(context).colorScheme.error
-              : Theme.of(context).colorScheme.onSurfaceVariant),
-      title: Text(title,
-          style: TextStyle(
-              color: isDestructive
-                  ? Theme.of(context).colorScheme.error
-                  : Theme.of(context).colorScheme.onSurface,
-              fontWeight: FontWeight.w500)),
-      subtitle: Text(subtitle,
-          style: TextStyle(
-              color: isDestructive
-                  ? Theme.of(context).colorScheme.error.withValues(alpha: 0.7)
-                  : Theme.of(context).colorScheme.onSurfaceVariant)),
-      trailing: const Icon(Icons.arrow_forward_ios, size: 14),
+  Widget _buildListTile({
+    required String title,
+    required String subtitle,
+    required IconData icon,
+    required VoidCallback onTap,
+    bool isDestructive = false,
+  }) {
+    return DsRow(
+      label: title,
+      subtitle: subtitle,
+      icon: icon,
       onTap: onTap,
-      contentPadding: EdgeInsets.zero,
+      destructive: isDestructive,
     );
   }
 
   // Інші секції
-  Widget _buildNotificationsSection() => _buildSectionCard(
-      title: AppLocalizations.of(context)!.notifications,
-      icon: Icons.notifications,
-      child: Text(AppLocalizations.of(context)!.notification_settings));
+  Widget _buildNotificationsSection() => DsSection(
+        title: AppLocalizations.of(context)!.notifications,
+        rows: [
+          DsRow(
+            label: AppLocalizations.of(context)!.notification_settings,
+            icon: Icons.notifications_outlined,
+            trailing: Switch(
+              value: _notificationsEnabled,
+              onChanged: (v) => setState(() => _notificationsEnabled = v),
+            ),
+          ),
+        ],
+      );
 
-  Widget _buildPrivacySection() => _buildSectionCard(
-      title: AppLocalizations.of(context)!.privacy,
-      icon: Icons.privacy_tip,
-      child: Text(AppLocalizations.of(context)!.privacy_settings));
+  Widget _buildPrivacySection() => DsSection(
+        title: AppLocalizations.of(context)!.privacy,
+        rows: [
+          DsRow(
+            label: AppLocalizations.of(context)!.privacy_settings,
+            icon: Icons.shield_outlined,
+            trailing: Switch(
+              value: _locationEnabled,
+              onChanged: (v) => setState(() => _locationEnabled = v),
+            ),
+          ),
+        ],
+      );
 }

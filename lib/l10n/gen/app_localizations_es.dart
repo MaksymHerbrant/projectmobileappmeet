@@ -1660,4 +1660,13 @@ class AppLocalizationsEs extends AppLocalizations {
   String seats_of(int taken, int total) {
     return '$taken de $total plazas';
   }
+
+  @override
+  String get online_now => 'En línea ahora';
+
+  @override
+  String get profile_add_about => 'Cuenta algo sobre ti →';
+
+  @override
+  String get profile_add_interests => 'Añadir intereses →';
 }
