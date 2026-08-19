@@ -51,12 +51,12 @@ class _MessageDialogState extends State<MessageDialog> {
                 Container(
                   padding: const EdgeInsets.all(12),
                   decoration: BoxDecoration(
-                    color: const Color(0xFFE91E63).withOpacity(0.1),
+                    color: Theme.of(context).colorScheme.primary.withOpacity(0.1),
                     borderRadius: BorderRadius.circular(12),
                   ),
-                  child: const Icon(
+                  child: Icon(
                     Icons.favorite,
-                    color: Color(0xFFE91E63),
+                    color: Theme.of(context).colorScheme.primary,
                     size: 24,
                   ),
                 ),
@@ -116,7 +116,7 @@ class _MessageDialogState extends State<MessageDialog> {
                 ),
                 focusedBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(12),
-                  borderSide: const BorderSide(color: Color(0xFFE91E63)),
+                  borderSide: BorderSide(color: Theme.of(context).colorScheme.primary),
                 ),
                 filled: true,
                 fillColor: Theme.of(context).colorScheme.surface,
@@ -139,7 +139,7 @@ class _MessageDialogState extends State<MessageDialog> {
                 Expanded(
                   child: _buildButton(
                     text: _isLoading ? AppLocalizations.of(context)!.md_sending : AppLocalizations.of(context)!.send,
-                    color: const Color(0xFFE91E63),
+                    color: Theme.of(context).colorScheme.primary,
                     onTap: _isLoading ? null : _handleSend,
                   ),
                 ),

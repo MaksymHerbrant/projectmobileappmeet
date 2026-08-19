@@ -168,10 +168,13 @@ class _EventLikesScreenState extends State<EventLikesScreen> {
           // Заголовок події (Кольорова шапка)
           Container(
             padding: const EdgeInsets.all(16),
-            decoration: const BoxDecoration(
-              borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+            decoration: BoxDecoration(
+              borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
               gradient: LinearGradient(
-                colors: [Color(0xFFE91E63), Color(0xFF9C27B0)],
+                colors: [
+                  Theme.of(context).colorScheme.primary,
+                  Theme.of(context).colorScheme.primaryContainer,
+                ],
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
               ),
@@ -332,14 +335,14 @@ class _EventLikesScreenState extends State<EventLikesScreen> {
             children: [
               _buildActionButton(
                 icon: Icons.check,
-                color: const Color(0xFF4CAF50),
+                color: Theme.of(context).extension<AppSemantics>()!.success,
                 onTap: () => _handleAccept(user, eventId),
                 label: AppLocalizations.of(context)!.accept,
               ),
               const SizedBox(height: 8),
               _buildActionButton(
                 icon: Icons.close,
-                color: Colors.red,
+                color: Theme.of(context).colorScheme.error,
                 onTap: () => _handleReject(user, eventId),
                 label: AppLocalizations.of(context)!.decline,
               ),
@@ -395,10 +398,10 @@ class _EventLikesScreenState extends State<EventLikesScreen> {
                 color: Theme.of(context).colorScheme.surface.withOpacity(0.8),
                 borderRadius: BorderRadius.circular(50),
               ),
-              child: const Icon(
+              child: Icon(
                 Icons.event,
                 size: 48,
-                color: Color(0xFFE91E63),
+                color: Theme.of(context).colorScheme.primary,
               ),
             ),
             const SizedBox(height: 24),
@@ -428,7 +431,7 @@ class _EventLikesScreenState extends State<EventLikesScreen> {
                 _loadData(); // Оновити після повернення
               },
               style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFFE91E63),
+                backgroundColor: Theme.of(context).colorScheme.primary,
                 padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(12),
@@ -463,7 +466,7 @@ class _EventLikesScreenState extends State<EventLikesScreen> {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(AppLocalizations.of(context)!.user_accepted(user.name)),
-        backgroundColor: const Color(0xFF4CAF50),
+        backgroundColor: Theme.of(context).extension<AppSemantics>()!.success,
       ),
     );
   }
@@ -478,7 +481,7 @@ class _EventLikesScreenState extends State<EventLikesScreen> {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(AppLocalizations.of(context)!.user_declined(user.name)),
-        backgroundColor: Colors.red,
+        backgroundColor: Theme.of(context).colorScheme.error,
       ),
     );
   }

@@ -1,3 +1,4 @@
+import '../theme/app_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:dating_app/l10n/gen/app_localizations.dart';
 import 'package:intl/intl.dart';
@@ -298,14 +299,14 @@ class _AcceptedEventDetailScreenState extends State<AcceptedEventDetailScreen>
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         gradient: LinearGradient(
-          colors: [Colors.green.shade400, Colors.green.shade600],
+          colors: [Theme.of(context).extension<AppSemantics>()!.success, Theme.of(context).extension<AppSemantics>()!.success],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
-            color: Colors.green.withOpacity(0.3),
+            color: Theme.of(context).extension<AppSemantics>()!.success.withValues(alpha: 0.3),
             blurRadius: 12,
             offset: const Offset(0, 4),
           ),
@@ -384,27 +385,27 @@ class _AcceptedEventDetailScreenState extends State<AcceptedEventDetailScreen>
         Container(
           padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
-            color: Colors.blue.shade50,
+            color: Theme.of(context).colorScheme.primary,
             borderRadius: BorderRadius.circular(12),
-            border: Border.all(color: Colors.blue.shade200),
+            border: Border.all(color: Theme.of(context).colorScheme.primary),
           ),
           child: Row(
             children: [
-              Icon(Icons.people, color: Colors.blue.shade600, size: 20),
+              Icon(Icons.people, color: Theme.of(context).colorScheme.primary, size: 20),
               const SizedBox(width: 12),
               Text(
                 AppLocalizations.of(context)!.ae_participants_of(_participants.length, widget.event.participantsCount),
                 style: TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.w600,
-                  color: Colors.blue.shade700,
+                  color: Theme.of(context).colorScheme.primary,
                 ),
               ),
               const Spacer(),
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                 decoration: BoxDecoration(
-                  color: Colors.blue.shade100,
+                  color: Theme.of(context).colorScheme.primary,
                   borderRadius: BorderRadius.circular(20),
                 ),
                 child: Text(
@@ -412,7 +413,7 @@ class _AcceptedEventDetailScreenState extends State<AcceptedEventDetailScreen>
                   style: TextStyle(
                     fontSize: 12,
                     fontWeight: FontWeight.bold,
-                    color: Colors.blue.shade700,
+                    color: Theme.of(context).colorScheme.primary,
                   ),
                 ),
               ),
@@ -434,22 +435,22 @@ class _AcceptedEventDetailScreenState extends State<AcceptedEventDetailScreen>
               child: Container(
                 padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
-                  color: Colors.purple.shade50,
+                  color: Theme.of(context).colorScheme.primary,
                   borderRadius: BorderRadius.circular(16),
-                  border: Border.all(color: Colors.purple.shade200),
+                  border: Border.all(color: Theme.of(context).colorScheme.primary),
                 ),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Row(
                       children: [
-                        Icon(Icons.calendar_today, color: Colors.purple.shade600, size: 16),
+                        Icon(Icons.calendar_today, color: Theme.of(context).colorScheme.primary, size: 16),
                         const SizedBox(width: 8),
                         Text(
                           AppLocalizations.of(context)!.ev_date,
                           style: TextStyle(
                             fontSize: 12,
-                            color: Colors.purple.shade600,
+                            color: Theme.of(context).colorScheme.primary,
                             fontWeight: FontWeight.w600,
                           ),
                         ),
@@ -480,22 +481,22 @@ class _AcceptedEventDetailScreenState extends State<AcceptedEventDetailScreen>
               child: Container(
                 padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
-                  color: Colors.orange.shade50,
+                  color: Theme.of(context).extension<AppSemantics>()!.warning,
                   borderRadius: BorderRadius.circular(16),
-                  border: Border.all(color: Colors.orange.shade200),
+                  border: Border.all(color: Theme.of(context).extension<AppSemantics>()!.warning),
                 ),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Row(
                       children: [
-                        Icon(Icons.access_time, color: Colors.orange.shade600, size: 16),
+                        Icon(Icons.access_time, color: Theme.of(context).extension<AppSemantics>()!.warning, size: 16),
                         const SizedBox(width: 8),
                         Text(
                           AppLocalizations.of(context)!.ev_time,
                           style: TextStyle(
                             fontSize: 12,
-                            color: Colors.orange.shade600,
+                            color: Theme.of(context).extension<AppSemantics>()!.warning,
                             fontWeight: FontWeight.w600,
                           ),
                         ),
@@ -604,13 +605,13 @@ class _AcceptedEventDetailScreenState extends State<AcceptedEventDetailScreen>
                 Container(
                   padding: const EdgeInsets.all(8),
                   decoration: BoxDecoration(
-                    color: Colors.blue.shade100,
+                    color: Theme.of(context).colorScheme.primary,
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: Icon(
                     Icons.arrow_forward_ios,
                     size: 16,
-                    color: Colors.blue.shade600,
+                    color: Theme.of(context).colorScheme.primary,
                   ),
                 ),
               ],
@@ -629,9 +630,9 @@ class _AcceptedEventDetailScreenState extends State<AcceptedEventDetailScreen>
         Container(
           padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
-            color: Colors.blue.shade50,
+            color: Theme.of(context).colorScheme.primary,
             borderRadius: BorderRadius.circular(16),
-            border: Border.all(color: Colors.blue.shade200),
+            border: Border.all(color: Theme.of(context).colorScheme.primary),
           ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -648,7 +649,7 @@ class _AcceptedEventDetailScreenState extends State<AcceptedEventDetailScreen>
                     style: TextStyle(
                       fontSize: 14,
                       fontWeight: FontWeight.w600,
-                      color: Colors.blue.shade700,
+                      color: Theme.of(context).colorScheme.primary,
                     ),
                   ),
                 ],
@@ -673,18 +674,18 @@ class _AcceptedEventDetailScreenState extends State<AcceptedEventDetailScreen>
     return _buildSection(
       title: AppLocalizations.of(context)!.ev_private_info,
       icon: Icons.lock_outline,
-      color: Colors.purple.shade50,
+      color: Theme.of(context).colorScheme.primary,
       children: [
         Container(
           padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
-            color: Colors.purple.shade100,
+            color: Theme.of(context).colorScheme.primary,
             borderRadius: BorderRadius.circular(12),
-            border: Border.all(color: Colors.purple.shade300),
+            border: Border.all(color: Theme.of(context).colorScheme.primary),
           ),
           child: Row(
             children: [
-              Icon(Icons.security, color: Colors.purple.shade600, size: 20),
+              Icon(Icons.security, color: Theme.of(context).colorScheme.primary, size: 20),
               const SizedBox(width: 12),
               Expanded(
                 child: Text(
@@ -692,7 +693,7 @@ class _AcceptedEventDetailScreenState extends State<AcceptedEventDetailScreen>
                   style: TextStyle(
                     fontSize: 14,
                     fontWeight: FontWeight.w600,
-                    color: Colors.purple.shade700,
+                    color: Theme.of(context).colorScheme.primary,
                   ),
                 ),
               ),
@@ -705,7 +706,7 @@ class _AcceptedEventDetailScreenState extends State<AcceptedEventDetailScreen>
             icon: Icons.home,
             title: AppLocalizations.of(context)!.ev_exact_address,
             content: widget.event.privateLocation!,
-            color: Colors.red,
+            color: Theme.of(context).colorScheme.error,
           ),
         if (widget.event.meetingPoint?.isNotEmpty ?? false) ...[
           const SizedBox(height: 12),
@@ -713,7 +714,7 @@ class _AcceptedEventDetailScreenState extends State<AcceptedEventDetailScreen>
             icon: Icons.meeting_room,
             title: AppLocalizations.of(context)!.ev_meeting_point,
             content: widget.event.meetingPoint!,
-            color: Colors.blue,
+            color: Theme.of(context).colorScheme.primary,
           ),
         ],
         if (widget.event.additionalInfo?.isNotEmpty ?? false) ...[
@@ -722,7 +723,7 @@ class _AcceptedEventDetailScreenState extends State<AcceptedEventDetailScreen>
             icon: Icons.info,
             title: AppLocalizations.of(context)!.ev_extra_info,
             content: widget.event.additionalInfo!,
-            color: Colors.green,
+            color: Theme.of(context).extension<AppSemantics>()!.success,
           ),
         ],
       ],
@@ -843,13 +844,13 @@ class _AcceptedEventDetailScreenState extends State<AcceptedEventDetailScreen>
                     Container(
                       padding: const EdgeInsets.all(8),
                       decoration: BoxDecoration(
-                        color: Colors.green.shade100,
+                        color: Theme.of(context).extension<AppSemantics>()!.success,
                         borderRadius: BorderRadius.circular(12),
                       ),
                       child: Icon(
                         Icons.check_circle,
                         size: 16,
-                        color: Colors.green.shade600,
+                        color: Theme.of(context).extension<AppSemantics>()!.success,
                       ),
                     ),
                   ],
@@ -875,17 +876,17 @@ class _AcceptedEventDetailScreenState extends State<AcceptedEventDetailScreen>
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
               decoration: BoxDecoration(
                 gradient: LinearGradient(
-                  colors: [Colors.blue.shade100, Colors.blue.shade200],
+                  colors: [Theme.of(context).colorScheme.primary, Theme.of(context).colorScheme.primary],
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,
                 ),
                 borderRadius: BorderRadius.circular(20),
-                border: Border.all(color: Colors.blue.shade300),
+                border: Border.all(color: Theme.of(context).colorScheme.primary),
               ),
               child: Text(
                 tag,
                 style: TextStyle(
-                  color: Colors.blue.shade700,
+                  color: Theme.of(context).colorScheme.primary,
                   fontWeight: FontWeight.w600,
                   fontSize: 14,
                 ),
@@ -909,7 +910,7 @@ class _AcceptedEventDetailScreenState extends State<AcceptedEventDetailScreen>
               child: _buildActionButton(
                 icon: Icons.chat_bubble_outline,
                 label: AppLocalizations.of(context)!.ae_event_chat,
-                color: Colors.blue,
+                color: Theme.of(context).colorScheme.primary,
                 onTap: _openEventChat,
               ),
             ),
@@ -918,7 +919,7 @@ class _AcceptedEventDetailScreenState extends State<AcceptedEventDetailScreen>
               child: _buildActionButton(
                 icon: Icons.directions,
                 label: AppLocalizations.of(context)!.ae_route,
-                color: Colors.green,
+                color: Theme.of(context).extension<AppSemantics>()!.success,
                 onTap: _openDirections,
               ),
             ),
@@ -931,7 +932,7 @@ class _AcceptedEventDetailScreenState extends State<AcceptedEventDetailScreen>
             child: _buildActionButton(
               icon: Icons.notifications_active,
               label: AppLocalizations.of(context)!.ae_remind,
-              color: Colors.orange,
+              color: Theme.of(context).extension<AppSemantics>()!.warning,
               onTap: _setReminder,
             ),
           )
@@ -941,7 +942,7 @@ class _AcceptedEventDetailScreenState extends State<AcceptedEventDetailScreen>
             child: _buildActionButton(
               icon: Icons.rate_review,
               label: AppLocalizations.of(context)!.ae_leave_review,
-              color: Colors.purple,
+              color: Theme.of(context).colorScheme.primary,
               onTap: _leaveReview,
             ),
           ),
@@ -1011,12 +1012,12 @@ class _AcceptedEventDetailScreenState extends State<AcceptedEventDetailScreen>
               Container(
                 padding: const EdgeInsets.all(8),
                 decoration: BoxDecoration(
-                  color: Colors.purple.shade100,
+                  color: Theme.of(context).colorScheme.primary,
                   borderRadius: BorderRadius.circular(10),
                 ),
                 child: Icon(
                   icon,
-                  color: Colors.purple.shade600,
+                  color: Theme.of(context).colorScheme.primary,
                   size: 20,
                 ),
               ),
@@ -1066,7 +1067,7 @@ class _AcceptedEventDetailScreenState extends State<AcceptedEventDetailScreen>
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(AppLocalizations.of(context)!.ae_sharing(widget.event.title)),
-        backgroundColor: Colors.blue.shade600,
+        backgroundColor: Theme.of(context).colorScheme.primary,
         behavior: SnackBarBehavior.floating,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
       ),
@@ -1093,7 +1094,7 @@ class _AcceptedEventDetailScreenState extends State<AcceptedEventDetailScreen>
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(AppLocalizations.of(context)!.ae_opening_chat(widget.event.title)),
-        backgroundColor: Colors.blue.shade600,
+        backgroundColor: Theme.of(context).colorScheme.primary,
         behavior: SnackBarBehavior.floating,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
       ),
@@ -1111,7 +1112,7 @@ class _AcceptedEventDetailScreenState extends State<AcceptedEventDetailScreen>
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(AppLocalizations.of(context)!.ae_opening_route(widget.event.location)),
-        backgroundColor: Colors.green.shade600,
+        backgroundColor: Theme.of(context).extension<AppSemantics>()!.success,
         behavior: SnackBarBehavior.floating,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
       ),
@@ -1122,7 +1123,7 @@ class _AcceptedEventDetailScreenState extends State<AcceptedEventDetailScreen>
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(AppLocalizations.of(context)!.ae_reminder_set),
-        backgroundColor: Colors.orange.shade600,
+        backgroundColor: Theme.of(context).extension<AppSemantics>()!.warning,
         behavior: SnackBarBehavior.floating,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
       ),
@@ -1147,7 +1148,7 @@ class _AcceptedEventDetailScreenState extends State<AcceptedEventDetailScreen>
                 ScaffoldMessenger.of(context).showSnackBar(
                   SnackBar(
                     content: Text(AppLocalizations.of(context)!.ae_thanks_review),
-                    backgroundColor: Colors.purple.shade600,
+                    backgroundColor: Theme.of(context).colorScheme.primary,
                     behavior: SnackBarBehavior.floating,
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
                   ),

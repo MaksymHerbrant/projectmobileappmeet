@@ -1,3 +1,4 @@
+import '../theme/app_theme.dart';
 import 'package:dating_app/l10n/gen/app_localizations.dart';
 import 'package:flutter/material.dart';
 import '../service/auth_service.dart';
@@ -79,7 +80,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
         
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text(AppLocalizations.of(context)!.password_changed), backgroundColor: Colors.green),
+            SnackBar(content: Text(AppLocalizations.of(context)!.password_changed), backgroundColor: Theme.of(context).extension<AppSemantics>()!.success),
           );
           // Повертаємось на екран входу
           Navigator.of(context).pushAndRemoveUntil(
@@ -93,7 +94,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(e.toString().replaceAll('Exception:', '').trim()), 
-            backgroundColor: Colors.red
+            backgroundColor: Theme.of(context).colorScheme.error
           ),
         );
       }
@@ -156,7 +157,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
             child: ElevatedButton(
               onPressed: _isLoading ? null : _handleNext,
               style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFF5C72FF),
+                backgroundColor: Theme.of(context).colorScheme.primary,
                 padding: const EdgeInsets.symmetric(vertical: 16),
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
               ),
@@ -202,7 +203,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                 alignment: Alignment.center,
                 decoration: BoxDecoration(
                   color: Theme.of(context).colorScheme.surfaceContainerHighest,
-                  border: Border.all(color: isFocused ? const Color(0xFF5C72FF) : Theme.of(context).colorScheme.outlineVariant, width: 2),
+                  border: Border.all(color: isFocused ? Theme.of(context).colorScheme.primary : Theme.of(context).colorScheme.outlineVariant, width: 2),
                   borderRadius: BorderRadius.circular(10),
                 ),
                 child: Text(char, style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold)),

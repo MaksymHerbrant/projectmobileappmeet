@@ -1,3 +1,4 @@
+import '../theme/app_theme.dart';
 import 'package:dating_app/l10n/gen/app_localizations.dart';
 import 'package:flutter/material.dart';
 import '../service/auth_service.dart';
@@ -49,7 +50,7 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
       
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(AppLocalizations.of(context)!.password_changed), backgroundColor: Colors.green),
+          SnackBar(content: Text(AppLocalizations.of(context)!.password_changed), backgroundColor: Theme.of(context).extension<AppSemantics>()!.success),
         );
         // 👇 ЗАКРИВАЄМО ЕКРАН (АВТОМАТИЧНИЙ РЕДИРЕКТ НАЗАД У SETTINGS)
         Navigator.pop(context);
@@ -59,7 +60,7 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(e.toString().replaceAll('Exception:', '').trim()), 
-            backgroundColor: Colors.red
+            backgroundColor: Theme.of(context).colorScheme.error
           ),
         );
       }
@@ -131,7 +132,7 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
                 child: ElevatedButton(
                   onPressed: _isLoading ? null : _handleChangePassword,
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF5C72FF),
+                    backgroundColor: Theme.of(context).colorScheme.primary,
                     padding: const EdgeInsets.symmetric(vertical: 16),
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                   ),

@@ -360,9 +360,9 @@ class LandingScreen extends StatelessWidget {
                                 },
                                 child: Text(
                                   AppLocalizations.of(context)!.enter,
-                                  style: const TextStyle(
+                                  style: TextStyle(
                                     fontSize: 14,
-                                    color: Color(0xFF4A90E2),
+                                    color: Theme.of(context).colorScheme.primary,
                                     fontWeight: FontWeight.w600,
                                   ),
                                 ),

@@ -445,7 +445,7 @@ class _EventsScreenState extends State<EventsScreen> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(_pendingMessage != null ? AppLocalizations.of(context)!.request_sent_msg : AppLocalizations.of(context)!.request_sent), 
-          backgroundColor: Colors.green,
+          backgroundColor: Theme.of(context).extension<AppSemantics>()!.success,
           duration: const Duration(seconds: 1),
         ),
       );
@@ -478,7 +478,7 @@ class _EventsScreenState extends State<EventsScreen> {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         children: [
-          _buildActionButton(Icons.close, Colors.red, () => controller.swipe(CardSwiperDirection.left), size: 65),
+          _buildActionButton(Icons.close, Theme.of(context).colorScheme.error, () => controller.swipe(CardSwiperDirection.left), size: 65),
           
           // 🟢 Кнопка ПОВІДОМЛЕННЯ
           _buildActionButton(
@@ -489,7 +489,7 @@ class _EventsScreenState extends State<EventsScreen> {
             size: 55,
           ),
           
-         _buildActionButton(Icons.favorite ,Colors.blue, () => controller.swipe(CardSwiperDirection.right), size: 65),
+         _buildActionButton(Icons.favorite ,Theme.of(context).colorScheme.primary, () => controller.swipe(CardSwiperDirection.right), size: 65),
         ],
       ),
     );

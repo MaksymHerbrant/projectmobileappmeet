@@ -259,7 +259,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
       if (mounted) {
         Navigator.of(context).pop(uiData);
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(AppLocalizations.of(context)!.pr_saved), backgroundColor: Colors.green),
+          SnackBar(content: Text(AppLocalizations.of(context)!.pr_saved), backgroundColor: Theme.of(context).extension<AppSemantics>()!.success),
         );
       }
     } catch (e) {
@@ -375,13 +375,13 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     return Stack(
       children: [
         Container(width: 100, height: 140, decoration: BoxDecoration(borderRadius: BorderRadius.circular(12), boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.1), blurRadius: 4, offset: const Offset(0, 2))]), child: ClipRRect(borderRadius: BorderRadius.circular(12), child: image)),
-        Positioned(top: 4, right: 4, child: GestureDetector(onTap: onRemove, child: Container(padding: const EdgeInsets.all(4), decoration: const BoxDecoration(color: Colors.red, shape: BoxShape.circle), child: const Icon(Icons.close, size: 14, color: Colors.white)))),
+        Positioned(top: 4, right: 4, child: GestureDetector(onTap: onRemove, child: Container(padding: const EdgeInsets.all(4), decoration: BoxDecoration(color: Theme.of(context).colorScheme.error, shape: BoxShape.circle), child: Icon(Icons.close, size: 14, color: Colors.white)))),
       ],
     );
   }
 
   Widget _buildNameSection() {
-    return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [Text(AppLocalizations.of(context)!.pr_name, style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600, color: Theme.of(context).colorScheme.onSurface)), const SizedBox(height: 8), Container(decoration: BoxDecoration(color: Theme.of(context).colorScheme.surface, borderRadius: BorderRadius.circular(16), boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 10, offset: const Offset(0, 2))]), child: TextField(controller: _nameController, decoration: InputDecoration(hintText: AppLocalizations.of(context)!.pr_enter_name, border: InputBorder.none, contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 16)), style: const TextStyle(fontSize: 16)))]);
+    return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [Text(AppLocalizations.of(context)!.pr_name, style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600, color: Theme.of(context).colorScheme.onSurface)), SizedBox(height: 8), Container(decoration: BoxDecoration(color: Theme.of(context).colorScheme.surface, borderRadius: BorderRadius.circular(16), boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 10, offset: Offset(0, 2))]), child: TextField(controller: _nameController, decoration: InputDecoration(hintText: AppLocalizations.of(context)!.pr_enter_name, border: InputBorder.none, contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 16)), style: TextStyle(fontSize: 16)))]);
   }
 
   Widget _buildLocationSection() {
@@ -394,7 +394,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
           children: [
             Expanded(
               child: Container(
-                decoration: BoxDecoration(color: Theme.of(context).colorScheme.surface, borderRadius: BorderRadius.circular(16), boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 10, offset: const Offset(0, 2))]),
+                decoration: BoxDecoration(color: Theme.of(context).colorScheme.surface, borderRadius: BorderRadius.circular(16), boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 10, offset: Offset(0, 2))]),
                 child: TextField(controller: _locationController, decoration: InputDecoration(hintText: AppLocalizations.of(context)!.pr_enter_city, border: InputBorder.none, contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 16)), style: const TextStyle(fontSize: 16)),
               ),
             ),
@@ -404,7 +404,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
               child: Container(
                 padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(
-                  color: _isLocating ? Colors.blue.shade200 : Colors.blue,
+                  color: _isLocating ? Theme.of(context).colorScheme.primary : Theme.of(context).colorScheme.primary,
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: _isLocating
@@ -424,11 +424,11 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
 
   Widget _buildBirthDateSection() {
     String dateText = _birthDate != null ? '${_birthDate!.day.toString().padLeft(2, '0')}.${_birthDate!.month.toString().padLeft(2, '0')}.${_birthDate!.year}' : AppLocalizations.of(context)!.pr_pick_birth;
-    return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [Text(AppLocalizations.of(context)!.pr_birth_date, style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600, color: Theme.of(context).colorScheme.onSurface)), const SizedBox(height: 8), GestureDetector(onTap: _selectDate, child: Container(width: double.infinity, padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16), decoration: BoxDecoration(color: Theme.of(context).colorScheme.surface, borderRadius: BorderRadius.circular(16), boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 10, offset: const Offset(0, 2))]), child: Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [Text(dateText, style: TextStyle(fontSize: 16, color: _birthDate != null ? Colors.black87 : Colors.grey[600])), const Icon(Icons.calendar_today, color: Colors.blue, size: 20)])))]);
+    return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [Text(AppLocalizations.of(context)!.pr_birth_date, style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600, color: Theme.of(context).colorScheme.onSurface)), SizedBox(height: 8), GestureDetector(onTap: _selectDate, child: Container(width: double.infinity, padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16), decoration: BoxDecoration(color: Theme.of(context).colorScheme.surface, borderRadius: BorderRadius.circular(16), boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 10, offset: Offset(0, 2))]), child: Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [Text(dateText, style: TextStyle(fontSize: 16, color: _birthDate != null ? Colors.black87 : Colors.grey[600])), Icon(Icons.calendar_today, color: Theme.of(context).colorScheme.primary, size: 20)])))]);
   }
 
   Widget _buildBioSection() {
-    return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [Text(AppLocalizations.of(context)!.pr_about, style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600, color: Theme.of(context).colorScheme.onSurface)), const SizedBox(height: 8), Container(decoration: BoxDecoration(color: Theme.of(context).colorScheme.surface, borderRadius: BorderRadius.circular(16), boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 10, offset: const Offset(0, 2))]), child: TextField(controller: _bioController, maxLines: 4, decoration: InputDecoration(hintText: AppLocalizations.of(context)!.pr_about_hint, border: InputBorder.none, contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 16)), style: const TextStyle(fontSize: 16)))]);
+    return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [Text(AppLocalizations.of(context)!.pr_about, style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600, color: Theme.of(context).colorScheme.onSurface)), SizedBox(height: 8), Container(decoration: BoxDecoration(color: Theme.of(context).colorScheme.surface, borderRadius: BorderRadius.circular(16), boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 10, offset: Offset(0, 2))]), child: TextField(controller: _bioController, maxLines: 4, decoration: InputDecoration(hintText: AppLocalizations.of(context)!.pr_about_hint, border: InputBorder.none, contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 16)), style: TextStyle(fontSize: 16)))]);
   }
 
   Widget _buildHobbiesSection() {
@@ -438,20 +438,20 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
         Text(AppLocalizations.of(context)!.pr_hobbies, style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600, color: Theme.of(context).colorScheme.onSurface)),
         const SizedBox(height: 8),
         Container(
-          decoration: BoxDecoration(color: Theme.of(context).colorScheme.surface, borderRadius: BorderRadius.circular(16), boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 10, offset: const Offset(0, 2))]),
+          decoration: BoxDecoration(color: Theme.of(context).colorScheme.surface, borderRadius: BorderRadius.circular(16), boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 10, offset: Offset(0, 2))]),
           child: Column(
             children: [
               if (_selectedHobbies.isNotEmpty) ...[
                 Padding(padding: const EdgeInsets.all(16), child: Wrap(spacing: 8, runSpacing: 8, children: _selectedHobbies.map((hobby) => _buildSelectedHobbyTag(hobby)).toList())),
                 const Divider(height: 1),
               ],
-              Padding(padding: const EdgeInsets.all(16), child: Container(decoration: BoxDecoration(color: Theme.of(context).colorScheme.surfaceContainerHighest, borderRadius: BorderRadius.circular(12), border: Border.all(color: Theme.of(context).colorScheme.outlineVariant)), child: TextField(controller: _hobbySearchController ??= TextEditingController(), onChanged: _filterHobbies, decoration: InputDecoration(hintText: AppLocalizations.of(context)!.pr_search_hobby, prefixIcon: Icon(Icons.search, color: Theme.of(context).colorScheme.onSurfaceVariant), border: InputBorder.none, contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 12)), style: const TextStyle(fontSize: 16)))),
+              Padding(padding: const EdgeInsets.all(16), child: Container(decoration: BoxDecoration(color: Theme.of(context).colorScheme.surfaceContainerHighest, borderRadius: BorderRadius.circular(12), border: Border.all(color: Theme.of(context).colorScheme.outlineVariant)), child: TextField(controller: _hobbySearchController ??= TextEditingController(), onChanged: _filterHobbies, decoration: InputDecoration(hintText: AppLocalizations.of(context)!.pr_search_hobby, prefixIcon: Icon(Icons.search, color: Theme.of(context).colorScheme.onSurfaceVariant), border: InputBorder.none, contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 12)), style: TextStyle(fontSize: 16)))),
               Container(
                 constraints: const BoxConstraints(maxHeight: 200),
                 child: _filteredHobbies.isEmpty && _hobbySearchQuery.isNotEmpty ? _buildNoResultsMessage() : ListView.builder(shrinkWrap: true, itemCount: _filteredHobbies.length, itemBuilder: (context, index) {
                   final hobby = _filteredHobbies[index];
                   final isSelected = _selectedHobbies.contains(hobby);
-                  return ListTile(leading: Icon(isSelected ? Icons.check_circle : Icons.radio_button_unchecked, color: isSelected ? Colors.blue : Colors.grey), title: Text(InterestLabels.of(context, hobby), style: TextStyle(color: isSelected ? Colors.blue : Colors.black87, fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal)), onTap: () => setState(() { isSelected ? _selectedHobbies.remove(hobby) : (_selectedHobbies.length < 8 ? _selectedHobbies.add(hobby) : _showMaxHobbiesDialog()); }));
+                  return ListTile(leading: Icon(isSelected ? Icons.check_circle : Icons.radio_button_unchecked, color: isSelected ? Theme.of(context).colorScheme.primary : Colors.grey), title: Text(InterestLabels.of(context, hobby), style: TextStyle(color: isSelected ? Theme.of(context).colorScheme.primary : Colors.black87, fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal)), onTap: () => setState(() { isSelected ? _selectedHobbies.remove(hobby) : (_selectedHobbies.length < 8 ? _selectedHobbies.add(hobby) : _showMaxHobbiesDialog()); }));
                 }),
               ),
             ],
@@ -462,11 +462,11 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   }
 
   Widget _buildSelectedHobbyTag(String hobby) {
-    return Container(padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6), decoration: BoxDecoration(color: Colors.blue.withOpacity(0.1), borderRadius: BorderRadius.circular(16), border: Border.all(color: Colors.blue.withOpacity(0.3))), child: Row(mainAxisSize: MainAxisSize.min, children: [Text(InterestLabels.of(context, hobby), style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w500, color: Colors.blue)), const SizedBox(width: 4), GestureDetector(onTap: () => setState(() => _selectedHobbies.remove(hobby)), child: const Icon(Icons.close, size: 14, color: Colors.blue))]));
+    return Container(padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6), decoration: BoxDecoration(color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.1), borderRadius: BorderRadius.circular(16), border: Border.all(color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.3))), child: Row(mainAxisSize: MainAxisSize.min, children: [Text(InterestLabels.of(context, hobby), style: TextStyle(fontSize: 12, fontWeight: FontWeight.w500, color: Theme.of(context).colorScheme.primary)), SizedBox(width: 4), GestureDetector(onTap: () => setState(() => _selectedHobbies.remove(hobby)), child: Icon(Icons.close, size: 14, color: Theme.of(context).colorScheme.primary))]));
   }
 
   Widget _buildSaveButton() {
-    return SizedBox(width: double.infinity, child: ElevatedButton(onPressed: _isUploading ? null : _saveProfile, style: ElevatedButton.styleFrom(backgroundColor: Colors.blue, foregroundColor: Colors.white, padding: const EdgeInsets.symmetric(vertical: 16), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)), elevation: 0), child: _isUploading ? const SizedBox(height: 20, width: 20, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2)) : Text(AppLocalizations.of(context)!.pr_save_changes, style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600))));
+    return SizedBox(width: double.infinity, child: ElevatedButton(onPressed: _isUploading ? null : _saveProfile, style: ElevatedButton.styleFrom(backgroundColor: Theme.of(context).colorScheme.primary, foregroundColor: Colors.white, padding: const EdgeInsets.symmetric(vertical: 16), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)), elevation: 0), child: _isUploading ? SizedBox(height: 20, width: 20, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2)) : Text(AppLocalizations.of(context)!.pr_save_changes, style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600))));
   }
 
   // --- ДОПОМІЖНІ МЕТОДИ ---
@@ -517,7 +517,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(outcome.localized(context)),
-          backgroundColor: Colors.green,
+          backgroundColor: Theme.of(context).extension<AppSemantics>()!.success,
         ),
       );
     } finally {
@@ -545,6 +545,6 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
 
   void _showMaxHobbiesDialog() { showDialog(context: context, builder: (context) => AlertDialog(title: Text(AppLocalizations.of(context)!.pr_limit), content: Text(AppLocalizations.of(context)!.pr_max_hobbies), actions: [TextButton(onPressed: () => Navigator.of(context).pop(), child: const Text('OK'))])); }
   void _filterHobbies(String query) { setState(() { _hobbySearchQuery = query.toLowerCase(); _filteredHobbies = query.isEmpty ? List.from(_availableHobbies) : _availableHobbies.where((hobby) => hobby.toLowerCase().contains(_hobbySearchQuery)).toList(); }); }
-  Widget _buildNoResultsMessage() { return Container(padding: const EdgeInsets.all(20), child: Column(children: [Icon(Icons.search_off, size: 48, color: Theme.of(context).colorScheme.onSurfaceVariant), const SizedBox(height: 12), Text(AppLocalizations.of(context)!.pr_no_hobbies, style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500, color: Theme.of(context).colorScheme.onSurfaceVariant)), const SizedBox(height: 8), Text(AppLocalizations.of(context)!.pr_try_other_query, style: TextStyle(fontSize: 14, color: Theme.of(context).colorScheme.onSurfaceVariant))])); }
+  Widget _buildNoResultsMessage() { return Container(padding: const EdgeInsets.all(20), child: Column(children: [Icon(Icons.search_off, size: 48, color: Theme.of(context).colorScheme.onSurfaceVariant), SizedBox(height: 12), Text(AppLocalizations.of(context)!.pr_no_hobbies, style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500, color: Theme.of(context).colorScheme.onSurfaceVariant)), SizedBox(height: 8), Text(AppLocalizations.of(context)!.pr_try_other_query, style: TextStyle(fontSize: 14, color: Theme.of(context).colorScheme.onSurfaceVariant))])); }
   void _showErrorDialog(String message) { showDialog(context: context, builder: (context) => AlertDialog(title: const Text('Помилка'), content: Text(message), actions: [TextButton(onPressed: () => Navigator.of(context).pop(), child: const Text('OK'))])); }
 }

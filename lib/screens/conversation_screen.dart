@@ -238,7 +238,7 @@ class _ConversationScreenState extends State<ConversationScreen> {
                   Text(
                     widget.isOnline ? AppLocalizations.of(context)!.online : AppLocalizations.of(context)!.offline,
                     style: TextStyle(
-                      color: widget.isOnline ? Colors.green : Colors.grey,
+                      color: widget.isOnline ? Theme.of(context).extension<AppSemantics>()!.success : Colors.grey,
                       fontSize: 12,
                     ),
                   ),
@@ -294,7 +294,7 @@ class _ConversationScreenState extends State<ConversationScreen> {
                   Icon(
                     (message['is_read'] ?? false) ? Icons.done_all : Icons.done,
                     size: 14,
-                    color: (message['is_read'] ?? false) ? Colors.blue : Colors.grey,
+                    color: (message['is_read'] ?? false) ? Theme.of(context).colorScheme.primary : Colors.grey,
                   ),
                 ]
               ],

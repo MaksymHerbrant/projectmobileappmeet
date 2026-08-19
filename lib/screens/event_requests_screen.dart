@@ -407,11 +407,11 @@ class _EventRequestsScreenState extends State<EventRequestsScreen> {
       });
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(AppLocalizations.of(context)!.user_accepted(userName)), backgroundColor: Colors.green),
+          SnackBar(content: Text(AppLocalizations.of(context)!.user_accepted(userName)), backgroundColor: Theme.of(context).extension<AppSemantics>()!.success),
         );
       }
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(AppLocalizations.of(context)!.error), backgroundColor: Colors.red));
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(AppLocalizations.of(context)!.error), backgroundColor: Theme.of(context).colorScheme.error));
     }
   }
 
@@ -428,7 +428,7 @@ class _EventRequestsScreenState extends State<EventRequestsScreen> {
         );
       }
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(AppLocalizations.of(context)!.error), backgroundColor: Colors.red));
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(AppLocalizations.of(context)!.error), backgroundColor: Theme.of(context).colorScheme.error));
     }
   }
 
@@ -456,8 +456,8 @@ class _EventRequestsScreenState extends State<EventRequestsScreen> {
                 },
               ),
               ListTile(
-                leading: const Icon(Icons.block, color: Colors.red),
-                title: Text(AppLocalizations.of(context)!.block_user, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500, color: Colors.red)),
+                leading: Icon(Icons.block, color: Theme.of(context).colorScheme.error),
+                title: Text(AppLocalizations.of(context)!.block_user, style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500, color: Theme.of(context).colorScheme.error)),
                 onTap: () {
                   Navigator.pop(context);
                   _handleReject(requestId, user.name); // Блокування поки працює як відхилення

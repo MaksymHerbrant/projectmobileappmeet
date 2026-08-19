@@ -459,7 +459,7 @@ class _MainFeedScreenState extends State<MainFeedScreen> {
             Container(
               padding: const EdgeInsets.all(20),
               decoration: BoxDecoration(color: Theme.of(context).colorScheme.surface, shape: BoxShape.circle, boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.1), blurRadius: 10)]),
-              child: const Icon(Icons.check_circle_outline, size: 60, color: Colors.green),
+              child: Icon(Icons.check_circle_outline, size: 60, color: Theme.of(context).extension<AppSemantics>()!.success),
             ),
             const SizedBox(height: 24),
             Text(t.feed_finished_title, style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
@@ -719,10 +719,10 @@ class _MainFeedScreenState extends State<MainFeedScreen> {
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         children: [
           // Замість controller.swipeLeft()
-          _buildActionButton(Icons.close, Colors.red, () => _cardSwiperController.swipe(CardSwiperDirection.left), size: 65),
+          _buildActionButton(Icons.close, Theme.of(context).colorScheme.error, () => _cardSwiperController.swipe(CardSwiperDirection.left), size: 65),
 
           // Замість controller.swipeRight()
-          _buildActionButton(Icons.favorite, Colors.blue, () => _cardSwiperController.swipe(CardSwiperDirection.right), size: 65),
+          _buildActionButton(Icons.favorite, Theme.of(context).colorScheme.primary, () => _cardSwiperController.swipe(CardSwiperDirection.right), size: 65),
         ],
       ),
     );

@@ -158,17 +158,17 @@ class _SettingsScreenState extends State<SettingsScreen> {
     return Container(
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: Colors.blue.withOpacity(0.1),
+        color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(8),
       ),
       child: Row(
         children: [
-          const Icon(Icons.preview, color: Colors.blue, size: 16),
+          Icon(Icons.preview, color: Theme.of(context).colorScheme.primary, size: 16),
           const SizedBox(width: 8),
           Expanded(
             child: Text(
               AppLocalizations.of(context)!.hello_how_are_you,
-              style: TextStyle(color: Colors.blue.shade700, fontStyle: FontStyle.italic),
+              style: TextStyle(color: Theme.of(context).colorScheme.primary, fontStyle: FontStyle.italic),
             ),
           ),
         ],
@@ -356,13 +356,13 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   scaffoldMessenger.showSnackBar(
                     SnackBar(
                       content: Text(t.delete_account_failed), 
-                      backgroundColor: Colors.red
+                      backgroundColor: Theme.of(context).colorScheme.error
                     ),
                   );
                 }
               }
             },
-            style: TextButton.styleFrom(foregroundColor: Colors.red),
+            style: TextButton.styleFrom(foregroundColor: Theme.of(context).colorScheme.error),
             child: Text(t.delete_forever),
           ),
         ],
@@ -387,7 +387,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 Navigator.of(context).pushNamedAndRemoveUntil('/landing', (route) => false);
               }
             },
-            style: TextButton.styleFrom(foregroundColor: Colors.red),
+            style: TextButton.styleFrom(foregroundColor: Theme.of(context).colorScheme.error),
             child: Text(t.sign_out),
           ),
         ],

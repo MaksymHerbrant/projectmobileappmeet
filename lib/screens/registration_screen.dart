@@ -1,3 +1,4 @@
+import '../theme/app_theme.dart';
 import '../service/error_reporter.dart';
 import 'package:dating_app/l10n/gen/app_localizations.dart';
 import 'package:flutter/material.dart';
@@ -105,7 +106,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(e.toString().replaceAll('Exception:', '')), 
-            backgroundColor: Colors.red
+            backgroundColor: Theme.of(context).colorScheme.error
           ),
         );
       }
@@ -132,7 +133,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
               Navigator.pop(context); // Закрити діалог
               Navigator.pop(context); // Повернутися на екран входу (Login)
             },
-            style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF5C72FF)),
+            style: ElevatedButton.styleFrom(backgroundColor: Theme.of(context).colorScheme.primary),
             child: Text(AppLocalizations.of(context)!.login, style: TextStyle(color: Theme.of(context).colorScheme.onSurface)),
           ),
         ],
@@ -212,7 +213,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
             child: ElevatedButton(
               onPressed: _isLoading ? null : _handleNext,
               style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFF5C72FF),
+                backgroundColor: Theme.of(context).colorScheme.primary,
                 padding: const EdgeInsets.symmetric(vertical: 16),
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
               ),
@@ -258,7 +259,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                 alignment: Alignment.center,
                 decoration: BoxDecoration(
                   color: Theme.of(context).colorScheme.surfaceContainerHighest,
-                  border: Border.all(color: isFocused ? const Color(0xFF5C72FF) : Theme.of(context).colorScheme.outlineVariant, width: 2),
+                  border: Border.all(color: isFocused ? Theme.of(context).colorScheme.primary : Theme.of(context).colorScheme.outlineVariant, width: 2),
                   borderRadius: BorderRadius.circular(10),
                 ),
                 child: Text(char, style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold)),

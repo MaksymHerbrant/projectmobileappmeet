@@ -201,10 +201,10 @@ class _ChatScreenState extends State<ChatScreen> {
                     children: [
                       Container(
                         width: 60, height: 60,
-                        decoration: BoxDecoration(shape: BoxShape.circle, border: Border.all(color: Colors.green, width: 2)),
+                        decoration: BoxDecoration(shape: BoxShape.circle, border: Border.all(color: Theme.of(context).extension<AppSemantics>()!.success, width: 2)),
                         child: ClipRRect(borderRadius: BorderRadius.circular(30), child: Image.network(photo, fit: BoxFit.cover)),
                       ),
-                      Positioned(right: 0, bottom: 0, child: Container(width: 14, height: 14, decoration: BoxDecoration(color: Colors.green, shape: BoxShape.circle, border: Border.all(color: Colors.white, width: 2)))),
+                      Positioned(right: 0, bottom: 0, child: Container(width: 14, height: 14, decoration: BoxDecoration(color: Theme.of(context).extension<AppSemantics>()!.success, shape: BoxShape.circle, border: Border.all(color: Colors.white, width: 2)))),
                     ],
                   ),
                   const SizedBox(height: 4),
@@ -283,10 +283,10 @@ class _ChatScreenState extends State<ChatScreen> {
                   children: [
                     Container(
                       width: 50, height: 50,
-                      decoration: BoxDecoration(shape: BoxShape.circle, border: Border.all(color: isOnline ? Colors.green : Theme.of(context).colorScheme.outlineVariant, width: 2)),
+                      decoration: BoxDecoration(shape: BoxShape.circle, border: Border.all(color: isOnline ? Theme.of(context).extension<AppSemantics>()!.success : Theme.of(context).colorScheme.outlineVariant, width: 2)),
                       child: ClipRRect(borderRadius: BorderRadius.circular(25), child: Image.network(photo, fit: BoxFit.cover)),
                     ),
-                    if (isOnline) Positioned(right: 0, bottom: 0, child: Container(width: 12, height: 12, decoration: BoxDecoration(color: Colors.green, shape: BoxShape.circle, border: Border.all(color: Colors.white, width: 2)))),
+                    if (isOnline) Positioned(right: 0, bottom: 0, child: Container(width: 12, height: 12, decoration: BoxDecoration(color: Theme.of(context).extension<AppSemantics>()!.success, shape: BoxShape.circle, border: Border.all(color: Colors.white, width: 2)))),
                   ],
                 ),
                 const SizedBox(width: 12),
@@ -309,14 +309,14 @@ class _ChatScreenState extends State<ChatScreen> {
                           Expanded(
                             child: Text(
                               isTyping ? AppLocalizations.of(context)!.typing_now : lastMsg,
-                              style: TextStyle(fontSize: 14, color: isTyping ? Colors.blue : Theme.of(context).colorScheme.outlineVariant, fontStyle: isTyping ? FontStyle.italic : FontStyle.normal, fontWeight: unread > 0 ? FontWeight.bold : FontWeight.normal),
+                              style: TextStyle(fontSize: 14, color: isTyping ? Theme.of(context).colorScheme.primary : Theme.of(context).colorScheme.outlineVariant, fontStyle: isTyping ? FontStyle.italic : FontStyle.normal, fontWeight: unread > 0 ? FontWeight.bold : FontWeight.normal),
                               maxLines: 1, overflow: TextOverflow.ellipsis,
                             ),
                           ),
                           if (unread > 0)
                             Container(
                               padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                              decoration: const BoxDecoration(color: Colors.blue, borderRadius: BorderRadius.all(Radius.circular(10))),
+                              decoration: BoxDecoration(color: Theme.of(context).colorScheme.primary, borderRadius: BorderRadius.all(Radius.circular(10))),
                               child: Text('$unread', style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontSize: 12, fontWeight: FontWeight.bold)),
                             ),
                         ],
@@ -341,7 +341,7 @@ class _ChatScreenState extends State<ChatScreen> {
           Text(AppLocalizations.of(context)!.chats, style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold, color: Theme.of(context).colorScheme.onSurface)),
           GestureDetector(
             onTap: _showGroupOptionsDialog,
-            child: Container(padding: const EdgeInsets.all(8), decoration: BoxDecoration(color: Theme.of(context).colorScheme.onSurface, borderRadius: BorderRadius.circular(20)), child: const Icon(Icons.add, color: Colors.white, size: 24)),
+            child: Container(padding: const EdgeInsets.all(8), decoration: BoxDecoration(color: Theme.of(context).colorScheme.onSurface, borderRadius: BorderRadius.circular(20)), child: Icon(Icons.add, color: Colors.white, size: 24)),
           ),
         ],
       ),

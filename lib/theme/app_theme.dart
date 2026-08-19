@@ -1,51 +1,93 @@
 import 'package:flutter/material.dart';
 
-/// Кольори застосунку в одному місці.
+/// Семантичні кольори, яких немає в ColorScheme.
 ///
-/// Раніше кольори були вписані в кожен екран окремо (`Colors.white`,
-/// `Colors.black87`, градієнти) — тому темна тема виглядала зламано, а будь-яка
-/// зміна оформлення означала правку десятків файлів.
+/// Успіх, попередження і статус «онлайн» не виводяться з акценту, але мусять
+/// змінюватись разом із темою — на темному тлі ті самі відтінки нечитабельні.
+@immutable
+class AppSemantics extends ThemeExtension<AppSemantics> {
+  final Color success;
+  final Color onSuccess;
+  final Color warning;
+  final Color online;
+
+  const AppSemantics({
+    required this.success,
+    required this.onSuccess,
+    required this.warning,
+    required this.online,
+  });
+
+  static const light = AppSemantics(
+    success: Color(0xFF1B6B3C),
+    onSuccess: Color(0xFFFFFFFF),
+    warning: Color(0xFF8A5B00),
+    online: Color(0xFF1B8A4B),
+  );
+
+  static const dark = AppSemantics(
+    success: Color(0xFF6EDBA0),
+    onSuccess: Color(0xFF00391E),
+    warning: Color(0xFFE2B159),
+    online: Color(0xFF4CD98A),
+  );
+
+  @override
+  AppSemantics copyWith({Color? success, Color? onSuccess, Color? warning, Color? online}) =>
+      AppSemantics(
+        success: success ?? this.success,
+        onSuccess: onSuccess ?? this.onSuccess,
+        warning: warning ?? this.warning,
+        online: online ?? this.online,
+      );
+
+  @override
+  AppSemantics lerp(ThemeExtension<AppSemantics>? other, double t) {
+    if (other is! AppSemantics) return this;
+    return AppSemantics(
+      success: Color.lerp(success, other.success, t)!,
+      onSuccess: Color.lerp(onSuccess, other.onSuccess, t)!,
+      warning: Color.lerp(warning, other.warning, t)!,
+      online: Color.lerp(online, other.online, t)!,
+    );
+  }
+}
+
+/// Оформлення застосунку в одному місці.
+///
+/// Гама «Графіт»: приглушена сталь. Обрана свідомо — у застосунку про людей
+/// головний контент це фото, і нейтральний інтерфейс лишає їм більше простору.
 class AppTheme {
   const AppTheme._();
 
-  // Фірмовий бузковий, що вже використовувався в градієнтах екранів.
-  static const Color seed = Color(0xFF7E57C2);
-  static const Color accent = Color(0xFFF3E5F5);
-
-  static const Color _lightSurface = Color(0xFFFFFFFF);
-  static const Color _lightBackground = Color(0xFFF8F7FA);
-  static const Color _darkSurface = Color(0xFF1C1B20);
-  static const Color _darkBackground = Color(0xFF121116);
-
-  /// Градієнт фону екранів. Замість захардкодженого світлого — залежить від
-  /// теми, інакше в темному режимі текст лягав на світлу підкладку.
-  static List<Color> backgroundGradient(BuildContext context) {
-    return Theme.of(context).brightness == Brightness.dark
-        ? const [Color(0xFF241F2E), _darkBackground]
-        : const [accent, Colors.white];
-  }
+  /// Насіннєвий колір. Уся решта відтінків виводиться з нього автоматично,
+  /// тож зміна гами — це зміна цього рядка.
+  static const Color seed = Color(0xFF475569);
 
   static ThemeData light() => _build(Brightness.light);
   static ThemeData dark() => _build(Brightness.dark);
 
+  /// Фон екранів. Ледь помітний градієнт замість заливки — так само, як було
+  /// раніше, але виведений з теми, а не вписаний у кожен екран.
+  static List<Color> backgroundGradient(BuildContext context) {
+    return Theme.of(context).brightness == Brightness.dark
+        ? const [Color(0xFF1A2029), Color(0xFF0E1116)]
+        : const [Color(0xFFE9EEF6), Color(0xFFFDFDFF)];
+  }
+
   static ThemeData _build(Brightness brightness) {
     final isDark = brightness == Brightness.dark;
-
-    final scheme = ColorScheme.fromSeed(
-      seedColor: seed,
-      brightness: brightness,
-    ).copyWith(
-      surface: isDark ? _darkSurface : _lightSurface,
-    );
+    final scheme = ColorScheme.fromSeed(seedColor: seed, brightness: brightness);
 
     final base = ThemeData(
       colorScheme: scheme,
       useMaterial3: true,
       brightness: brightness,
-      scaffoldBackgroundColor: isDark ? _darkBackground : _lightBackground,
+      scaffoldBackgroundColor: isDark ? const Color(0xFF111418) : const Color(0xFFF8F9FF),
     );
 
     return base.copyWith(
+      extensions: [isDark ? AppSemantics.dark : AppSemantics.light],
       appBarTheme: AppBarTheme(
         backgroundColor: Colors.transparent,
         surfaceTintColor: Colors.transparent,
@@ -70,9 +112,8 @@ class AppTheme {
       ),
       inputDecorationTheme: InputDecorationTheme(
         filled: true,
-        fillColor: isDark ? const Color(0xFF26242C) : Colors.white,
-        contentPadding:
-            const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+        fillColor: isDark ? const Color(0xFF1B2028) : Colors.white,
+        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(14),
           borderSide: BorderSide.none,
@@ -92,8 +133,7 @@ class AppTheme {
           foregroundColor: scheme.onPrimary,
           elevation: 0,
           padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
-          shape:
-              RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         ),
       ),
       listTileTheme: ListTileThemeData(
@@ -103,11 +143,23 @@ class AppTheme {
       ),
       snackBarTheme: SnackBarThemeData(
         behavior: SnackBarBehavior.floating,
-        backgroundColor: isDark ? const Color(0xFF2E2C36) : const Color(0xFF32303A),
+        backgroundColor: isDark ? const Color(0xFF2A3038) : const Color(0xFF2E343C),
         contentTextStyle: const TextStyle(color: Colors.white),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       ),
       dividerTheme: DividerThemeData(color: scheme.outlineVariant, thickness: 1),
+      chipTheme: ChipThemeData(
+        backgroundColor: scheme.secondaryContainer,
+        labelStyle: TextStyle(color: scheme.onSecondaryContainer),
+        side: BorderSide.none,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(999)),
+      ),
     );
   }
+}
+
+/// Короткий доступ до кольорів у віджетах.
+extension AppThemeX on BuildContext {
+  ColorScheme get scheme => Theme.of(this).colorScheme;
+  AppSemantics get semantics => Theme.of(this).extension<AppSemantics>()!;
 }
