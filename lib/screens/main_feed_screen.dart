@@ -1,4 +1,3 @@
-import '../theme/app_theme.dart';
 import '../theme/design_kit.dart';
 import '../l10n/interest_labels.dart';
 import '../providers/app_state_provider.dart';
@@ -364,44 +363,32 @@ class _MainFeedScreenState extends State<MainFeedScreen> {
 
   Widget _buildEmptyState() {
     final t = AppLocalizations.of(context)!;
-    return Center(
-      child: Padding(
-        padding: const EdgeInsets.all(30.0),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Container(
-              padding: const EdgeInsets.all(20),
-              decoration: BoxDecoration(color: Theme.of(context).colorScheme.surface, shape: BoxShape.circle, boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.1), blurRadius: 10)]),
-              child: Icon(Icons.sentiment_dissatisfied, size: 60, color: Theme.of(context).colorScheme.onSurfaceVariant),
-            ),
-            const SizedBox(height: 24),
-            Text(t.feed_empty_title, style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Theme.of(context).colorScheme.onSurface)),
-            const SizedBox(height: 12),
-            Text(
-              _hasLocation
-                  ? t.feed_empty_radius(_radiusKm)
-                  : t.feed_empty_no_location,
-              textAlign: TextAlign.center,
-              style: TextStyle(fontSize: 16, color: Theme.of(context).colorScheme.onSurfaceVariant),
-            ),
-            const SizedBox(height: 30),
-            // Порожній стан має пропонувати дію, а не просто повідомляти факт.
-            if (_hasLocation && _radiusKm < 200)
-              ElevatedButton.icon(
-                onPressed: () => _setRadius(_nextRadius(_radiusKm)),
-                icon: const Icon(Icons.travel_explore),
-                label: Text(t.search_within_km(_nextRadius(_radiusKm))),
-                style: ElevatedButton.styleFrom(backgroundColor: Theme.of(context).colorScheme.primary, foregroundColor: Theme.of(context).colorScheme.onPrimary, padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 15), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30))),
-              )
-            else
-              ElevatedButton.icon(
-                onPressed: _loadUsers,
-                icon: const Icon(Icons.refresh),
-                label: Text(t.refresh),
-                style: ElevatedButton.styleFrom(backgroundColor: Theme.of(context).colorScheme.primary, foregroundColor: Theme.of(context).colorScheme.onPrimary, padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 15), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30))),
+    final canWiden = _hasLocation && _radiusKm < 200;
+
+    return DsEmptyState(
+      icon: Icons.location_searching_rounded,
+      title: _hasLocation ? t.feed_empty_radius_title(_radiusKm) : t.feed_empty_title,
+      body: _hasLocation ? t.feed_empty_widen_hint : t.feed_empty_no_location,
+      actionLabel: canWiden ? t.search_within_km(_nextRadius(_radiusKm)) : t.refresh,
+      onAction: canWiden ? () => _setRadius(_nextRadius(_radiusKm)) : _loadUsers,
+      footer: GestureDetector(
+        onTap: () => Navigator.of(context).push(
+          MaterialPageRoute(builder: (context) => const EventsScreen()),
+        ),
+        child: Text.rich(
+          TextSpan(
+            style: Ds.tiny(context),
+            children: [
+              TextSpan(text: '${t.or_word} '),
+              TextSpan(
+                text: t.feed_empty_events_link,
+                style: TextStyle(
+                  color: Theme.of(context).colorScheme.primary,
+                  fontWeight: FontWeight.w600,
+                ),
               ),
-          ],
+            ],
+          ),
         ),
       ),
     );
@@ -409,29 +396,13 @@ class _MainFeedScreenState extends State<MainFeedScreen> {
 
   Widget _buildFinishedState() {
     final t = AppLocalizations.of(context)!;
-    return Center(
-      child: Padding(
-        padding: const EdgeInsets.all(30.0),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Container(
-              padding: const EdgeInsets.all(20),
-              decoration: BoxDecoration(color: Theme.of(context).colorScheme.surface, shape: BoxShape.circle, boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.1), blurRadius: 10)]),
-              child: Icon(Icons.check_circle_outline, size: 60, color: Theme.of(context).extension<AppSemantics>()!.success),
-            ),
-            const SizedBox(height: 24),
-            Text(t.feed_finished_title, style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
-            const SizedBox(height: 30),
-            ElevatedButton.icon(
-              onPressed: _loadUsers,
-              icon: const Icon(Icons.refresh),
-              label: Text(t.search_again),
-              style: ElevatedButton.styleFrom(backgroundColor: Theme.of(context).colorScheme.primary, foregroundColor: Theme.of(context).colorScheme.onPrimary, padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 15)),
-            ),
-          ],
-        ),
-      ),
+
+    return DsEmptyState(
+      icon: Icons.check_rounded,
+      title: t.feed_finished_title,
+      body: t.feed_finished_body,
+      actionLabel: t.search_again,
+      onAction: _loadUsers,
     );
   }
 

@@ -121,14 +121,20 @@ class _ProfileScreenState extends State<ProfileScreen> {
             decoration: Ds.background(context),
             // Фото йде під статусний рядок, тому SafeArea тут немає: кнопки
             // згори самі відступають на висоту вирізу.
-            child: SingleChildScrollView(
-              padding: EdgeInsets.zero,
-              child: Column(
-                children: [
-                  _buildPhotoHeader(),
-                  _buildSheet(),
-                ],
-              ),
+            child: LayoutBuilder(
+              builder: (context, constraints) {
+                return SingleChildScrollView(
+                  padding: EdgeInsets.zero,
+                  child: Column(
+                    children: [
+                      _buildPhotoHeader(),
+                      // Аркуш тягнеться щонайменше до низу екрана, інакше під
+                      // ним видно «сходинку» іншого відтінку.
+                      _buildSheet(minHeight: constraints.maxHeight - 330 + 22),
+                    ],
+                  ),
+                );
+              },
             ),
           ),
         );
@@ -271,7 +277,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
 
   /// Аркуш, що наїжджає на фото — рівно як у макеті: скруглення 22 і зсув -22.
-  Widget _buildSheet() {
+  Widget _buildSheet({required double minHeight}) {
     final t = AppLocalizations.of(context)!;
     final about = (aboutMe ?? '').trim();
     final localizedHobbies = _getLocalizedHobbies(hobbies, context);
@@ -280,6 +286,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
       offset: const Offset(0, -22),
       child: Container(
         width: double.infinity,
+        constraints: BoxConstraints(minHeight: minHeight),
         decoration: BoxDecoration(
           color: AppTheme.backgroundGradient(context).last,
           borderRadius: const BorderRadius.vertical(top: Radius.circular(22)),

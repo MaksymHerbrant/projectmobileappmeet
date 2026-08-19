@@ -1,4 +1,6 @@
 import '../theme/app_theme.dart';
+import '../theme/design_kit.dart';
+import '../l10n/interest_labels.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:dating_app/l10n/gen/app_localizations.dart';
@@ -12,7 +14,6 @@ import '../providers/app_state_provider.dart'; // ВАЖЛИВО: Імпорт �
 import 'event_requests_screen.dart'; 
 import 'user_profile_view_screen.dart'; 
 import 'create_event_screen.dart'; 
-import 'accepted_event_detail_screen.dart';
 
 class MatchesScreen extends StatefulWidget {
   const MatchesScreen({Key? key}) : super(key: key);
@@ -80,14 +81,19 @@ class _MatchesScreenState extends State<MatchesScreen> with SingleTickerProvider
     // Якщо йде завантаження І немає даних - показуємо спіннер
     if (appState.isLoading && appState.incomingRequests.isEmpty && appState.myEvents.isEmpty) {
       return Scaffold(
-        backgroundColor: Theme.of(context).colorScheme.surface,
-        body: const Center(child: CircularProgressIndicator()),
+        backgroundColor: Colors.transparent,
+        body: Container(
+          decoration: Ds.background(context),
+          child: const Center(child: CircularProgressIndicator()),
+        ),
       );
     }
 
     return Scaffold(
-      backgroundColor: Theme.of(context).colorScheme.surface,
-      body: SafeArea(
+      backgroundColor: Colors.transparent,
+      body: Container(
+        decoration: Ds.background(context),
+        child: SafeArea(
         child: Column(
           children: [
             _buildTopBar(t),
@@ -110,6 +116,7 @@ class _MatchesScreenState extends State<MatchesScreen> with SingleTickerProvider
           ],
         ),
       ),
+      ),
     );
   }
 
@@ -118,49 +125,22 @@ class _MatchesScreenState extends State<MatchesScreen> with SingleTickerProvider
     if (_selectedTab == 1) title = t.my_events;
     if (_selectedTab == 2) title = t.event_invitations;
 
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
-      alignment: Alignment.centerLeft,
-      child: Text(
-        title,
-        style: TextStyle(
-          fontSize: 20,
-          fontWeight: FontWeight.bold,
-          color: Theme.of(context).colorScheme.onSurface,
-        ),
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(20, 6, 20, 12),
+      child: Align(
+        alignment: Alignment.centerLeft,
+        child: Text(title, style: Ds.h1(context).copyWith(fontSize: 24)),
       ),
     );
   }
 
   Widget _buildTabBar(AppLocalizations t) {
-    return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-      child: Row(
-        children: [
-          Expanded(
-            child: _TabChip(
-              isActive: _selectedTab == 0,
-              label: t.requests,
-              onTap: () => _tabController.animateTo(0),
-            ),
-          ),
-          const SizedBox(width: 8),
-          Expanded(
-            child: _TabChip(
-              isActive: _selectedTab == 1,
-              label: t.my_events,
-              onTap: () => _tabController.animateTo(1),
-            ),
-          ),
-          const SizedBox(width: 8),
-          Expanded(
-            child: _TabChip(
-              isActive: _selectedTab == 2,
-              label: t.event_invitations,
-              onTap: () => _tabController.animateTo(2),
-            ),
-          ),
-        ],
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 20),
+      child: DsSegmented(
+        items: [t.requests, t.my_events, t.seg_invites],
+        index: _selectedTab,
+        onChanged: (i) => _tabController.animateTo(i),
       ),
     );
   }
@@ -174,7 +154,7 @@ class _MatchesScreenState extends State<MatchesScreen> with SingleTickerProvider
         child: ListView(
           physics: const AlwaysScrollableScrollPhysics(),
           children: [
-            SizedBox(height: MediaQuery.of(context).size.height * 0.3),
+            SizedBox(height: MediaQuery.of(context).size.height * 0.15),
             _buildEmptyState(
               icon: Icons.favorite_border,
               title: t.no_new_requests,
@@ -204,6 +184,8 @@ class _MatchesScreenState extends State<MatchesScreen> with SingleTickerProvider
     );
   }
 
+  /// Картка запиту за `design/Requests.dc.html`: рядок з аватаром і
+  /// інтересами, повідомлення на тихій підкладці, дві кнопки по 44.
   Widget _buildUserCardWithMessage(
     UserProfile user,
     String? message,
@@ -211,152 +193,136 @@ class _MatchesScreenState extends State<MatchesScreen> with SingleTickerProvider
     String? likeId,
     AppLocalizations t,
   ) {
-    return Container(
-      margin: const EdgeInsets.only(bottom: 16),
-      decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.surface,
-        borderRadius: BorderRadius.circular(20),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.08),
-            blurRadius: 12,
-            offset: const Offset(0, 4),
-          ),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // Фото
-          Container(
-            height: 200,
-            decoration: BoxDecoration(
-              borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
-              image: DecorationImage(
-                image: _getImageProvider(user.photos),
-                fit: BoxFit.cover,
-              ),
-            ),
-            child: Stack(
-              children: [
-                Positioned(
-                  top: 12,
-                  right: 12,
-                  child: GestureDetector(
-                    onTap: () => _showUserMenu(context, user, t),
-                    child: Container(
-                      padding: const EdgeInsets.all(6),
-                      decoration: BoxDecoration(
-                        color: Theme.of(context).colorScheme.surface.withOpacity(0.2),
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      child: const Icon(Icons.info, color: Colors.white, size: 18),
-                    ),
-                  ),
+    final scheme = Theme.of(context).colorScheme;
+    final interests = user.hobbies
+        .take(2)
+        .map((h) => InterestLabels.of(context, h))
+        .join(' · ');
+
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 12),
+      child: DsCard(
+        padding: const EdgeInsets.all(14),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            GestureDetector(
+              onTap: () => Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (context) => UserProfileViewScreen(user: user),
                 ),
-                Positioned(
-                  left: 0, right: 0, bottom: 0,
-                  child: Container(
-                    padding: const EdgeInsets.all(16),
-                    decoration: BoxDecoration(
-                      borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
-                      gradient: LinearGradient(
-                        begin: Alignment.topCenter,
-                        end: Alignment.bottomCenter,
-                        colors: [Colors.transparent, Colors.black.withOpacity(0.6)],
-                      ),
-                    ),
-                    child: Row(
+              ),
+              behavior: HitTestBehavior.opaque,
+              child: Row(
+                children: [
+                  DsAvatar(
+                    initial: user.name,
+                    photoUrl: user.photos.isEmpty ? null : user.photos.first,
+                    size: 52,
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text('${user.name}, ${user.age}', style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontSize: 18, fontWeight: FontWeight.bold)),
-                        const SizedBox(width: 8),
-                        Icon(Icons.location_on, size: 16, color: Theme.of(context).colorScheme.onSurfaceVariant),
-                        Text(user.location, style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant, fontSize: 14)),
+                        Text(
+                          user.age > 0 ? '${user.name}, ${user.age}' : user.name,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
+                        ),
+                        if (interests.isNotEmpty) ...[
+                          const SizedBox(height: 3),
+                          Text(
+                            interests,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: Ds.tiny(context),
+                          ),
+                        ],
                       ],
                     ),
                   ),
-                ),
-              ],
-            ),
-          ),
-          
-          // Хобі
-          Padding(
-            padding: const EdgeInsets.all(16),
-            child: Wrap(
-              spacing: 8,
-              runSpacing: 4,
-              children: user.hobbies.take(3).map((hobby) {
-                return Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                  decoration: BoxDecoration(
-                    color: Theme.of(context).colorScheme.primary.withOpacity(0.12),
-                    borderRadius: BorderRadius.circular(20),
-                    border: Border.all(color: Theme.of(context).colorScheme.primary.withOpacity(0.3)),
-                  ),
-                  child: Text(hobby, style: TextStyle(fontSize: 12, color: Theme.of(context).colorScheme.primary, fontWeight: FontWeight.w600)),
-                );
-              }).toList(),
-            ),
-          ),
-
-          // Повідомлення
-          if (hasMessage && message != null) ...[
-            Container(
-              margin: const EdgeInsets.symmetric(horizontal: 16),
-              padding: const EdgeInsets.all(12),
-              decoration: BoxDecoration(
-                color: Theme.of(context).colorScheme.primary.withOpacity(0.08),
-                borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: Theme.of(context).colorScheme.primary.withOpacity(0.3)),
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    children: [
-                      Icon(Icons.message, size: 16, color: Theme.of(context).colorScheme.primary),
-                      const SizedBox(width: 6),
-                      Text(t.message, style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: Theme.of(context).colorScheme.primary)),
-                    ],
-                  ),
-                  const SizedBox(height: 6),
-                  Text(message, style: TextStyle(fontSize: 14, color: Theme.of(context).colorScheme.onSurface)),
+                  if (user.distanceKm != null) ...[
+                    const SizedBox(width: 8),
+                    DsChip(
+                      label: t.dist_km_short(user.distanceKm!.toStringAsFixed(1).replaceAll('.', ',')),
+                      small: true,
+                      icon: Icons.place_outlined,
+                    ),
+                  ],
                 ],
               ),
             ),
+            if (hasMessage && message != null && message.isNotEmpty) ...[
+              const SizedBox(height: 12),
+              Container(
+                width: double.infinity,
+                padding: const EdgeInsets.fromLTRB(13, 10, 13, 10),
+                decoration: BoxDecoration(
+                  color: scheme.secondaryContainer,
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Text(
+                  message,
+                  style: Ds.tiny(context).copyWith(color: scheme.onSecondaryContainer),
+                ),
+              ),
+            ],
             const SizedBox(height: 12),
-          ],
-
-          // Кнопки дій
-          Padding(
-            padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
-            child: Row(
+            Row(
               children: [
-                // Кнопка ВІДХИЛИТИ
                 Expanded(
-                  child: _ActionButton(
-                    icon: Icons.close, 
-                    label: t.reject, 
-                    color: Theme.of(context).colorScheme.onSurfaceVariant, 
-                    onTap: () => _handleReject(likeId, t)
-                  )
+                  child: _smallButton(
+                    label: t.reject,
+                    ghost: true,
+                    onTap: () => _handleReject(likeId, t),
+                  ),
                 ),
                 const SizedBox(width: 10),
-                // Кнопка ПРИЙНЯТИ (Створення чату)
                 Expanded(
-                  flex: 2, 
-                  child: _ActionButton(
-                    icon: Icons.favorite, 
-                    label: t.like_user, 
-                    color: Theme.of(context).colorScheme.primary, 
-                    onTap: () => _handleLike(user, likeId, t)
-                  )
+                  child: _smallButton(
+                    label: t.like_user,
+                    onTap: () => _handleLike(user, likeId, t),
+                  ),
                 ),
               ],
             ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  /// Кнопка на 44 — у картках вона нижча за екранну (52), як у макеті.
+  Widget _smallButton({
+    required String label,
+    required VoidCallback onTap,
+    bool ghost = false,
+  }) {
+    final scheme = Theme.of(context).colorScheme;
+    return Material(
+      color: ghost ? Colors.transparent : scheme.primary,
+      borderRadius: BorderRadius.circular(Ds.rField),
+      child: InkWell(
+        borderRadius: BorderRadius.circular(Ds.rField),
+        onTap: onTap,
+        child: Container(
+          height: 44,
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(Ds.rField),
+            border: ghost ? Border.all(color: scheme.outlineVariant, width: 1.5) : null,
           ),
-        ],
+          alignment: Alignment.center,
+          child: Text(
+            label,
+            style: TextStyle(
+              fontSize: 14.5,
+              fontWeight: FontWeight.w600,
+              color: ghost ? scheme.primary : scheme.onPrimary,
+            ),
+          ),
+        ),
       ),
     );
   }
@@ -366,18 +332,12 @@ class _MatchesScreenState extends State<MatchesScreen> with SingleTickerProvider
   Widget _buildMyEventsTab(List<Event> events, AppLocalizations t) {
     return Column(
       children: [
-        Container(
-          margin: const EdgeInsets.all(20),
-          width: double.infinity,
-          child: ElevatedButton.icon(
+        Padding(
+          padding: const EdgeInsets.fromLTRB(20, 14, 20, 14),
+          child: DsButton(
+            label: t.create_event,
+            icon: Icons.add_rounded,
             onPressed: _navigateToCreateEvent,
-            icon: const Icon(Icons.add, color: Colors.white),
-            label: Text(t.create_event, style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontSize: 16, fontWeight: FontWeight.w600)),
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Theme.of(context).colorScheme.primary,
-              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-            ),
           ),
         ),
         Expanded(
@@ -398,90 +358,101 @@ class _MatchesScreenState extends State<MatchesScreen> with SingleTickerProvider
   }
 
   Widget _buildEventCard(Event event, AppLocalizations t) {
-    return Container(
-      margin: const EdgeInsets.only(bottom: 16),
-      decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.surface,
-        borderRadius: BorderRadius.circular(20),
-        boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.08), blurRadius: 12, offset: const Offset(0, 4))],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Container(
-            height: 150,
-            decoration: BoxDecoration(
-              borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
-              image: DecorationImage(image: _getImageProvider(event.photos), fit: BoxFit.cover),
-            ),
-            child: Stack(
-              children: [
-                Positioned(
-                  top: 12, right: 12,
-                  child: GestureDetector(
-                    onTap: () => _showEventInfoDialog(event, t),
-                    child: Container(
-                      padding: const EdgeInsets.all(6),
-                      decoration: BoxDecoration(color: Theme.of(context).colorScheme.surface.withOpacity(0.2), borderRadius: BorderRadius.circular(8)),
-                      child: const Icon(Icons.info, color: Colors.white, size: 18),
+    final scheme = Theme.of(context).colorScheme;
+
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 12),
+      child: DsCard(
+        padding: EdgeInsets.zero,
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(Ds.rCard),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              SizedBox(
+                height: 132,
+                width: double.infinity,
+                child: Stack(
+                  fit: StackFit.expand,
+                  children: [
+                    DsPhotoBlock(
+                      radius: 0,
+                      fontSize: 40,
+                      initial: event.title,
+                      child: event.photos.isEmpty
+                          ? null
+                          : Image(
+                              image: _getImageProvider(event.photos),
+                              fit: BoxFit.cover,
+                              errorBuilder: (_, __, ___) => const SizedBox(),
+                            ),
                     ),
-                  ),
+                    Positioned(
+                      top: 12,
+                      left: 12,
+                      child: DsPill(
+                        icon: Icons.schedule_rounded,
+                        label:
+                            '${event.dateTime.day}.${event.dateTime.month.toString().padLeft(2, '0')}.${event.dateTime.year}',
+                      ),
+                    ),
+                    Positioned(
+                      top: 12,
+                      right: 12,
+                      child: DsPill(
+                        icon: Icons.people_outline_rounded,
+                        label: '${event.participantsCount}',
+                      ),
+                    ),
+                  ],
                 ),
-                Positioned(
-                  left: 0, right: 0, bottom: 0,
-                  child: Container(
-                    padding: const EdgeInsets.all(16),
-                    decoration: BoxDecoration(gradient: LinearGradient(begin: Alignment.topCenter, end: Alignment.bottomCenter, colors: [Colors.transparent, Colors.black.withOpacity(0.6)])),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
+              ),
+              Padding(
+                padding: const EdgeInsets.fromLTRB(16, 14, 16, 16),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      event.title,
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                      style: Ds.h2(context).copyWith(fontSize: 17),
+                    ),
+                    const SizedBox(height: 6),
+                    Row(
                       children: [
-                        Text(event.title, style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontSize: 18, fontWeight: FontWeight.bold)),
-                        const SizedBox(height: 4),
-                        Row(
-                          children: [
-                            Icon(Icons.location_on, size: 16, color: Theme.of(context).colorScheme.onSurfaceVariant),
-                            Text(event.location, style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant)),
-                            const SizedBox(width: 16),
-                            Icon(Icons.people, size: 16, color: Theme.of(context).colorScheme.onSurfaceVariant),
-                            Text('${event.participantsCount}', style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant)),
-                          ],
+                        Icon(Icons.place_outlined, size: 15, color: scheme.onSurfaceVariant),
+                        const SizedBox(width: 4),
+                        Expanded(
+                          child: Text(
+                            event.location,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: Ds.tiny(context),
+                          ),
                         ),
                       ],
                     ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.all(16),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  children: [
-                    Icon(Icons.calendar_today, size: 16, color: Theme.of(context).colorScheme.onSurfaceVariant),
-                    const SizedBox(width: 8),
-                    Text('${event.dateTime.day}.${event.dateTime.month}.${event.dateTime.year}', style: TextStyle(fontSize: 14, color: Theme.of(context).colorScheme.onSurfaceVariant, fontWeight: FontWeight.w500)),
+                    if (event.description.isNotEmpty) ...[
+                      const SizedBox(height: 8),
+                      Text(
+                        event.description,
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                        style: Ds.sub(context),
+                      ),
+                    ],
+                    const SizedBox(height: 12),
+                    _smallButton(
+                      label: t.view_requests,
+                      onTap: () => _handleViewRequests(event),
+                    ),
                   ],
                 ),
-                const SizedBox(height: 8),
-                Text(event.description, maxLines: 2, overflow: TextOverflow.ellipsis),
-              ],
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
-            child: SizedBox(
-              width: double.infinity,
-              child: ElevatedButton(
-                onPressed: () => _handleViewRequests(event),
-                style: ElevatedButton.styleFrom(backgroundColor: Theme.of(context).colorScheme.primary, foregroundColor: Colors.white, padding: const EdgeInsets.symmetric(vertical: 12), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12))),
-                child: Text(t.view_requests, style: const TextStyle(fontWeight: FontWeight.w600)),
               ),
-            ),
+            ],
           ),
-        ],
+        ),
       ),
     );
   }
@@ -497,28 +468,15 @@ class _MatchesScreenState extends State<MatchesScreen> with SingleTickerProvider
 
     return Column(
       children: [
-        Container(
-          margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-          child: Row(
-            children: [
-              Expanded(
-                child: _TabChip(
-                  isActive: _invitationsFilter == 0,
-                  label: AppLocalizations.of(context)!.m_pending,
-                  onTap: () => setState(() => _invitationsFilter = 0),
-                  activeColor: Theme.of(context).colorScheme.primary,
-                ),
-              ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: _TabChip(
-                  isActive: _invitationsFilter == 1,
-                  label: AppLocalizations.of(context)!.m_accepted,
-                  onTap: () => setState(() => _invitationsFilter = 1),
-                  activeColor: Theme.of(context).extension<AppSemantics>()!.success,
-                ),
-              ),
+        Padding(
+          padding: const EdgeInsets.fromLTRB(20, 14, 20, 4),
+          child: DsSegmented(
+            items: [
+              AppLocalizations.of(context)!.m_pending,
+              AppLocalizations.of(context)!.m_accepted,
             ],
+            index: _invitationsFilter,
+            onChanged: (i) => setState(() => _invitationsFilter = i),
           ),
         ),
         Expanded(
@@ -550,75 +508,96 @@ class _MatchesScreenState extends State<MatchesScreen> with SingleTickerProvider
     );
   }
 
+  /// Рядок заявки за `design/MyEvents.dc.html`: фото 52 зі скругленням 13,
+  /// назва й дата, статус — плашкою праворуч.
+  ///
+  /// Раніше статус малювався зеленим текстом на зеленій заливці й був
+  /// нечитабельним; плашка бере кольори з `AppSemantics`, де пара
+  /// success/onSuccess підібрана під обидві теми.
   Widget _buildInvitationCard(
     Map<String, dynamic> invitation,
     AppLocalizations t, {
     bool isAccepted = false,
   }) {
     final event = invitation['event'] as Event;
+    final semantics = Theme.of(context).extension<AppSemantics>()!;
+    final scheme = Theme.of(context).colorScheme;
 
-    return Container(
-      margin: const EdgeInsets.only(bottom: 16),
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.surface,
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 10, offset: const Offset(0, 2))],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Container(
-                width: 50,
-                height: 50,
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(12),
-                  image: DecorationImage(image: _getImageProvider(event.photos), fit: BoxFit.cover),
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 10),
+      child: DsCard(
+        padding: const EdgeInsets.fromLTRB(14, 13, 14, 13),
+        onTap: null,
+        child: Row(
+          children: [
+            ClipRRect(
+              borderRadius: BorderRadius.circular(13),
+              child: SizedBox(
+                width: 52,
+                height: 52,
+                child: DsPhotoBlock(
+                  radius: 0,
+                  fontSize: 19,
+                  initial: event.title,
+                  child: event.photos.isEmpty
+                      ? null
+                      : Image(
+                          image: _getImageProvider(event.photos),
+                          fit: BoxFit.cover,
+                          errorBuilder: (_, __, ___) => const SizedBox(),
+                        ),
                 ),
               ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(event.title, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-                    Text(event.location, style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant)),
-                  ],
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 12),
-          
-          if (isAccepted)
-            Container(
-              padding: const EdgeInsets.all(12),
-              decoration: BoxDecoration(color: Theme.of(context).extension<AppSemantics>()!.success, borderRadius: BorderRadius.circular(8), border: Border.all(color: Theme.of(context).extension<AppSemantics>()!.success)),
-              child: Row(
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Icon(Icons.check_circle, color: Theme.of(context).extension<AppSemantics>()!.success, size: 20),
-                  const SizedBox(width: 8),
-                  Text(AppLocalizations.of(context)!.request_approved, style: TextStyle(color: Theme.of(context).extension<AppSemantics>()!.success, fontWeight: FontWeight.w600)),
-                  const Spacer(),
-                  Icon(Icons.arrow_forward_ios, size: 14, color: Theme.of(context).extension<AppSemantics>()!.success),
-                ],
-              ),
-            )
-          else
-            Container(
-              padding: const EdgeInsets.all(12),
-              decoration: BoxDecoration(color: Theme.of(context).extension<AppSemantics>()!.warning, borderRadius: BorderRadius.circular(8), border: Border.all(color: Theme.of(context).extension<AppSemantics>()!.warning)),
-              child: Row(
-                children: [
-                  Icon(Icons.access_time, color: Theme.of(context).extension<AppSemantics>()!.warning, size: 20),
-                  const SizedBox(width: 8),
-                  Text(AppLocalizations.of(context)!.awaiting_confirmation, style: TextStyle(color: Theme.of(context).extension<AppSemantics>()!.warning, fontWeight: FontWeight.w600)),
+                  Text(
+                    event.title,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w700),
+                  ),
+                  const SizedBox(height: 3),
+                  Text(
+                    '${event.dateTime.day}.${event.dateTime.month.toString().padLeft(2, '0')} · '
+                    '${event.dateTime.hour}:${event.dateTime.minute.toString().padLeft(2, '0')}',
+                    style: Ds.tiny(context),
+                  ),
                 ],
               ),
             ),
-        ],
+            const SizedBox(width: 10),
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children: [
+                Container(
+                  height: 28,
+                  padding: const EdgeInsets.symmetric(horizontal: 11),
+                  decoration: BoxDecoration(
+                    color: isAccepted ? semantics.success : scheme.secondaryContainer,
+                    borderRadius: BorderRadius.circular(999),
+                  ),
+                  alignment: Alignment.center,
+                  child: Text(
+                    isAccepted ? t.m_accepted_chip : t.m_pending_chip,
+                    style: TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.w600,
+                      color: isAccepted ? semantics.onSuccess : scheme.onSecondaryContainer,
+                    ),
+                  ),
+                ),
+                if (isAccepted) ...[
+                  const SizedBox(height: 4),
+                  Text(t.m_chat_open, style: Ds.tiny(context).copyWith(fontSize: 10.5)),
+                ],
+              ],
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -626,25 +605,7 @@ class _MatchesScreenState extends State<MatchesScreen> with SingleTickerProvider
   // --- Загальні віджети ---
 
   Widget _buildEmptyState({required IconData icon, required String title, required String subtitle}) {
-    return Center(
-      child: Padding(
-        padding: const EdgeInsets.all(40),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Container(
-              padding: const EdgeInsets.all(24),
-              decoration: BoxDecoration(color: Theme.of(context).colorScheme.surface, borderRadius: BorderRadius.circular(50), boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.08), blurRadius: 12, offset: Offset(0, 4))]),
-              child: Icon(icon, size: 48, color: Theme.of(context).colorScheme.primary),
-            ),
-            const SizedBox(height: 24),
-            Text(title, style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
-            const SizedBox(height: 8),
-            Text(subtitle, textAlign: TextAlign.center, style: TextStyle(fontSize: 16, color: Theme.of(context).colorScheme.onSurfaceVariant)),
-          ],
-        ),
-      ),
-    );
+    return DsEmptyState(icon: icon, title: title, body: subtitle);
   }
 
   // --- Дії та навігація ---
@@ -699,30 +660,6 @@ class _MatchesScreenState extends State<MatchesScreen> with SingleTickerProvider
     }
   }
 
-  void _showUserMenu(BuildContext context, UserProfile user, AppLocalizations t) {
-    showModalBottomSheet(
-      context: context,
-      backgroundColor: Theme.of(context).colorScheme.surface,
-      shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
-      builder: (context) {
-        return SafeArea(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              ListTile(
-                leading: Icon(Icons.person, color: Theme.of(context).colorScheme.primary),
-                title: Text(t.view_profile),
-                onTap: () {
-                  Navigator.pop(context);
-                  Navigator.of(context).push(MaterialPageRoute(builder: (context) => UserProfileViewScreen(user: user)));
-                },
-              ),
-            ],
-          ),
-        );
-      },
-    );
-  }
 
   void _navigateToCreateEvent() async {
     final result = await Navigator.of(context).push(MaterialPageRoute(builder: (context) => const CreateEventScreen()));
@@ -735,73 +672,4 @@ class _MatchesScreenState extends State<MatchesScreen> with SingleTickerProvider
     Navigator.of(context).push(MaterialPageRoute(builder: (context) => EventRequestsScreen(event: event)));
   }
 
-  void _showEventInfoDialog(Event event, AppLocalizations t) {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: Text(event.title),
-        content: Text(event.description),
-        actions: [TextButton(onPressed: () => Navigator.of(context).pop(), child: Text(t.ok))],
-      ),
-    );
-  }
-}
-
-// Допоміжні класи віджетів (UI без змін)
-
-class _TabChip extends StatelessWidget {
-  final bool isActive;
-  final String label;
-  final VoidCallback onTap;
-  final Color? activeColor;
-
-  const _TabChip({Key? key, required this.isActive, required this.label, required this.onTap, this.activeColor}) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    final Color selectedColor = activeColor ?? Colors.black;
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        padding: const EdgeInsets.symmetric(vertical: 12),
-        decoration: BoxDecoration(
-          color: isActive ? selectedColor : Colors.transparent,
-          borderRadius: BorderRadius.circular(25),
-          border: Border.all(color: isActive ? selectedColor : Theme.of(context).colorScheme.outlineVariant),
-        ),
-        child: Text(
-          label,
-          textAlign: TextAlign.center,
-          style: TextStyle(color: isActive ? Theme.of(context).colorScheme.onPrimary : Theme.of(context).colorScheme.onSurface, fontWeight: FontWeight.w600, fontSize: 14),
-        ),
-      ),
-    );
-  }
-}
-
-class _ActionButton extends StatelessWidget {
-  final IconData icon;
-  final String label;
-  final Color color;
-  final VoidCallback onTap;
-
-  const _ActionButton({Key? key, required this.icon, required this.label, required this.color, required this.onTap}) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        padding: const EdgeInsets.symmetric(vertical: 12),
-        decoration: BoxDecoration(color: color, borderRadius: BorderRadius.circular(12), boxShadow: [BoxShadow(color: color.withOpacity(0.3), blurRadius: 8, offset: const Offset(0, 2))]),
-        child: Column(
-          children: [
-            Icon(icon, color: Colors.white, size: 20),
-            const SizedBox(height: 4),
-            Text(label, style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontSize: 12, fontWeight: FontWeight.w600)),
-          ],
-        ),
-      ),
-    );
-  }
 }

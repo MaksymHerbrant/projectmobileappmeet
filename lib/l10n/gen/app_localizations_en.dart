@@ -1664,4 +1664,44 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get profile_add_interests => 'Add your interests →';
+
+  @override
+  String feed_empty_radius_title(int km) {
+    return 'No one within $km km';
+  }
+
+  @override
+  String get feed_empty_widen_hint =>
+      'It’s quiet around here. Try a wider radius — people are usually happy to travel half an hour.';
+
+  @override
+  String get or_word => 'Or';
+
+  @override
+  String get feed_empty_events_link =>
+      'check out the events — people join those';
+
+  @override
+  String get feed_finished_body =>
+      'You’ve seen everyone nearby. New people show up every day.';
+
+  @override
+  String get seg_invites => 'Invites';
+
+  @override
+  String get m_accepted_chip => 'accepted';
+
+  @override
+  String get m_pending_chip => 'pending';
+
+  @override
+  String get m_chat_open => 'chat open';
+
+  @override
+  String get pr_update_location => 'Update';
+
+  @override
+  String of_count(int total) {
+    return 'of $total';
+  }
 }

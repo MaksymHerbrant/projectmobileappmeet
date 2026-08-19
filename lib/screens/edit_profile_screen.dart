@@ -1,11 +1,11 @@
 import 'package:dating_app/l10n/gen/app_localizations.dart';
 import '../l10n/interest_labels.dart';
 import '../theme/app_theme.dart';
+import '../theme/design_kit.dart';
 import '../models/picked_photo.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-import 'package:geolocator/geolocator.dart';
 import 'package:geocoding/geocoding.dart';
 import '../service/matches_service.dart';
 import '../service/location_service.dart'; // 👇 ВАЖЛИВО: Імпорт для VectorUtils
@@ -52,8 +52,6 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     'Спорт', 'Читання', 'Музика', 'Танці', 'Малювання',
     'Програмування', 'Йога', 'Біг', 'Велоспорт', 'Плавання',
   ];
-  List<String> _filteredHobbies = [];
-  String _hobbySearchQuery = '';
 
   @override
   void initState() {
@@ -85,7 +83,6 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     if (widget.profileData['hobbies'] != null) {
       _selectedHobbies = List<String>.from(widget.profileData['hobbies']);
     }
-    _filteredHobbies = List.from(_availableHobbies);
   }
 
   @override
@@ -274,40 +271,65 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final t = AppLocalizations.of(context)!;
+
     return Scaffold(
+      backgroundColor: Colors.transparent,
       body: Container(
-        decoration: BoxDecoration(
-            gradient: LinearGradient(
-            begin: Alignment.bottomCenter,
-            end: Alignment.topCenter,
-            colors: AppTheme.backgroundGradient(context),
-          ),
-        ),
+        decoration: Ds.background(context),
         child: SafeArea(
+          bottom: false,
           child: Column(
             children: [
               _buildTopBar(),
               Expanded(
                 child: SingleChildScrollView(
-                  padding: const EdgeInsets.all(20),
+                  padding: EdgeInsets.only(
+                    left: 20,
+                    right: 20,
+                    top: 6,
+                    bottom: 24 + MediaQuery.viewInsetsOf(context).bottom,
+                  ),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
+                      Text(t.pr_your_photos.toUpperCase(), style: Ds.label(context)),
+                      const SizedBox(height: 8),
                       _buildPhotosGallery(),
-                      const SizedBox(height: 24),
-                      _buildNameSection(),
-                      const SizedBox(height: 24),
-                      _buildLocationSection(),
-                      const SizedBox(height: 24),
-                      _buildBirthDateSection(),
-                      const SizedBox(height: 24),
+                      const SizedBox(height: 16),
+                      Text(t.pr_name.toUpperCase(), style: Ds.label(context)),
+                      const SizedBox(height: 8),
+                      DsTextField(controller: _nameController, hint: t.pr_enter_name),
+                      const SizedBox(height: 16),
+                      Text(t.pr_about.toUpperCase(), style: Ds.label(context)),
+                      const SizedBox(height: 8),
                       _buildBioSection(),
-                      const SizedBox(height: 24),
+                      const SizedBox(height: 16),
+                      Text(t.pr_location.toUpperCase(), style: Ds.label(context)),
+                      const SizedBox(height: 8),
+                      _buildLocationSection(),
+                      const SizedBox(height: 16),
+                      Text(t.pr_birth_date.toUpperCase(), style: Ds.label(context)),
+                      const SizedBox(height: 8),
+                      _buildBirthDateSection(),
+                      const SizedBox(height: 16),
+                      Text(
+                        // «інтереси · 4 з 8» — лічильник просто в підписі, як у макеті.
+                        '${t.pr_hobbies} · ${_selectedHobbies.length} ${t.of_count(8)}'
+                            .toUpperCase(),
+                        style: Ds.label(context),
+                      ),
+                      const SizedBox(height: 10),
                       _buildHobbiesSection(),
-                      const SizedBox(height: 40),
-                      _buildSaveButton(),
                     ],
                   ),
+                ),
+              ),
+              DsActionBar(
+                child: DsButton(
+                  label: t.pr_save_changes,
+                  loading: _isUploading,
+                  onPressed: _isUploading ? null : _saveProfile,
                 ),
               ),
             ],
@@ -317,156 +339,188 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     );
   }
 
-  // ... (Решта UI методів) ...
-
   Widget _buildTopBar() {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
-      child: Row(
-        children: [
-          GestureDetector(
-            onTap: () => Navigator.of(context).pop(),
+    return DsTopBar(
+      onBack: () => Navigator.of(context).pop(),
+      title: AppLocalizations.of(context)!.pr_edit_title,
+    );
+  }
+
+  /// Сітка фото за макетом: чотири колонки 3:4, скруглення 12,
+  /// хрестик-кружечок 22 у куті, порожня комірка — пунктир із плюсом.
+  Widget _buildPhotosGallery() {
+    final tiles = <Widget>[
+      ..._existingPhotoUrls.map((url) => _buildPhotoItem(
+            image: Image.network(url, fit: BoxFit.cover),
+            onRemove: () => _removeExistingPhoto(url),
+          )),
+      ..._newPhotoFiles.map((file) => _buildPhotoItem(
+            image: Image.memory(file.bytes, fit: BoxFit.cover),
+            onRemove: () => _removeNewPhoto(file),
+          )),
+      if ((_existingPhotoUrls.length + _newPhotoFiles.length) < 6)
+        AspectRatio(
+          aspectRatio: 3 / 4,
+          child: DsAddTile(onTap: _pickImage, radius: 12),
+        ),
+    ];
+
+    return GridView.count(
+      crossAxisCount: 4,
+      mainAxisSpacing: 8,
+      crossAxisSpacing: 8,
+      childAspectRatio: 3 / 4,
+      shrinkWrap: true,
+      physics: const NeverScrollableScrollPhysics(),
+      children: tiles,
+    );
+  }
+
+  Widget _buildPhotoItem({required Widget image, required VoidCallback onRemove}) {
+    return Stack(
+      fit: StackFit.expand,
+      children: [
+        ClipRRect(borderRadius: BorderRadius.circular(12), child: image),
+        Positioned(
+          top: 5,
+          right: 5,
+          child: GestureDetector(
+            onTap: onRemove,
             child: Container(
-              padding: const EdgeInsets.all(8),
+              width: 22,
+              height: 22,
               decoration: BoxDecoration(
-                color: Theme.of(context).colorScheme.surface.withOpacity(0.8),
-                borderRadius: BorderRadius.circular(12),
+                color: Theme.of(context).colorScheme.error,
+                shape: BoxShape.circle,
               ),
-              child: Icon(Icons.arrow_back, color: Theme.of(context).colorScheme.onSurface),
+              child: Icon(
+                Icons.close_rounded,
+                size: 13,
+                color: Theme.of(context).colorScheme.onError,
+              ),
             ),
           ),
-          const SizedBox(width: 16),
+        ),
+      ],
+    );
+  }
+
+  /// «Про мене»: поле на 90 із лічильником праворуч знизу, як у макеті.
+  Widget _buildBioSection() {
+    final scheme = Theme.of(context).colorScheme;
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.end,
+      children: [
+        Container(
+          constraints: const BoxConstraints(minHeight: 90),
+          padding: const EdgeInsets.fromLTRB(16, 6, 16, 6),
+          decoration: BoxDecoration(
+            color: scheme.surface,
+            borderRadius: BorderRadius.circular(Ds.rField),
+            border: Border.all(color: scheme.outlineVariant),
+          ),
+          child: TextField(
+            controller: _bioController,
+            maxLines: 4,
+            maxLength: 300,
+            onChanged: (_) => setState(() {}),
+            style: TextStyle(fontSize: 15, height: 1.5, color: scheme.onSurface),
+            cursorColor: scheme.primary,
+            decoration: InputDecoration(
+              isDense: true,
+              counterText: '',
+              border: InputBorder.none,
+              enabledBorder: InputBorder.none,
+              focusedBorder: InputBorder.none,
+              filled: false,
+              hintText: AppLocalizations.of(context)!.pr_about_hint,
+              hintStyle: TextStyle(fontSize: 15, color: scheme.onSurfaceVariant),
+            ),
+          ),
+        ),
+        const SizedBox(height: 4),
+        Text('${_bioController.text.length} / 300', style: Ds.tiny(context)),
+      ],
+    );
+  }
+
+  /// «Місто»: поле зі шпилькою і чипом «Оновити», що бере локацію з GPS.
+  Widget _buildLocationSection() {
+    final t = AppLocalizations.of(context)!;
+
+    return DsTextField(
+      controller: _locationController,
+      hint: t.pr_enter_city,
+      icon: Icons.place_outlined,
+      suffix: _isLocating
+          ? const SizedBox(
+              width: 16,
+              height: 16,
+              child: CircularProgressIndicator(strokeWidth: 2),
+            )
+          : DsChip(
+              label: t.pr_update_location,
+              small: true,
+              selected: true,
+              onTap: _useGPSLocation,
+            ),
+    );
+  }
+
+  Widget _buildBirthDateSection() {
+    final t = AppLocalizations.of(context)!;
+    final scheme = Theme.of(context).colorScheme;
+    final hasDate = _birthDate != null;
+    final dateText = hasDate
+        ? '${_birthDate!.day.toString().padLeft(2, '0')}.${_birthDate!.month.toString().padLeft(2, '0')}.${_birthDate!.year}'
+        : t.pr_pick_birth;
+
+    return DsFieldBox(
+      onTap: _selectDate,
+      child: Row(
+        children: [
+          Icon(Icons.calendar_today_outlined, size: 18, color: scheme.onSurfaceVariant),
+          const SizedBox(width: 10),
           Text(
-            AppLocalizations.of(context)!.pr_edit_title,
-            style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Theme.of(context).colorScheme.onSurface),
+            dateText,
+            style: TextStyle(
+              fontSize: 16,
+              // Колір із теми, а не Colors.black87 — на темній темі дата
+              // була просто невидимою.
+              color: hasDate ? scheme.onSurface : scheme.onSurfaceVariant,
+            ),
           ),
         ],
       ),
     );
   }
 
-  Widget _buildPhotosGallery() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(AppLocalizations.of(context)!.pr_your_photos, style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600, color: Theme.of(context).colorScheme.onSurface)),
-        const SizedBox(height: 12),
-        Wrap(
-          spacing: 10, runSpacing: 10,
-          children: [
-            ..._existingPhotoUrls.map((url) => _buildPhotoItem(image: Image.network(url, fit: BoxFit.cover), onRemove: () => _removeExistingPhoto(url))),
-            ..._newPhotoFiles.map((file) => _buildPhotoItem(image: Image.memory(file.bytes, fit: BoxFit.cover), onRemove: () => _removeNewPhoto(file))),
-            if ((_existingPhotoUrls.length + _newPhotoFiles.length) < 6)
-              GestureDetector(
-                onTap: _pickImage,
-                child: Container(
-                  width: 100, height: 140,
-                  decoration: BoxDecoration(color: Theme.of(context).colorScheme.outlineVariant, borderRadius: BorderRadius.circular(12), border: Border.all(color: Theme.of(context).colorScheme.onSurfaceVariant!)),
-                  child: Center(child: Icon(Icons.add, size: 40, color: Theme.of(context).colorScheme.onSurfaceVariant)),
-                ),
-              ),
-          ],
-        ),
-      ],
-    );
-  }
-
-  Widget _buildPhotoItem({required Widget image, required VoidCallback onRemove}) {
-    return Stack(
-      children: [
-        Container(width: 100, height: 140, decoration: BoxDecoration(borderRadius: BorderRadius.circular(12), boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.1), blurRadius: 4, offset: const Offset(0, 2))]), child: ClipRRect(borderRadius: BorderRadius.circular(12), child: image)),
-        Positioned(top: 4, right: 4, child: GestureDetector(onTap: onRemove, child: Container(padding: const EdgeInsets.all(4), decoration: BoxDecoration(color: Theme.of(context).colorScheme.error, shape: BoxShape.circle), child: Icon(Icons.close, size: 14, color: Colors.white)))),
-      ],
-    );
-  }
-
-  Widget _buildNameSection() {
-    return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [Text(AppLocalizations.of(context)!.pr_name, style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600, color: Theme.of(context).colorScheme.onSurface)), SizedBox(height: 8), Container(decoration: BoxDecoration(color: Theme.of(context).colorScheme.surface, borderRadius: BorderRadius.circular(16), boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 10, offset: Offset(0, 2))]), child: TextField(controller: _nameController, decoration: InputDecoration(hintText: AppLocalizations.of(context)!.pr_enter_name, border: InputBorder.none, contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 16)), style: TextStyle(fontSize: 16)))]);
-  }
-
-  Widget _buildLocationSection() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(AppLocalizations.of(context)!.pr_location, style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600, color: Theme.of(context).colorScheme.onSurface)),
-        const SizedBox(height: 8),
-        Row(
-          children: [
-            Expanded(
-              child: Container(
-                decoration: BoxDecoration(color: Theme.of(context).colorScheme.surface, borderRadius: BorderRadius.circular(16), boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 10, offset: Offset(0, 2))]),
-                child: TextField(controller: _locationController, decoration: InputDecoration(hintText: AppLocalizations.of(context)!.pr_enter_city, border: InputBorder.none, contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 16)), style: const TextStyle(fontSize: 16)),
-              ),
-            ),
-            const SizedBox(width: 12),
-            GestureDetector(
-              onTap: _isLocating ? null : _useGPSLocation,
-              child: Container(
-                padding: const EdgeInsets.all(12),
-                decoration: BoxDecoration(
-                  color: _isLocating ? Theme.of(context).colorScheme.primary : Theme.of(context).colorScheme.primary,
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: _isLocating
-                    ? const SizedBox(
-                        height: 20, width: 20,
-                        child: CircularProgressIndicator(
-                            color: Colors.white, strokeWidth: 2),
-                      )
-                    : const Icon(Icons.my_location, color: Colors.white, size: 20),
-              ),
-            ),
-          ],
-        ),
-      ],
-    );
-  }
-
-  Widget _buildBirthDateSection() {
-    String dateText = _birthDate != null ? '${_birthDate!.day.toString().padLeft(2, '0')}.${_birthDate!.month.toString().padLeft(2, '0')}.${_birthDate!.year}' : AppLocalizations.of(context)!.pr_pick_birth;
-    return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [Text(AppLocalizations.of(context)!.pr_birth_date, style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600, color: Theme.of(context).colorScheme.onSurface)), SizedBox(height: 8), GestureDetector(onTap: _selectDate, child: Container(width: double.infinity, padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16), decoration: BoxDecoration(color: Theme.of(context).colorScheme.surface, borderRadius: BorderRadius.circular(16), boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 10, offset: Offset(0, 2))]), child: Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [Text(dateText, style: TextStyle(fontSize: 16, color: _birthDate != null ? Colors.black87 : Colors.grey[600])), Icon(Icons.calendar_today, color: Theme.of(context).colorScheme.primary, size: 20)])))]);
-  }
-
-  Widget _buildBioSection() {
-    return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [Text(AppLocalizations.of(context)!.pr_about, style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600, color: Theme.of(context).colorScheme.onSurface)), SizedBox(height: 8), Container(decoration: BoxDecoration(color: Theme.of(context).colorScheme.surface, borderRadius: BorderRadius.circular(16), boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 10, offset: Offset(0, 2))]), child: TextField(controller: _bioController, maxLines: 4, decoration: InputDecoration(hintText: AppLocalizations.of(context)!.pr_about_hint, border: InputBorder.none, contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 16)), style: TextStyle(fontSize: 16)))]);
-  }
-
+  /// Інтереси одним полем чипів, як у макеті: обрані залиті, тап перемикає.
+  /// Пошук і список із кружечками прибрані — на вісімнадцяти пунктах чипи
+  /// швидші й показують обране та доступне разом.
   Widget _buildHobbiesSection() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
+    return Wrap(
+      spacing: 8,
+      runSpacing: 8,
       children: [
-        Text(AppLocalizations.of(context)!.pr_hobbies, style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600, color: Theme.of(context).colorScheme.onSurface)),
-        const SizedBox(height: 8),
-        Container(
-          decoration: BoxDecoration(color: Theme.of(context).colorScheme.surface, borderRadius: BorderRadius.circular(16), boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 10, offset: Offset(0, 2))]),
-          child: Column(
-            children: [
-              if (_selectedHobbies.isNotEmpty) ...[
-                Padding(padding: const EdgeInsets.all(16), child: Wrap(spacing: 8, runSpacing: 8, children: _selectedHobbies.map((hobby) => _buildSelectedHobbyTag(hobby)).toList())),
-                const Divider(height: 1),
-              ],
-              Padding(padding: const EdgeInsets.all(16), child: Container(decoration: BoxDecoration(color: Theme.of(context).colorScheme.surfaceContainerHighest, borderRadius: BorderRadius.circular(12), border: Border.all(color: Theme.of(context).colorScheme.outlineVariant)), child: TextField(controller: _hobbySearchController ??= TextEditingController(), onChanged: _filterHobbies, decoration: InputDecoration(hintText: AppLocalizations.of(context)!.pr_search_hobby, prefixIcon: Icon(Icons.search, color: Theme.of(context).colorScheme.onSurfaceVariant), border: InputBorder.none, contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 12)), style: TextStyle(fontSize: 16)))),
-              Container(
-                constraints: const BoxConstraints(maxHeight: 200),
-                child: _filteredHobbies.isEmpty && _hobbySearchQuery.isNotEmpty ? _buildNoResultsMessage() : ListView.builder(shrinkWrap: true, itemCount: _filteredHobbies.length, itemBuilder: (context, index) {
-                  final hobby = _filteredHobbies[index];
-                  final isSelected = _selectedHobbies.contains(hobby);
-                  return ListTile(leading: Icon(isSelected ? Icons.check_circle : Icons.radio_button_unchecked, color: isSelected ? Theme.of(context).colorScheme.primary : Colors.grey), title: Text(InterestLabels.of(context, hobby), style: TextStyle(color: isSelected ? Theme.of(context).colorScheme.primary : Colors.black87, fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal)), onTap: () => setState(() { isSelected ? _selectedHobbies.remove(hobby) : (_selectedHobbies.length < 8 ? _selectedHobbies.add(hobby) : _showMaxHobbiesDialog()); }));
-                }),
-              ),
-            ],
+        for (final hobby in _availableHobbies)
+          DsChip(
+            label: InterestLabels.of(context, hobby),
+            small: true,
+            selected: _selectedHobbies.contains(hobby),
+            onTap: () => setState(() {
+              if (_selectedHobbies.contains(hobby)) {
+                _selectedHobbies.remove(hobby);
+              } else if (_selectedHobbies.length < 8) {
+                _selectedHobbies.add(hobby);
+              } else {
+                _showMaxHobbiesDialog();
+              }
+            }),
           ),
-        ),
       ],
     );
-  }
-
-  Widget _buildSelectedHobbyTag(String hobby) {
-    return Container(padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6), decoration: BoxDecoration(color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.1), borderRadius: BorderRadius.circular(16), border: Border.all(color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.3))), child: Row(mainAxisSize: MainAxisSize.min, children: [Text(InterestLabels.of(context, hobby), style: TextStyle(fontSize: 12, fontWeight: FontWeight.w500, color: Theme.of(context).colorScheme.primary)), SizedBox(width: 4), GestureDetector(onTap: () => setState(() => _selectedHobbies.remove(hobby)), child: Icon(Icons.close, size: 14, color: Theme.of(context).colorScheme.primary))]));
-  }
-
-  Widget _buildSaveButton() {
-    return SizedBox(width: double.infinity, child: ElevatedButton(onPressed: _isUploading ? null : _saveProfile, style: ElevatedButton.styleFrom(backgroundColor: Theme.of(context).colorScheme.primary, foregroundColor: Colors.white, padding: const EdgeInsets.symmetric(vertical: 16), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)), elevation: 0), child: _isUploading ? SizedBox(height: 20, width: 20, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2)) : Text(AppLocalizations.of(context)!.pr_save_changes, style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600))));
   }
 
   // --- ДОПОМІЖНІ МЕТОДИ ---
@@ -544,7 +598,20 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   }
 
   void _showMaxHobbiesDialog() { showDialog(context: context, builder: (context) => AlertDialog(title: Text(AppLocalizations.of(context)!.pr_limit), content: Text(AppLocalizations.of(context)!.pr_max_hobbies), actions: [TextButton(onPressed: () => Navigator.of(context).pop(), child: const Text('OK'))])); }
-  void _filterHobbies(String query) { setState(() { _hobbySearchQuery = query.toLowerCase(); _filteredHobbies = query.isEmpty ? List.from(_availableHobbies) : _availableHobbies.where((hobby) => hobby.toLowerCase().contains(_hobbySearchQuery)).toList(); }); }
-  Widget _buildNoResultsMessage() { return Container(padding: const EdgeInsets.all(20), child: Column(children: [Icon(Icons.search_off, size: 48, color: Theme.of(context).colorScheme.onSurfaceVariant), SizedBox(height: 12), Text(AppLocalizations.of(context)!.pr_no_hobbies, style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500, color: Theme.of(context).colorScheme.onSurfaceVariant)), SizedBox(height: 8), Text(AppLocalizations.of(context)!.pr_try_other_query, style: TextStyle(fontSize: 14, color: Theme.of(context).colorScheme.onSurfaceVariant))])); }
-  void _showErrorDialog(String message) { showDialog(context: context, builder: (context) => AlertDialog(title: const Text('Помилка'), content: Text(message), actions: [TextButton(onPressed: () => Navigator.of(context).pop(), child: const Text('OK'))])); }
+
+  void _showErrorDialog(String message) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text(AppLocalizations.of(context)!.error),
+        content: Text(message),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: Text(AppLocalizations.of(context)!.ok),
+          ),
+        ],
+      ),
+    );
+  }
 }

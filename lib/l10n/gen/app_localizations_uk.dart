@@ -1661,4 +1661,44 @@ class AppLocalizationsUk extends AppLocalizations {
 
   @override
   String get profile_add_interests => 'Додати інтереси →';
+
+  @override
+  String feed_empty_radius_title(int km) {
+    return 'У радіусі $km км нікого';
+  }
+
+  @override
+  String get feed_empty_widen_hint =>
+      'Ви в тихому районі. Спробуйте ширше — люди зазвичай готові проїхати пів години.';
+
+  @override
+  String get or_word => 'Або';
+
+  @override
+  String get feed_empty_events_link =>
+      'перегляньте події — до них приєднуються';
+
+  @override
+  String get feed_finished_body =>
+      'Ви переглянули всіх поруч. Нові люди з\'являються щодня.';
+
+  @override
+  String get seg_invites => 'Запрошення';
+
+  @override
+  String get m_accepted_chip => 'прийнято';
+
+  @override
+  String get m_pending_chip => 'очікує';
+
+  @override
+  String get m_chat_open => 'чат відкрито';
+
+  @override
+  String get pr_update_location => 'Оновити';
+
+  @override
+  String of_count(int total) {
+    return 'з $total';
+  }
 }

@@ -1665,4 +1665,43 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get profile_add_interests => 'Dodaj zainteresowania →';
+
+  @override
+  String feed_empty_radius_title(int km) {
+    return 'Nikogo w promieniu $km km';
+  }
+
+  @override
+  String get feed_empty_widen_hint =>
+      'Okolica jest cicha. Spróbuj szerzej — ludzie zwykle chętnie jadą pół godziny.';
+
+  @override
+  String get or_word => 'Albo';
+
+  @override
+  String get feed_empty_events_link => 'zobacz wydarzenia — do nich dołączają';
+
+  @override
+  String get feed_finished_body =>
+      'Widziałeś już wszystkich w okolicy. Nowe osoby pojawiają się codziennie.';
+
+  @override
+  String get seg_invites => 'Zaproszenia';
+
+  @override
+  String get m_accepted_chip => 'przyjęto';
+
+  @override
+  String get m_pending_chip => 'oczekuje';
+
+  @override
+  String get m_chat_open => 'czat otwarty';
+
+  @override
+  String get pr_update_location => 'Odśwież';
+
+  @override
+  String of_count(int total) {
+    return 'z $total';
+  }
 }

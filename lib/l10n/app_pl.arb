@@ -558,5 +558,30 @@
   },
   "online_now": "Teraz online",
   "profile_add_about": "Opowiedz o sobie →",
-  "profile_add_interests": "Dodaj zainteresowania →"
+  "profile_add_interests": "Dodaj zainteresowania →",
+  "feed_empty_radius_title": "Nikogo w promieniu {km} km",
+  "@feed_empty_radius_title": {
+    "placeholders": {
+      "km": {
+        "type": "int"
+      }
+    }
+  },
+  "feed_empty_widen_hint": "Okolica jest cicha. Spróbuj szerzej — ludzie zwykle chętnie jadą pół godziny.",
+  "or_word": "Albo",
+  "feed_empty_events_link": "zobacz wydarzenia — do nich dołączają",
+  "feed_finished_body": "Widziałeś już wszystkich w okolicy. Nowe osoby pojawiają się codziennie.",
+  "seg_invites": "Zaproszenia",
+  "m_accepted_chip": "przyjęto",
+  "m_pending_chip": "oczekuje",
+  "m_chat_open": "czat otwarty",
+  "pr_update_location": "Odśwież",
+  "of_count": "z {total}",
+  "@of_count": {
+    "placeholders": {
+      "total": {
+        "type": "int"
+      }
+    }
+  }
 }

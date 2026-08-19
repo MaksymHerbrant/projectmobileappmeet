@@ -558,5 +558,30 @@
   },
   "online_now": "Online agora",
   "profile_add_about": "Fale sobre si →",
-  "profile_add_interests": "Adicionar interesses →"
+  "profile_add_interests": "Adicionar interesses →",
+  "feed_empty_radius_title": "Ninguém num raio de {km} km",
+  "@feed_empty_radius_title": {
+    "placeholders": {
+      "km": {
+        "type": "int"
+      }
+    }
+  },
+  "feed_empty_widen_hint": "A zona é calma. Tente um raio maior — as pessoas costumam aceitar meia hora de viagem.",
+  "or_word": "Ou",
+  "feed_empty_events_link": "veja os eventos — as pessoas juntam-se a eles",
+  "feed_finished_body": "Já viu toda a gente por perto. Aparecem pessoas novas todos os dias.",
+  "seg_invites": "Convites",
+  "m_accepted_chip": "aceite",
+  "m_pending_chip": "pendente",
+  "m_chat_open": "chat aberto",
+  "pr_update_location": "Atualizar",
+  "of_count": "de {total}",
+  "@of_count": {
+    "placeholders": {
+      "total": {
+        "type": "int"
+      }
+    }
+  }
 }

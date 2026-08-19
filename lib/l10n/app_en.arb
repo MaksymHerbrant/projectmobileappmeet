@@ -745,5 +745,30 @@
   },
   "online_now": "Online now",
   "profile_add_about": "Tell people about yourself →",
-  "profile_add_interests": "Add your interests →"
+  "profile_add_interests": "Add your interests →",
+  "feed_empty_radius_title": "No one within {km} km",
+  "@feed_empty_radius_title": {
+    "placeholders": {
+      "km": {
+        "type": "int"
+      }
+    }
+  },
+  "feed_empty_widen_hint": "It’s quiet around here. Try a wider radius — people are usually happy to travel half an hour.",
+  "or_word": "Or",
+  "feed_empty_events_link": "check out the events — people join those",
+  "feed_finished_body": "You’ve seen everyone nearby. New people show up every day.",
+  "seg_invites": "Invites",
+  "m_accepted_chip": "accepted",
+  "m_pending_chip": "pending",
+  "m_chat_open": "chat open",
+  "pr_update_location": "Update",
+  "of_count": "of {total}",
+  "@of_count": {
+    "placeholders": {
+      "total": {
+        "type": "int"
+      }
+    }
+  }
 }

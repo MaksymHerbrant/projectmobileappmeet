@@ -3229,6 +3229,72 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Add your interests →'**
   String get profile_add_interests;
+
+  /// No description provided for @feed_empty_radius_title.
+  ///
+  /// In en, this message translates to:
+  /// **'No one within {km} km'**
+  String feed_empty_radius_title(int km);
+
+  /// No description provided for @feed_empty_widen_hint.
+  ///
+  /// In en, this message translates to:
+  /// **'It’s quiet around here. Try a wider radius — people are usually happy to travel half an hour.'**
+  String get feed_empty_widen_hint;
+
+  /// No description provided for @or_word.
+  ///
+  /// In en, this message translates to:
+  /// **'Or'**
+  String get or_word;
+
+  /// No description provided for @feed_empty_events_link.
+  ///
+  /// In en, this message translates to:
+  /// **'check out the events — people join those'**
+  String get feed_empty_events_link;
+
+  /// No description provided for @feed_finished_body.
+  ///
+  /// In en, this message translates to:
+  /// **'You’ve seen everyone nearby. New people show up every day.'**
+  String get feed_finished_body;
+
+  /// No description provided for @seg_invites.
+  ///
+  /// In en, this message translates to:
+  /// **'Invites'**
+  String get seg_invites;
+
+  /// No description provided for @m_accepted_chip.
+  ///
+  /// In en, this message translates to:
+  /// **'accepted'**
+  String get m_accepted_chip;
+
+  /// No description provided for @m_pending_chip.
+  ///
+  /// In en, this message translates to:
+  /// **'pending'**
+  String get m_pending_chip;
+
+  /// No description provided for @m_chat_open.
+  ///
+  /// In en, this message translates to:
+  /// **'chat open'**
+  String get m_chat_open;
+
+  /// No description provided for @pr_update_location.
+  ///
+  /// In en, this message translates to:
+  /// **'Update'**
+  String get pr_update_location;
+
+  /// No description provided for @of_count.
+  ///
+  /// In en, this message translates to:
+  /// **'of {total}'**
+  String of_count(int total);
 }
 
 class _AppLocalizationsDelegate

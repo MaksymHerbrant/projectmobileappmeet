@@ -558,5 +558,30 @@
   },
   "online_now": "Зараз онлайн",
   "profile_add_about": "Розкажіть про себе →",
-  "profile_add_interests": "Додати інтереси →"
+  "profile_add_interests": "Додати інтереси →",
+  "feed_empty_radius_title": "У радіусі {km} км нікого",
+  "@feed_empty_radius_title": {
+    "placeholders": {
+      "km": {
+        "type": "int"
+      }
+    }
+  },
+  "feed_empty_widen_hint": "Ви в тихому районі. Спробуйте ширше — люди зазвичай готові проїхати пів години.",
+  "or_word": "Або",
+  "feed_empty_events_link": "перегляньте події — до них приєднуються",
+  "feed_finished_body": "Ви переглянули всіх поруч. Нові люди з'являються щодня.",
+  "seg_invites": "Запрошення",
+  "m_accepted_chip": "прийнято",
+  "m_pending_chip": "очікує",
+  "m_chat_open": "чат відкрито",
+  "pr_update_location": "Оновити",
+  "of_count": "з {total}",
+  "@of_count": {
+    "placeholders": {
+      "total": {
+        "type": "int"
+      }
+    }
+  }
 }

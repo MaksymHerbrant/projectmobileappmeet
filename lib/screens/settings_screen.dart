@@ -201,6 +201,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
       icon: leading,
       selected: selected,
       onTap: onTap,
+      chevron: false,
     );
   }
 

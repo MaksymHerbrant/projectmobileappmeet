@@ -583,8 +583,9 @@ class DsChip extends StatelessWidget {
           child: Container(
             height: small ? 28 : Ds.hChip,
             padding: EdgeInsets.symmetric(horizontal: small ? 11 : 14),
-            alignment: Alignment.center,
             child: Row(
+              // min — інакше Container з alignment у Wrap чи Positioned
+              // розтягнувся б на всю доступну ширину.
               mainAxisSize: MainAxisSize.min,
               children: [
                 if (icon != null) ...[
@@ -641,10 +642,11 @@ class DsPhotoBlock extends StatelessWidget {
       ),
       alignment: Alignment.center,
       child: child ??
-          (initial == null
+          (initial == null || initial!.isEmpty
               ? null
               : Text(
-                  initial!,
+                  // Перша літера, а не весь рядок: сюди передають повну назву.
+                  initial!.characters.first.toUpperCase(),
                   style: TextStyle(
                     fontSize: fontSize,
                     fontWeight: FontWeight.w800,
@@ -842,7 +844,6 @@ class DsPill extends StatelessWidget {
         color: const Color(0x6B000000),
         borderRadius: BorderRadius.circular(999),
       ),
-      alignment: Alignment.center,
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
@@ -1337,6 +1338,10 @@ class DsRow extends StatelessWidget {
   final bool destructive;
   final Widget? trailing;
 
+  /// Рядки-варіанти (мова, тема) стрілку не показують: вона означає
+  /// «відкриється екран», а тут вибір робиться на місці.
+  final bool chevron;
+
   const DsRow({
     super.key,
     required this.label,
@@ -1346,6 +1351,7 @@ class DsRow extends StatelessWidget {
     this.selected = false,
     this.destructive = false,
     this.trailing,
+    this.chevron = true,
   });
 
   @override
@@ -1401,11 +1407,89 @@ class DsRow extends StatelessWidget {
               trailing!
             else if (selected)
               Icon(Icons.check_rounded, size: 20, color: scheme.primary)
-            else if (onTap != null)
+            else if (onTap != null && chevron)
               Icon(Icons.chevron_right_rounded, size: 20, color: scheme.onSurfaceVariant),
           ],
         ),
       ),
+    );
+  }
+}
+
+/// Порожній стан за `design/FeedEmpty.dc.html`: кільця, кружок з іконкою,
+/// заголовок, пояснення, головна дія і тихий другий варіант.
+class DsEmptyState extends StatelessWidget {
+  final IconData icon;
+  final String title;
+  final String body;
+  final String? actionLabel;
+  final VoidCallback? onAction;
+  final Widget? footer;
+
+  const DsEmptyState({
+    super.key,
+    required this.icon,
+    required this.title,
+    required this.body,
+    this.actionLabel,
+    this.onAction,
+    this.footer,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final scheme = context.scheme;
+
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        return Stack(
+          children: [
+            Positioned.fill(
+              child: DsRings(
+                centerY: constraints.maxHeight / 2 - 40,
+                startRadius: 95,
+                gap: 55,
+                opacity: 0.45,
+              ),
+            ),
+            Center(
+              child: SingleChildScrollView(
+                padding: const EdgeInsets.symmetric(horizontal: 40),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Container(
+                      width: 72,
+                      height: 72,
+                      decoration: BoxDecoration(
+                        color: scheme.surface,
+                        shape: BoxShape.circle,
+                        boxShadow: Ds.shadow(context),
+                      ),
+                      child: Icon(icon, size: 30, color: scheme.onSurfaceVariant),
+                    ),
+                    const SizedBox(height: 24),
+                    Text(title, textAlign: TextAlign.center, style: Ds.h2(context)),
+                    const SizedBox(height: 10),
+                    ConstrainedBox(
+                      constraints: const BoxConstraints(maxWidth: 260),
+                      child: Text(body, textAlign: TextAlign.center, style: Ds.sub(context)),
+                    ),
+                    if (actionLabel != null) ...[
+                      const SizedBox(height: 18),
+                      DsButton(label: actionLabel!, onPressed: onAction),
+                    ],
+                    if (footer != null) ...[
+                      const SizedBox(height: 12),
+                      footer!,
+                    ],
+                  ],
+                ),
+              ),
+            ),
+          ],
+        );
+      },
     );
   }
 }

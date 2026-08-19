@@ -168,51 +168,18 @@ class _EventsScreenState extends State<EventsScreen> {
     );
   }
 
-  // 🟢 Гарний віджет для повідомлення "Все скінчилось"
   Widget _buildNoMoreEventsState() {
-    return Center(
-      child: Padding(
-        padding: const EdgeInsets.all(30.0),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Container(
-              padding: const EdgeInsets.all(20),
-              decoration: BoxDecoration(
-                color: Theme.of(context).colorScheme.surface,
-                shape: BoxShape.circle,
-                boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.1), blurRadius: 10)]
-              ),
-              child: Icon(Icons.sentiment_dissatisfied, size: 60, color: Theme.of(context).colorScheme.onSurfaceVariant),
-            ),
-            const SizedBox(height: 24),
-            Text(
-              AppLocalizations.of(context)!.events_finished_title,
-              style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Theme.of(context).colorScheme.onSurface),
-            ),
-            const SizedBox(height: 12),
-            Text(
-              AppLocalizations.of(context)!.events_finished_body,
-              textAlign: TextAlign.center,
-              style: TextStyle(fontSize: 16, color: Theme.of(context).colorScheme.onSurfaceVariant),
-            ),
-            const SizedBox(height: 30),
-            ElevatedButton.icon(
-              onPressed: _loadEvents,
-              icon: const Icon(Icons.refresh),
-              label: Text(AppLocalizations.of(context)!.refresh),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.black, // Або твій основний колір
-                foregroundColor: Colors.white,
-                padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 15),
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
-              ),
-            ),
-          ],
-        ),
-      ),
+    final t = AppLocalizations.of(context)!;
+
+    return DsEmptyState(
+      icon: Icons.event_available_outlined,
+      title: t.events_finished_title,
+      body: t.events_finished_body,
+      actionLabel: t.refresh,
+      onAction: _loadEvents,
     );
   }
+
   Widget _buildEventCard(Event event) {
     // Ініціалізація контролера, якщо ще немає
     if (!_photoControllers.containsKey(event.id)) {
