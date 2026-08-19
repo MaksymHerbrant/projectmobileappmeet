@@ -19,9 +19,11 @@ import 'registration_screen.dart';
 class LandingScreen extends StatelessWidget {
   const LandingScreen({super.key});
 
-  /// Відступ від верху безпечної зони до знака й розмір самого знака.
+  /// Відступ від верху кадру до знака й розмір самого знака — з Main.dc.html
+  /// (`padding-top:104`). У макеті відступ рахується разом зі статусним
+  /// рядком, тому в build від нього віднімається верхній inset.
   /// Кільця беруть центр саме звідси, тому ці числа в одному місці.
-  static const double _markTop = 64;
+  static const double _markTop = 104;
   static const double _markSize = 76;
 
   @override
@@ -45,8 +47,10 @@ class LandingScreen extends StatelessWidget {
                 builder: (context, constraints) {
                   // На низьких екранах (SE) верхній відступ і кегль заголовка
                   // стискаються, інакше нижній текст не влазить.
+                  final inset = MediaQuery.paddingOf(context).top;
                   final short = constraints.maxHeight < 700;
-                  final markTop = short ? 26.0 : _markTop;
+                  final markTop =
+                      short ? 26.0 : (_markTop - inset).clamp(40.0, _markTop);
                   final headline = short ? 28.0 : 34.0;
 
                   return Stack(
@@ -66,12 +70,12 @@ class LandingScreen extends StatelessWidget {
                               BoxConstraints(minHeight: constraints.maxHeight),
                           child: IntrinsicHeight(
                             child: Padding(
-                              padding: const EdgeInsets.fromLTRB(20, 0, 20, 28),
+                              padding: const EdgeInsets.fromLTRB(20, 0, 20, 40),
                               child: Column(
                                 children: [
                                   SizedBox(height: markTop),
                                   _Mark(scheme: scheme),
-                                  const SizedBox(height: 20),
+                                  const SizedBox(height: 32),
                                   Text(
                                     t.landing_eyebrow.toUpperCase(),
                                     style: TextStyle(
