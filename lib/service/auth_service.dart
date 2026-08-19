@@ -84,9 +84,15 @@ class AuthService {
 
     try {
       // А) Встановлюємо пароль для користувача (щоб міг входити потім без смс)
-      await _supabase.auth.updateUser(
-        UserAttributes(password: password),
-      );
+      try {
+        await _supabase.auth.updateUser(
+          UserAttributes(password: password),
+        );
+      } on AuthApiException catch (e) {
+        // Незавершена реєстрація, розпочата заново з тим самим номером і
+        // паролем: пароль уже саме такий, міняти нічого — ідемо далі.
+        if (e.code != 'same_password') rethrow;
+      }
 
       // Б) Записуємо анкету в таблицю 'profiles'
       await _supabase.from('profiles').upsert({

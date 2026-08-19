@@ -107,6 +107,9 @@ class Ds {
 /// Прокрутка тут не декоративна. Макет намальовано під 390×844; на 320×568
 /// або зі збільшеним системним шрифтом вміст не влазить, і без цього він
 /// обрізався б мовчки — на реальному телефоні це помітно вже на першому кроці.
+///
+/// На широких екранах (планшет, веб) колонка вмісту обмежена: поле вводу на
+/// всю ширину монітора виглядає зламаним, а макет малювався під телефон.
 class DsScreen extends StatelessWidget {
   final Widget child;
 
@@ -125,12 +128,17 @@ class DsScreen extends StatelessWidget {
         decoration: Ds.background(context),
         child: SafeArea(
           bottom: false,
-          child: Column(
-            children: [
-              if (top != null) top!,
-              Expanded(child: child),
-              if (bottom != null) bottom!,
-            ],
+          child: Center(
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: 560),
+              child: Column(
+                children: [
+                  if (top != null) top!,
+                  Expanded(child: child),
+                  if (bottom != null) bottom!,
+                ],
+              ),
+            ),
           ),
         ),
       ),

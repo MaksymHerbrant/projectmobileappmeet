@@ -132,7 +132,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text(e.toString().replaceAll('Exception:', '')),
+            content: Text(_errorText(e)),
             backgroundColor: Theme.of(context).colorScheme.error,
           ),
         );
@@ -162,12 +162,24 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text(e.toString().replaceAll('Exception:', '')),
+            content: Text(_errorText(e)),
             backgroundColor: Theme.of(context).colorScheme.error,
           ),
         );
       }
     }
+  }
+
+  /// Людський текст помилки. Валідація кидає Exception із готовим перекладом,
+  /// сервіси — AppFailure з кодом; сирий toString не показуємо ніколи.
+  String _errorText(Object e) {
+    if (e is AppFailure) return e.localized(context);
+    if (e is Exception) {
+      final raw = e.toString().replaceFirst('Exception:', '').trim();
+      // Повідомлення власної валідації — вже перекладені й короткі.
+      if (!raw.contains('Exception') && raw.length < 120) return raw;
+    }
+    return ErrorReporter.message(context, e);
   }
 
   void _showUserExistsDialog() {
