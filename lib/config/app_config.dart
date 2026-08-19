@@ -15,7 +15,7 @@ class AppConfig {
   );
   static const String placeholderAvatarUrl = String.fromEnvironment(
     'PLACEHOLDER_AVATAR_URL',
-    defaultValue: 'https://ui-avatars.com/api/?name=User',
+    defaultValue: 'https://ui-avatars.com/api/?name=User&format=png',
   );
 
   /// Порожній за замовчуванням — без DSN Sentry просто не вмикається,

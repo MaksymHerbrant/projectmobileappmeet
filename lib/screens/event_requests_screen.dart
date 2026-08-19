@@ -87,10 +87,10 @@ class _EventRequestsScreenState extends State<EventRequestsScreen> {
 
   // Хелпер для фото
   ImageProvider _getImageProvider(List<String>? photos) {
-    if (photos == null || photos.isEmpty) return const NetworkImage('https://ui-avatars.com/api/?name=User&background=random');
+    if (photos == null || photos.isEmpty) return const NetworkImage('https://ui-avatars.com/api/?name=User&format=png&background=random');
     final path = photos.first;
     if (path.startsWith('http')) return NetworkImage(path);
-    if (path.contains('placeholder')) return const NetworkImage('https://ui-avatars.com/api/?name=User&background=random');
+    if (path.contains('placeholder')) return const NetworkImage('https://ui-avatars.com/api/?name=User&format=png&background=random');
     return AssetImage(path);
   }
 

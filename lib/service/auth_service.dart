@@ -94,14 +94,17 @@ class AuthService {
         if (e.code != 'same_password') rethrow;
       }
 
-      // Б) Записуємо анкету в таблицю 'profiles'
-      await _supabase.from('profiles').upsert({
-        'id': user.id,
+      // Б) Записуємо анкету в таблицю 'profiles'.
+      //
+      // Саме UPDATE, а не upsert: рядок уже створив тригер on_auth_user_created,
+      // а upsert (INSERT ... ON CONFLICT) вимагає SELECT на таблицю — його в
+      // authenticated свідомо немає після захисту колонок із телефонами.
+      // Телефон теж не пишемо: тригер уже поклав його з auth.
+      await _supabase.from('profiles').update({
         'full_name': name,
         'birth_date': birthDate.toIso8601String(),
-        'phone': user.phone,
         'updated_at': DateTime.now().toIso8601String(),
-      });
+      }).eq('id', user.id);
       await updateFcmToken();
     } catch (e) {
       throw AppFailure(FailureKind.save, details: e.toString());

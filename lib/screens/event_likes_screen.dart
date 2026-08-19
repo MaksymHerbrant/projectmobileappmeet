@@ -56,7 +56,7 @@ class _EventLikesScreenState extends State<EventLikesScreen> {
   // 👇 Хелпер для фото (захист від помилок 404)
   ImageProvider _getImageProvider(List<String>? photos) {
     if (photos == null || photos.isEmpty) {
-      return const NetworkImage('https://ui-avatars.com/api/?name=User&background=random');
+      return const NetworkImage('https://ui-avatars.com/api/?name=User&format=png&background=random');
     }
     
     final String path = photos.first;
@@ -68,7 +68,7 @@ class _EventLikesScreenState extends State<EventLikesScreen> {
     
     // Якщо це старий placeholder, який викликав помилку
     if (path.contains('placeholder')) {
-       return const NetworkImage('https://ui-avatars.com/api/?name=User&background=random');
+       return const NetworkImage('https://ui-avatars.com/api/?name=User&format=png&background=random');
     }
 
     // Локальний асет

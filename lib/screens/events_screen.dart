@@ -73,13 +73,13 @@ class _EventsScreenState extends State<EventsScreen> {
 
   ImageProvider _getSingleImageProvider(String? path) {
     if (path == null || path.isEmpty) {
-      return const NetworkImage('https://ui-avatars.com/api/?name=Event&background=random');
+      return const NetworkImage('https://ui-avatars.com/api/?name=Event&format=png&background=random');
     }
     if (path.startsWith('http')) {
       return NetworkImage(path);
     }
     if (path.contains('placeholder')) {
-       return const NetworkImage('https://ui-avatars.com/api/?name=Event&background=random');
+       return const NetworkImage('https://ui-avatars.com/api/?name=Event&format=png&background=random');
     }
     return AssetImage(path);
   }

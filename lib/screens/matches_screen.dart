@@ -54,7 +54,7 @@ class _MatchesScreenState extends State<MatchesScreen> with SingleTickerProvider
   // 🟢 Хелпер для картинок (Network vs Asset)
   ImageProvider _getImageProvider(List<String>? photos) {
     if (photos == null || photos.isEmpty) {
-      return const NetworkImage('https://ui-avatars.com/api/?name=User&background=random');
+      return const NetworkImage('https://ui-avatars.com/api/?name=User&format=png&background=random');
     }
     
     final String path = photos.first;
@@ -65,7 +65,7 @@ class _MatchesScreenState extends State<MatchesScreen> with SingleTickerProvider
     
     // Для демо-даних (assets/...)
     if (path.contains('placeholder')) {
-       return const NetworkImage('https://ui-avatars.com/api/?name=User&background=random');
+       return const NetworkImage('https://ui-avatars.com/api/?name=User&format=png&background=random');
     }
 
     return AssetImage(path);
