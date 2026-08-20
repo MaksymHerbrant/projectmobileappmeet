@@ -30,8 +30,11 @@ class RegistrationScreen extends StatefulWidget {
 class _RegistrationScreenState extends State<RegistrationScreen> {
   static const int _stepCount = 4;
 
-  /// Скільки секунд чекати до повторного SMS.
+  /// Скільки секунд чекати до повторного листа.
   static const int _resendSeconds = 60;
+
+  /// Довжина коду з листа. Має збігатися з «Email OTP Length» у Supabase.
+  static const int _codeLength = 6;
 
   final _authService = AuthService();
   final PageController _pageController = PageController();
@@ -115,7 +118,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
         // дія, тож покинута реєстрація не лишає в базі нічого, крім
         // непідтвердженого запису auth, який не блокує адресу й не видний
         // у стрічці.
-        if (_smsController.text.length < 6) {
+        if (_smsController.text.length < _codeLength) {
           throw Exception(AppLocalizations.of(context)!.rg_code_incomplete);
         }
         await _authService.verifyEmailCode(
@@ -405,12 +408,13 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
               // Макет малює комірки по 48 з проміжком 8. На вузькому екрані
               // шість таких у рядок не вміщаються, тож комірка стискається.
               const gap = 8.0;
-              final cell =
-                  ((constraints.maxWidth - gap * 5) / 6).clamp(34.0, 48.0);
+              final cell = ((constraints.maxWidth - gap * (_codeLength - 1)) /
+                      _codeLength)
+                  .clamp(34.0, 48.0);
 
               return Row(
                 children: [
-                  for (var i = 0; i < 6; i++) ...[
+                  for (var i = 0; i < _codeLength; i++) ...[
                     if (i > 0) const SizedBox(width: gap),
                     _CodeCell(
                       width: cell,
@@ -435,11 +439,13 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
             controller: _smsController,
             focusNode: _smsFocusNode,
             keyboardType: TextInputType.number,
-            maxLength: 6,
+            maxLength: _codeLength,
             inputFormatters: [FilteringTextInputFormatter.digitsOnly],
             onChanged: (v) {
               setState(() {});
-              if (v.length == 6) _handleNext(); // Авто-перевірка при заповненні
+              if (v.length == _codeLength) {
+                _handleNext(); // Авто-перевірка при заповненні
+              }
             },
           ),
         ),
