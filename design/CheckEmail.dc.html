@@ -101,22 +101,31 @@
 
 <div class="top"><div class="iconbtn"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg></div><div class="sp"></div>
   <div class="tiny">Крок 2 з 5</div></div>
+<div class="rings" style="top:-60px">
+  <i style="width:210px;height:210px"></i><i style="width:330px;height:330px"></i>
+  <i style="width:450px;height:450px"></i></div>
 <div class="body pad">
   <div class="bar" style="margin-bottom:28px"><i style="width:40%"></i></div>
-  <h1>Код із SMS</h1>
-  <p class="sub" style="margin-top:10px">Надіслали на <b style="color:var(--on-sur)">+380 67 123 45 67</b></p>
-  <div class="row gap8" style="margin-top:26px"><div class="field" style="width:48px;justify-content:center;font-weight:700;border-color:var(--pri);border-width:1.5px">4</div><div class="field" style="width:48px;justify-content:center;font-weight:700;border-color:var(--pri);border-width:1.5px">9</div><div class="field" style="width:48px;justify-content:center;font-weight:700;border-color:var(--pri);border-width:1.5px">1</div><div class="field" style="width:48px;justify-content:center;font-weight:700;border-color:var(--pri);border-width:1.5px">7</div><div class="field" style="width:48px;justify-content:center;font-weight:700;"></div><div class="field" style="width:48px;justify-content:center;font-weight:700;"></div></div>
-  <p class="tiny" style="margin-top:18px">Надіслати ще раз можна через <b style="color:var(--on-sur)">0:42</b></p>
+  <div class="col" style="align-items:center;text-align:center;position:relative;margin-top:26px">
+    <div style="width:88px;height:88px;border-radius:50%;background:var(--sur);color:var(--pri);
+      display:grid;place-items:center;box-shadow:var(--sh)"><span style="transform:scale(1.7)"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 7l10 6 10-6"/></svg></span></div>
+    <h1 style="margin-top:26px;max-width:300px">Перевірте пошту</h1>
+    <p class="sub" style="margin-top:12px;max-width:290px">Надіслали лист на
+      <b style="color:var(--on-sur)">maks@gmail.com</b>.<br>Відкрийте посилання в ньому — і все.</p>
+    <div class="chip" style="margin-top:18px">Відкрити поштовий застосунок</div>
+  </div>
   <div style="flex:1"></div>
-  <div class="btn" style="margin-bottom:36px">Підтвердити</div>
+  <p class="tiny" style="text-align:center;margin-bottom:14px">Не прийшов? Загляньте у «Спам».<br>
+    Надіслати ще раз можна через <b style="color:var(--on-sur)">0:42</b></p>
+  <div class="btn" style="margin-bottom:36px">Я підтвердив — далі</div>
 </div>
 
 </div>
 </x-dc>
-<script data-dc-script data-props='{"dark":{"editor":"boolean","default":true,"section":"Тема"}}'>
+<script data-dc-script data-props='{"dark":{"editor":"boolean","default":false,"section":"Тема"}}'>
 class Component extends DCLogic {
   renderVals() {
-    return { theme: (this.props.dark ?? true) ? 'dark' : 'light' };
+    return { theme: (this.props.dark ?? false) ? 'dark' : 'light' };
   }
 }
 </script>
