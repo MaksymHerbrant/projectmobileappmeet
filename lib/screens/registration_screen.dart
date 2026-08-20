@@ -76,7 +76,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
 
     try {
       if (_currentStep == 0) {
-        // КРОК 1: ПОШТА + ПАРОЛЬ
+        // КРОК 1: ПОШТА + ПАРОЛЬ — лише перевірки, у базу ще нічого не йде.
         final email = _emailController.text.trim();
         if (!email.contains('@') || !email.contains('.')) {
           throw Exception(AppLocalizations.of(context)!.enter_valid_email);
@@ -85,39 +85,41 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
           throw Exception(AppLocalizations.of(context)!.rg_password_short);
         }
 
-        // Пошта вже зареєстрована → пропонуємо вхід, а не другий акаунт.
+        // Пошта вже зареєстрована (і підтверджена) → пропонуємо вхід.
         final bool exists = await _authService.checkEmailRegistered(email);
         if (exists) {
           setState(() => _isLoading = false);
           _showUserExistsDialog();
           return;
         }
-
-        await _authService.sendEmailCode(email);
+        _goToNextPage();
+      } else if (_currentStep == 1) {
+        // КРОК 2: ІМ'Я — локально.
+        if (_nameController.text.trim().isEmpty)
+          throw const AppFailure(FailureKind.save);
+        _goToNextPage();
+      } else if (_currentStep == 2) {
+        // КРОК 3: ДАТА — локально; лише тепер шлемо код.
+        if (_selectedDate == null) {
+          throw Exception(AppLocalizations.of(context)!.rg_need_birth);
+        }
+        await _authService.sendEmailCode(_emailController.text.trim());
         _startResendCountdown();
         _goToNextPage();
 
         Future.delayed(const Duration(milliseconds: 400), () {
           if (mounted) _smsFocusNode.requestFocus();
         });
-      } else if (_currentStep == 1) {
-        // КРОК 2: КОД ІЗ ЛИСТА
+      } else if (_currentStep == 3) {
+        // КРОК 4 (останній): КОД. Підтвердження і створення анкети — одна
+        // дія, тож покинута реєстрація не лишає в базі нічого, крім
+        // непідтвердженого запису auth, який не блокує адресу й не видний
+        // у стрічці.
         if (_smsController.text.length < 6) {
           throw Exception(AppLocalizations.of(context)!.rg_code_incomplete);
         }
         await _authService.verifyEmailCode(
             _emailController.text, _smsController.text);
-        _goToNextPage();
-      } else if (_currentStep == 2) {
-        // КРОК 3: ІМ'Я
-        if (_nameController.text.trim().isEmpty)
-          throw const AppFailure(FailureKind.save);
-        _goToNextPage();
-      } else if (_currentStep == 3) {
-        // КРОК 4: ДАТА
-        if (_selectedDate == null) {
-          throw Exception(AppLocalizations.of(context)!.rg_need_birth);
-        }
         await _completeRegistration();
       }
     } catch (e) {
@@ -256,12 +258,6 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
             content: _emailStep(t),
           ),
           _step(
-            title: t.rg_email_code_title,
-            subtitle: null,
-            subtitleWidget: _sentToLine(t),
-            content: _smsStep(t),
-          ),
-          _step(
             title: t.rg_about_title,
             subtitle: t.rg_about_sub,
             content: _nameStep(t),
@@ -270,6 +266,12 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
             title: t.rg_age,
             subtitle: t.rg_adults_only,
             content: _birthdayStep(t),
+          ),
+          _step(
+            title: t.rg_email_code_title,
+            subtitle: null,
+            subtitleWidget: _sentToLine(t),
+            content: _smsStep(t),
           ),
         ],
       ),
@@ -283,8 +285,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
   /// лишається сотня-друга пікселів, і без цього поле з підказкою обрізалося б.
   /// Підпис головної кнопки залежить від кроку.
   String _actionLabel(AppLocalizations t) => switch (_currentStep) {
-        1 => t.rg_confirm,
-        3 => t.continue_text,
+        3 => t.rg_confirm,
         _ => t.rg_next,
       };
 
