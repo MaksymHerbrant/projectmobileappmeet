@@ -122,8 +122,8 @@ class LandingScreen extends StatelessWidget {
                                   DsOrDivider(label: t.or_divider),
                                   const SizedBox(height: 12),
                                   DsButton(
-                                    label: t.continue_with_phone,
-                                    icon: Icons.phone_outlined,
+                                    label: t.continue_with_email,
+                                    icon: Icons.mail_outline_rounded,
                                     onPressed: () => Navigator.of(context).push(
                                       MaterialPageRoute(
                                         builder: (_) =>

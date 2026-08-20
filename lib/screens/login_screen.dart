@@ -24,7 +24,7 @@ class LoginScreen extends StatefulWidget {
 class _LoginScreenState extends State<LoginScreen> {
   final _authService = AuthService();
 
-  final _phoneController = TextEditingController();
+  final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
 
   bool _isLoading = false;
@@ -32,7 +32,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
   @override
   void dispose() {
-    _phoneController.dispose();
+    _emailController.dispose();
     _passwordController.dispose();
     super.dispose();
   }
@@ -41,9 +41,9 @@ class _LoginScreenState extends State<LoginScreen> {
     final t = AppLocalizations.of(context)!;
 
     // Проста валідація
-    if (_phoneController.text.length < 9) {
+    if (!_emailController.text.contains('@')) {
       ScaffoldMessenger.of(context)
-          .showSnackBar(SnackBar(content: Text(t.enter_valid_phone)));
+          .showSnackBar(SnackBar(content: Text(t.enter_valid_email)));
       return;
     }
     if (_passwordController.text.isEmpty) {
@@ -56,8 +56,8 @@ class _LoginScreenState extends State<LoginScreen> {
 
     try {
       // 👇 Викликаємо вхід за паролем
-      await _authService.signInWithPassword(
-        _phoneController.text,
+      await _authService.signInWithEmailPassword(
+        _emailController.text,
         _passwordController.text,
       );
 
@@ -112,17 +112,15 @@ class _LoginScreenState extends State<LoginScreen> {
                   const SizedBox(height: 28),
                   const DsSocialRow(),
                   const SizedBox(height: 14),
-                  DsOrDivider(label: t.or_by_phone),
+                  DsOrDivider(label: t.or_by_email),
                   const SizedBox(height: 14),
-                  Text(t.phone_label.toUpperCase(), style: Ds.label(context)),
+                  Text(t.email_label.toUpperCase(), style: Ds.label(context)),
                   const SizedBox(height: 8),
                   DsTextField(
-                    controller: _phoneController,
-                    icon: Icons.phone_outlined,
-                    prefix: '+380',
-                    hint: '67 123 45 67',
-                    keyboardType: TextInputType.phone,
-                    maxLength: 9,
+                    controller: _emailController,
+                    icon: Icons.mail_outline_rounded,
+                    hint: 'maks@gmail.com',
+                    keyboardType: TextInputType.emailAddress,
                     enabled: !_isLoading,
                   ),
                   const SizedBox(height: 12),

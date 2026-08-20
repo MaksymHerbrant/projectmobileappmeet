@@ -57,6 +57,62 @@ class AuthService {
     }
   }
 
+  // ------------------------------------------------------------------ пошта
+
+  /// Надсилає лист із 6-значним кодом. Створює акаунт, якщо його ще немає.
+  Future<void> sendEmailCode(String email) async {
+    try {
+      await _supabase.auth.signInWithOtp(email: email.trim().toLowerCase());
+    } on AuthException catch (e) {
+      throw AppFailure(FailureKind.smsFailed, details: e.message);
+    } catch (e) {
+      throw AppFailure(FailureKind.smsFailed, details: e.toString());
+    }
+  }
+
+  Future<AuthResponse> verifyEmailCode(String email, String code) async {
+    try {
+      final response = await _supabase.auth.verifyOTP(
+        email: email.trim().toLowerCase(),
+        token: code,
+        type: OtpType.email,
+      );
+      await updateFcmToken();
+      return response;
+    } on AuthException catch (e) {
+      throw AppFailure(FailureKind.wrongCode, details: e.message);
+    } catch (e) {
+      throw AppFailure(FailureKind.wrongCode, details: e.toString());
+    }
+  }
+
+  Future<void> signInWithEmailPassword(String email, String password) async {
+    try {
+      await _supabase.auth.signInWithPassword(
+        email: email.trim().toLowerCase(),
+        password: password,
+      );
+      await updateFcmToken();
+    } on AuthException catch (e) {
+      throw AppFailure(FailureKind.wrongCode, details: e.message);
+    } catch (e) {
+      throw const AppFailure(FailureKind.wrongCode);
+    }
+  }
+
+  Future<bool> checkEmailRegistered(String email) async {
+    try {
+      final exists = await _supabase.rpc(
+        'email_is_registered',
+        params: {'p_email': email.trim().toLowerCase()},
+      );
+      return exists == true;
+    } catch (e, st) {
+      await ErrorReporter.report(e, st, context: 'checkEmailRegistered');
+      rethrow;
+    }
+  }
+
   Future<bool> checkUserExists(String phone) async {
     try {
       final fullPhone = _normalizePhone(phone);

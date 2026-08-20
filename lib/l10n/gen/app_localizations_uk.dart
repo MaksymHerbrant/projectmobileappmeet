@@ -432,7 +432,7 @@ class AppLocalizationsUk extends AppLocalizations {
   }
 
   @override
-  String get change_email => 'Зміна електронної пошти';
+  String get change_email => 'Змінити пошту';
 
   @override
   String get delete_account_message =>
@@ -1701,4 +1701,40 @@ class AppLocalizationsUk extends AppLocalizations {
   String of_count(int total) {
     return 'з $total';
   }
+
+  @override
+  String get continue_with_email => 'Продовжити з поштою';
+
+  @override
+  String get rg_email_title => 'Ваша пошта';
+
+  @override
+  String get rg_email_sub =>
+      'Надішлемо лист із кодом. Пошту бачимо тільки ми — у профілі її немає.';
+
+  @override
+  String get email_label => 'пошта';
+
+  @override
+  String get rg_password_hint => 'мінімум 6 символів';
+
+  @override
+  String get rg_email_note =>
+      'Жодних розсилок — лише вхід і сповіщення, які ви самі ввімкнете.';
+
+  @override
+  String get rg_email_code_title => 'Код із листа';
+
+  @override
+  String get rg_spam_hint => 'Не прийшов? Загляньте у «Спам».';
+
+  @override
+  String get enter_valid_email => 'Введіть коректну пошту';
+
+  @override
+  String get or_by_email => 'або поштою';
+
+  @override
+  String get account_exists_email_body =>
+      'Ця пошта вже зареєстрована. Увійдіть із паролем — або зміните його, якщо забули.';
 }

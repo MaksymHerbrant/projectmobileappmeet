@@ -1704,4 +1704,40 @@ class AppLocalizationsEn extends AppLocalizations {
   String of_count(int total) {
     return 'of $total';
   }
+
+  @override
+  String get continue_with_email => 'Continue with email';
+
+  @override
+  String get rg_email_title => 'Your email';
+
+  @override
+  String get rg_email_sub =>
+      'We’ll email you a code. Only we see your email — it’s not shown on your profile.';
+
+  @override
+  String get email_label => 'email';
+
+  @override
+  String get rg_password_hint => 'at least 6 characters';
+
+  @override
+  String get rg_email_note =>
+      'No newsletters — only sign-in and the notifications you turn on yourself.';
+
+  @override
+  String get rg_email_code_title => 'Code from the email';
+
+  @override
+  String get rg_spam_hint => 'Didn’t arrive? Check your Spam folder.';
+
+  @override
+  String get enter_valid_email => 'Enter a valid email';
+
+  @override
+  String get or_by_email => 'or by email';
+
+  @override
+  String get account_exists_email_body =>
+      'This email is already registered. Sign in with your password — or reset it if you forgot.';
 }

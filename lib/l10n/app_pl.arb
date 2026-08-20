@@ -140,7 +140,7 @@
   "continue_with": "Kontynuuj z",
   "swipe_end": "Brak więcej kart",
   "language_changed_message": "Język aplikacji zmieniony na {language}. Zmiany zastosowane natychmiast!",
-  "change_email": "Zmień email",
+  "change_email": "Zmień e-mail",
   "delete_account_message": "Czy na pewno chcesz usunąć swoje konto? Ta akcja jest nieodwracalna.",
   "unknown": "Nieznane",
   "user_profile": "Profil użytkownika",
@@ -583,5 +583,16 @@
         "type": "int"
       }
     }
-  }
+  },
+  "continue_with_email": "Kontynuuj z e-mailem",
+  "rg_email_title": "Twój e-mail",
+  "rg_email_sub": "Wyślemy kod na e-mail. Adres widzimy tylko my — nie ma go w profilu.",
+  "email_label": "e-mail",
+  "rg_password_hint": "minimum 6 znaków",
+  "rg_email_note": "Żadnych newsletterów — tylko logowanie i powiadomienia, które sam włączysz.",
+  "rg_email_code_title": "Kod z e-maila",
+  "rg_spam_hint": "Nie dotarł? Sprawdź folder Spam.",
+  "enter_valid_email": "Podaj poprawny adres e-mail",
+  "or_by_email": "albo e-mailem",
+  "account_exists_email_body": "Ten e-mail jest już zarejestrowany. Zaloguj się hasłem albo je zresetuj."
 }

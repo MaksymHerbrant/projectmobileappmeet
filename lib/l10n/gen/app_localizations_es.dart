@@ -433,7 +433,7 @@ class AppLocalizationsEs extends AppLocalizations {
   }
 
   @override
-  String get change_email => 'Cambiar correo electrónico';
+  String get change_email => 'Cambiar correo';
 
   @override
   String get delete_account_message =>
@@ -1708,4 +1708,40 @@ class AppLocalizationsEs extends AppLocalizations {
   String of_count(int total) {
     return 'de $total';
   }
+
+  @override
+  String get continue_with_email => 'Continuar con el correo';
+
+  @override
+  String get rg_email_title => 'Tu correo';
+
+  @override
+  String get rg_email_sub =>
+      'Te enviaremos un código por correo. Solo nosotros vemos tu correo; no aparece en tu perfil.';
+
+  @override
+  String get email_label => 'correo';
+
+  @override
+  String get rg_password_hint => 'mínimo 6 caracteres';
+
+  @override
+  String get rg_email_note =>
+      'Nada de boletines: solo el acceso y las notificaciones que tú actives.';
+
+  @override
+  String get rg_email_code_title => 'Código del correo';
+
+  @override
+  String get rg_spam_hint => '¿No llegó? Revisa la carpeta de spam.';
+
+  @override
+  String get enter_valid_email => 'Introduce un correo válido';
+
+  @override
+  String get or_by_email => 'o con el correo';
+
+  @override
+  String get account_exists_email_body =>
+      'Este correo ya está registrado. Inicia sesión con tu contraseña o restablécela si la olvidaste.';
 }

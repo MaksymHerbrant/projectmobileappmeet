@@ -140,7 +140,7 @@
   "continue_with": "Continuar com",
   "swipe_end": "Não há mais cartões",
   "language_changed_message": "O idioma do aplicativo foi alterado para {language}. As alterações foram aplicadas instantaneamente!",
-  "change_email": "Alterar email",
+  "change_email": "Alterar e-mail",
   "delete_account_message": "Tem certeza de que deseja excluir sua conta? Esta ação é irreversível.",
   "unknown": "Desconhecido",
   "user_profile": "Perfil do usuário",
@@ -583,5 +583,16 @@
         "type": "int"
       }
     }
-  }
+  },
+  "continue_with_email": "Continuar com o e-mail",
+  "rg_email_title": "O seu e-mail",
+  "rg_email_sub": "Enviamos um código por e-mail. Só nós vemos o seu e-mail — não aparece no perfil.",
+  "email_label": "e-mail",
+  "rg_password_hint": "mínimo 6 caracteres",
+  "rg_email_note": "Nenhuma newsletter — apenas o acesso e as notificações que o próprio utilizador ativar.",
+  "rg_email_code_title": "Código do e-mail",
+  "rg_spam_hint": "Não chegou? Veja a pasta de spam.",
+  "enter_valid_email": "Introduza um e-mail válido",
+  "or_by_email": "ou por e-mail",
+  "account_exists_email_body": "Este e-mail já está registado. Inicie sessão com a palavra-passe ou redefina-a."
 }

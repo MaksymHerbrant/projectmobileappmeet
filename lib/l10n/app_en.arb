@@ -770,5 +770,16 @@
         "type": "int"
       }
     }
-  }
+  },
+  "continue_with_email": "Continue with email",
+  "rg_email_title": "Your email",
+  "rg_email_sub": "We’ll email you a code. Only we see your email — it’s not shown on your profile.",
+  "email_label": "email",
+  "rg_password_hint": "at least 6 characters",
+  "rg_email_note": "No newsletters — only sign-in and the notifications you turn on yourself.",
+  "rg_email_code_title": "Code from the email",
+  "rg_spam_hint": "Didn’t arrive? Check your Spam folder.",
+  "enter_valid_email": "Enter a valid email",
+  "or_by_email": "or by email",
+  "account_exists_email_body": "This email is already registered. Sign in with your password — or reset it if you forgot."
 }

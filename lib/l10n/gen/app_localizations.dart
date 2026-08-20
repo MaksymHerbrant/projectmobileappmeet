@@ -3295,6 +3295,72 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'of {total}'**
   String of_count(int total);
+
+  /// No description provided for @continue_with_email.
+  ///
+  /// In en, this message translates to:
+  /// **'Continue with email'**
+  String get continue_with_email;
+
+  /// No description provided for @rg_email_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Your email'**
+  String get rg_email_title;
+
+  /// No description provided for @rg_email_sub.
+  ///
+  /// In en, this message translates to:
+  /// **'We’ll email you a code. Only we see your email — it’s not shown on your profile.'**
+  String get rg_email_sub;
+
+  /// No description provided for @email_label.
+  ///
+  /// In en, this message translates to:
+  /// **'email'**
+  String get email_label;
+
+  /// No description provided for @rg_password_hint.
+  ///
+  /// In en, this message translates to:
+  /// **'at least 6 characters'**
+  String get rg_password_hint;
+
+  /// No description provided for @rg_email_note.
+  ///
+  /// In en, this message translates to:
+  /// **'No newsletters — only sign-in and the notifications you turn on yourself.'**
+  String get rg_email_note;
+
+  /// No description provided for @rg_email_code_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Code from the email'**
+  String get rg_email_code_title;
+
+  /// No description provided for @rg_spam_hint.
+  ///
+  /// In en, this message translates to:
+  /// **'Didn’t arrive? Check your Spam folder.'**
+  String get rg_spam_hint;
+
+  /// No description provided for @enter_valid_email.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter a valid email'**
+  String get enter_valid_email;
+
+  /// No description provided for @or_by_email.
+  ///
+  /// In en, this message translates to:
+  /// **'or by email'**
+  String get or_by_email;
+
+  /// No description provided for @account_exists_email_body.
+  ///
+  /// In en, this message translates to:
+  /// **'This email is already registered. Sign in with your password — or reset it if you forgot.'**
+  String get account_exists_email_body;
 }
 
 class _AppLocalizationsDelegate

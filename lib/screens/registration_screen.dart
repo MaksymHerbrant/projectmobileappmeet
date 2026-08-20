@@ -28,7 +28,7 @@ class RegistrationScreen extends StatefulWidget {
 }
 
 class _RegistrationScreenState extends State<RegistrationScreen> {
-  static const int _stepCount = 5;
+  static const int _stepCount = 4;
 
   /// Скільки секунд чекати до повторного SMS.
   static const int _resendSeconds = 60;
@@ -40,10 +40,8 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
   bool _isLoading = false;
   bool _isPasswordVisible = false;
 
-  final TextEditingController _phoneController = TextEditingController();
+  final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
-  final TextEditingController _confirmPasswordController =
-      TextEditingController();
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _birthdayController = TextEditingController();
 
@@ -58,9 +56,8 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
   @override
   void dispose() {
     _resendTimer?.cancel();
-    _phoneController.dispose();
+    _emailController.dispose();
     _passwordController.dispose();
-    _confirmPasswordController.dispose();
     _nameController.dispose();
     _birthdayController.dispose();
     _smsController.dispose();
@@ -79,53 +76,48 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
 
     try {
       if (_currentStep == 0) {
-        // КРОК 1: ТЕЛЕФОН
-        final phone = _phoneController.text.trim();
-        if (phone.length < 9)
-          throw Exception(AppLocalizations.of(context)!.enter_valid_phone);
+        // КРОК 1: ПОШТА + ПАРОЛЬ
+        final email = _emailController.text.trim();
+        if (!email.contains('@') || !email.contains('.')) {
+          throw Exception(AppLocalizations.of(context)!.enter_valid_email);
+        }
+        if (_passwordController.text.length < 6) {
+          throw Exception(AppLocalizations.of(context)!.rg_password_short);
+        }
 
-        // 🟢 ЖОРСТКА ПЕРЕВІРКА: чи є номер у таблиці profiles
-        final bool exists = await _authService.checkUserExists(phone);
-
+        // Пошта вже зареєстрована → пропонуємо вхід, а не другий акаунт.
+        final bool exists = await _authService.checkEmailRegistered(email);
         if (exists) {
-          // Якщо акаунт є — СТОП. Не шлемо SMS, не пускаємо далі.
           setState(() => _isLoading = false);
           _showUserExistsDialog();
           return;
         }
 
-        // Якщо номера немає — шлемо SMS і тільки тоді йдемо далі
-        await _authService.signInWithPhone(phone);
+        await _authService.sendEmailCode(email);
         _startResendCountdown();
         _goToNextPage();
 
-        // Активуємо фокус на SMS після переходу
         Future.delayed(const Duration(milliseconds: 400), () {
           if (mounted) _smsFocusNode.requestFocus();
         });
       } else if (_currentStep == 1) {
-        // КРОК 2: SMS
-        if (_smsController.text.length < 6)
+        // КРОК 2: КОД ІЗ ЛИСТА
+        if (_smsController.text.length < 6) {
           throw Exception(AppLocalizations.of(context)!.rg_code_incomplete);
-        await _authService.verifyOtp(
-            _phoneController.text, _smsController.text);
+        }
+        await _authService.verifyEmailCode(
+            _emailController.text, _smsController.text);
         _goToNextPage();
       } else if (_currentStep == 2) {
-        // КРОК 3: ПАРОЛЬ
-        if (_passwordController.text.length < 6)
-          throw Exception(AppLocalizations.of(context)!.rg_password_short);
-        if (_passwordController.text != _confirmPasswordController.text)
-          throw Exception(AppLocalizations.of(context)!.passwords_do_not_match);
-        _goToNextPage();
-      } else if (_currentStep == 3) {
-        // КРОК 4: ІМ'Я
+        // КРОК 3: ІМ'Я
         if (_nameController.text.trim().isEmpty)
           throw const AppFailure(FailureKind.save);
         _goToNextPage();
-      } else if (_currentStep == 4) {
-        // КРОК 5: ДАТА
-        if (_selectedDate == null)
+      } else if (_currentStep == 3) {
+        // КРОК 4: ДАТА
+        if (_selectedDate == null) {
           throw Exception(AppLocalizations.of(context)!.rg_need_birth);
+        }
         await _completeRegistration();
       }
     } catch (e) {
@@ -156,7 +148,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
 
   Future<void> _resendCode() async {
     try {
-      await _authService.signInWithPhone(_phoneController.text.trim());
+      await _authService.sendEmailCode(_emailController.text.trim());
       _startResendCountdown();
     } catch (e) {
       if (mounted) {
@@ -189,11 +181,11 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
       builder: (context) => AlertDialog(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
         title: Text(AppLocalizations.of(context)!.account_exists_title),
-        content: Text(AppLocalizations.of(context)!.account_exists_body),
+        content: Text(AppLocalizations.of(context)!.account_exists_email_body),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: Text(AppLocalizations.of(context)!.change_number),
+            child: Text(AppLocalizations.of(context)!.change_email),
           ),
           ElevatedButton(
             onPressed: () {
@@ -259,20 +251,15 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
         physics: const NeverScrollableScrollPhysics(),
         children: [
           _step(
-            title: t.rg_your_phone,
-            subtitle: t.rg_check_free,
-            content: _phoneStep(t),
+            title: t.rg_email_title,
+            subtitle: t.rg_email_sub,
+            content: _emailStep(t),
           ),
           _step(
-            title: t.rg_sms_title,
+            title: t.rg_email_code_title,
             subtitle: null,
             subtitleWidget: _sentToLine(t),
             content: _smsStep(t),
-          ),
-          _step(
-            title: t.rg_protect,
-            subtitle: t.rg_strong_password,
-            content: _passwordStep(t),
           ),
           _step(
             title: t.rg_about_title,
@@ -297,7 +284,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
   /// Підпис головної кнопки залежить від кроку.
   String _actionLabel(AppLocalizations t) => switch (_currentStep) {
         1 => t.rg_confirm,
-        4 => t.continue_text,
+        3 => t.continue_text,
         _ => t.rg_next,
       };
 
@@ -330,40 +317,44 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
     );
   }
 
-  // ------------------------------------------------------------- крок 1: номер
+  // ------------------------------------------------------------- крок 1: пошта
 
-  Widget _phoneStep(AppLocalizations t) {
+  Widget _emailStep(AppLocalizations t) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        Row(
-          children: [
-            DsFieldBox(
-              width: 96,
-              alignment: Alignment.center,
-              child: Text(
-                '+380',
-                style: TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w600,
-                  color: context.scheme.onSurface,
-                ),
+        Text(t.email_label.toUpperCase(), style: Ds.label(context)),
+        const SizedBox(height: 8),
+        DsTextField(
+          controller: _emailController,
+          hint: 'maks@gmail.com',
+          icon: Icons.mail_outline_rounded,
+          keyboardType: TextInputType.emailAddress,
+          enabled: !_isLoading,
+          autofocus: true,
+        ),
+        const SizedBox(height: 14),
+        Text(t.password.toUpperCase(), style: Ds.label(context)),
+        const SizedBox(height: 8),
+        DsTextField(
+          controller: _passwordController,
+          hint: t.rg_password_hint,
+          obscure: !_isPasswordVisible,
+          enabled: !_isLoading,
+          suffix: GestureDetector(
+            onTap: () =>
+                setState(() => _isPasswordVisible = !_isPasswordVisible),
+            child: Text(
+              _isPasswordVisible ? t.hide_password : t.show_password,
+              style: Ds.tiny(context).copyWith(
+                color: context.scheme.primary,
+                fontWeight: FontWeight.w600,
               ),
             ),
-            const SizedBox(width: 10),
-            Expanded(
-              child: DsTextField(
-                controller: _phoneController,
-                hint: '67 123 45 67',
-                keyboardType: TextInputType.phone,
-                enabled: !_isLoading,
-                autofocus: true,
-              ),
-            ),
-          ],
+          ),
         ),
         const SizedBox(height: 16),
-        DsNote(text: t.rg_phone_note),
+        DsNote(text: t.rg_email_note),
       ],
     );
   }
@@ -373,9 +364,9 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
   Widget _sentToLine(AppLocalizations t) {
     // Номер виділено, як у макеті. Збирати рядок конкатенацією не можна —
     // у різних мовах номер стоїть у різних місцях, тож ріжемо готовий переклад.
-    final phone = '+380 ${_phoneController.text.trim()}';
-    final full = t.rg_sms_sent_to(phone);
-    final at = full.indexOf(phone);
+    final email = _emailController.text.trim();
+    final full = t.rg_sms_sent_to(email);
+    final at = full.indexOf(email);
 
     if (at < 0) return Text(full, style: Ds.sub(context));
 
@@ -385,13 +376,13 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
         children: [
           TextSpan(text: full.substring(0, at)),
           TextSpan(
-            text: phone,
+            text: email,
             style: TextStyle(
               fontWeight: FontWeight.w700,
               color: context.scheme.onSurface,
             ),
           ),
-          TextSpan(text: full.substring(at + phone.length)),
+          TextSpan(text: full.substring(at + email.length)),
         ],
       ),
     );
@@ -452,6 +443,8 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
           ),
         ),
         const SizedBox(height: 18),
+        Text(t.rg_spam_hint, style: Ds.tiny(context)),
+        const SizedBox(height: 6),
         if (_resendLeft > 0)
           Text.rich(
             TextSpan(
@@ -490,49 +483,6 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
       ),
       TextSpan(text: full.substring(at + value.length)),
     ];
-  }
-
-  // ------------------------------------------------------------ крок 3: пароль
-
-  Widget _passwordStep(AppLocalizations t) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        Text(t.password.toUpperCase(), style: Ds.label(context)),
-        const SizedBox(height: 8),
-        DsTextField(
-          controller: _passwordController,
-          obscure: !_isPasswordVisible,
-          enabled: !_isLoading,
-          suffix: GestureDetector(
-            onTap: () =>
-                setState(() => _isPasswordVisible = !_isPasswordVisible),
-            child: Icon(
-              _isPasswordVisible
-                  ? Icons.visibility_outlined
-                  : Icons.visibility_off_outlined,
-              size: 20,
-              color: context.scheme.onSurfaceVariant,
-            ),
-          ),
-        ),
-        const SizedBox(height: 16),
-        Text(t.confirm_password.toUpperCase(), style: Ds.label(context)),
-        const SizedBox(height: 8),
-        DsTextField(
-          controller: _confirmPasswordController,
-          obscure: !_isPasswordVisible,
-          enabled: !_isLoading,
-        ),
-        const SizedBox(height: 22),
-        DsCard(
-          child: DsNote(
-            text: t.rg_password_note,
-            icon: Icons.lock_outline_rounded,
-          ),
-        ),
-      ],
-    );
   }
 
   // -------------------------------------------------------------- крок 4: ім'я
