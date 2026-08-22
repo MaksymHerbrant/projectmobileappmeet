@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:provider/provider.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-import 'package:firebase_core/firebase_core.dart'; 
-import 'firebase_options.dart'; 
+import 'package:firebase_core/firebase_core.dart';
+import 'firebase_options.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 
@@ -12,7 +12,7 @@ import 'providers/locale_provider.dart';
 import 'providers/app_state_provider.dart';
 import 'providers/theme_provider.dart';
 import 'theme/app_theme.dart';
-import 'screens/landing_screen.dart'; 
+import 'screens/landing_screen.dart';
 import 'screens/main_navigation_screen.dart';
 // Зверни увагу: перевір, чи правильний шлях до екрану чату у твоїх папках!
 import 'screens/conversation_screen.dart';
@@ -47,7 +47,8 @@ Future<void> _bootstrap() async {
     MultiProvider(
       providers: [
         ChangeNotifierProvider(create: (_) => AppStateProvider()),
-        ChangeNotifierProvider(create: (_) => LocaleProvider()..syncLocaleToProfile()),
+        ChangeNotifierProvider(
+            create: (_) => LocaleProvider()..syncLocaleToProfile()),
         ChangeNotifierProvider(create: (_) => ThemeProvider()),
       ],
       child: const MyApp(), // Ось тут викликається MyApp
@@ -100,7 +101,7 @@ class MyApp extends StatelessWidget {
           theme: AppTheme.light(),
           darkTheme: AppTheme.dark(),
           themeMode: themeProvider.mode,
-          home: const AuthGate(), 
+          home: const AuthGate(),
           routes: {
             '/landing': (context) => const LandingScreen(),
             '/main': (context) => const MainNavigationScreen(),
@@ -122,18 +123,20 @@ class _AuthGateState extends State<AuthGate> {
   @override
   void initState() {
     super.initState();
-    
+
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _setupNotificationsAndListen();
     });
 
     // 🔥 ДОДАЛИ СЛУХАЧІВ ДЛЯ КЛІКІВ ПО ПУШАХ
-    
+
     // А) Коли додаток згорнутий, але працює
     FirebaseMessaging.onMessageOpenedApp.listen(_handleNotificationClick);
 
     // Б) Коли додаток був повністю вбитий
-    FirebaseMessaging.instance.getInitialMessage().then((RemoteMessage? message) {
+    FirebaseMessaging.instance
+        .getInitialMessage()
+        .then((RemoteMessage? message) {
       if (message != null) {
         Future.delayed(const Duration(milliseconds: 500), () {
           _handleNotificationClick(message);
@@ -145,7 +148,7 @@ class _AuthGateState extends State<AuthGate> {
   // 🔥 ЛОГІКА НАВІГАЦІЇ ПРИ КЛІКУ
   void _handleNotificationClick(RemoteMessage message) {
     debugPrint("👉 КОРИСТУВАЧ НАТИСНУВ НА ПУШ: ${message.data}");
-    
+
     final data = message.data;
 
     // Якщо прийшов пуш про чат
@@ -162,27 +165,48 @@ class _AuthGateState extends State<AuthGate> {
           ),
         ),
       );
-    } 
+    }
     // Якщо прийшов пуш про лайк/матч
     else if (data['type'] == 'match' || data['type'] == 'like') {
-      navigatorKey.currentState?.pushNamed('/main'); 
+      navigatorKey.currentState?.pushNamed('/main');
     }
   }
 
-  Future<void> _setupNotificationsAndListen() async {
-    FirebaseMessaging messaging = FirebaseMessaging.instance;
-    
-    await messaging.requestPermission(
-      alert: true,
-      badge: true,
-      sound: true,
-    );
+  /// Чи вже реєстрували токен у цьому запуску.
+  bool _tokenRequested = false;
 
-    
+  /// Отримує токен пушів один раз за запуск.
+  ///
+  /// Помилка тут не має валити застосунок: на вебі сповіщення вимагають
+  /// service worker, і в режимі розробки він часто не реєструється —
+  /// це позначається на пушах, але не на решті застосунку.
+  void _registerTokenOnce() {
+    if (_tokenRequested) return;
+    _tokenRequested = true;
 
-    FirebaseMessaging.instance.onTokenRefresh.listen((newToken) {
-      _saveTokenToSupabase(newToken);
+    FirebaseMessaging.instance.getToken().then((token) {
+      if (token != null) _saveTokenToSupabase(token);
+    }).catchError((Object e, StackTrace st) {
+      debugPrint('Пуші недоступні: $e');
     });
+  }
+
+  Future<void> _setupNotificationsAndListen() async {
+    try {
+      await FirebaseMessaging.instance.requestPermission(
+        alert: true,
+        badge: true,
+        sound: true,
+      );
+
+      FirebaseMessaging.instance.onTokenRefresh.listen(
+        _saveTokenToSupabase,
+        onError: (Object e) => debugPrint('Оновлення токена не вдалося: $e'),
+      );
+    } catch (e) {
+      // Те саме: без пушів застосунок працює повністю.
+      debugPrint('Налаштування пушів пропущено: $e');
+    }
   }
 
   /// Токени живуть у user_devices, а не в профілі: профіль читає кожен
@@ -208,14 +232,16 @@ class _AuthGateState extends State<AuthGate> {
       stream: Supabase.instance.client.auth.onAuthStateChange,
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
-          return const Scaffold(body: Center(child: CircularProgressIndicator()));
+          return const Scaffold(
+              body: Center(child: CircularProgressIndicator()));
         }
 
         final session = snapshot.data?.session;
         if (session != null) {
-          FirebaseMessaging.instance.getToken().then((token) {
-            if (token != null) _saveTokenToSupabase(token);
-          });
+          // Реєстрація токена — побічний ефект, і в build() їй не місце:
+          // build викликається на кожну перебудову, тож токен запитувався
+          // й перезаписувався знову і знову.
+          _registerTokenOnce();
           return const MainNavigationScreen();
         }
         return const LandingScreen();
