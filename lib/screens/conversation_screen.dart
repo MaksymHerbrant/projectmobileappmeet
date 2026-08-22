@@ -43,6 +43,18 @@ class _ConversationScreenState extends State<ConversationScreen> {
   /// того, як екран закрито.
   StreamSubscription<List<Map<String, dynamic>>>? _messagesSub;
 
+  /// Повідомлення тримаємо в стані, а не малюємо через StreamBuilder.
+  ///
+  /// Кожне прослуховування supabase-стріму піднімає власний канал реального
+  /// часу й робить власне повне завантаження. Слухач у initState разом зі
+  /// StreamBuilder у build давали два канали на одну кімнату: подвійний
+  /// трафік і подвійна обробка кожної події.
+  List<Map<String, dynamic>>? _messages;
+  Object? _messagesError;
+
+  /// Скільки останніх повідомлень тримаємо на екрані.
+  static const int _pageSize = 60;
+
   /// Повідомлення, які вже позначено прочитаними в цьому відкритті.
   ///
   /// Це і є запобіжник від зациклення: слухач стріму сам змінює таблицю,
@@ -57,17 +69,34 @@ class _ConversationScreenState extends State<ConversationScreen> {
     // запускає позначення прочитаним — окремий виклик тут зайвий.
 
     // 2. Ініціалізуємо стрім один раз
+    // Останні _pageSize повідомлень, а не вся історія: стрім тримає всі
+    // отримані рядки в пам'яті й переобробляє їх на кожну подію, тож у
+    // довгому листуванні відкриття чату дорожчало б із кожним днем.
+    // Порядок спадний, бо ліміт має відрізати старе; на екрані список
+    // розвертається назад.
     _messagesStream = _supabase
         .from('messages')
         .stream(primaryKey: ['id'])
         .eq('room_id', widget.roomId)
-        .order('created_at', ascending: true);
+        .order('created_at', ascending: false)
+        .limit(_pageSize);
 
     // 3. Нові повідомлення від співрозмовника одразу позначаємо прочитаними.
-    _messagesSub = _messagesStream.listen((messages) {
-      if (!mounted) return;
-      _markMessagesAsRead(messages);
-    });
+    _messagesSub = _messagesStream.listen(
+      (messages) {
+        if (!mounted) return;
+        // Стрім віддає найновіші першими — на екрані потрібен зворотний порядок.
+        final ordered = messages.reversed.toList(growable: false);
+        setState(() {
+          _messages = ordered;
+          _messagesError = null;
+        });
+        _markMessagesAsRead(ordered);
+      },
+      onError: (Object e) {
+        if (mounted) setState(() => _messagesError = e);
+      },
+    );
   }
 
   @override
@@ -163,76 +192,7 @@ class _ConversationScreenState extends State<ConversationScreen> {
           bottom: false,
           child: Column(
             children: [
-              // 🔥 STREAM BUILDER (Слухає базу в реальному часі)
-              Expanded(
-                child: StreamBuilder<List<Map<String, dynamic>>>(
-                  stream:
-                      _messagesStream, // Використовуємо нашу змінну! // Старі зверху, нові знизу
-                  builder: (context, snapshot) {
-                    if (snapshot.hasError) {
-                      return Center(
-                          child: Text(
-                              ErrorReporter.message(context, snapshot.error!)));
-                    }
-                    if (!snapshot.hasData) {
-                      return const Center(child: CircularProgressIndicator());
-                    }
-
-                    final messages = snapshot.data!;
-
-                    // Автоскрол до низу при нових повідомленнях.
-                    //
-                    // Кожна перебудова реєструє новий колбек, тож без
-                    // перевірки анімації накладаються одна на одну. І якщо
-                    // людина сама піднялася вгору читати старе листування,
-                    // смикати її вниз не можна.
-                    if (messages.isNotEmpty) {
-                      WidgetsBinding.instance.addPostFrameCallback((_) {
-                        if (!_scrollController.hasClients) return;
-                        final pos = _scrollController.position;
-                        final distanceToBottom =
-                            pos.maxScrollExtent - pos.pixels;
-                        if (distanceToBottom < 4) return;
-
-                        if (distanceToBottom > 600) {
-                          // Здалеку анімація нічого не показує — тільки гальмує.
-                          _scrollController.jumpTo(pos.maxScrollExtent);
-                        } else {
-                          _scrollController.animateTo(
-                            pos.maxScrollExtent,
-                            duration: const Duration(milliseconds: 300),
-                            curve: Curves.easeOut,
-                          );
-                        }
-                      });
-                    }
-
-                    if (messages.isEmpty) {
-                      return Center(
-                        child: Text(
-                          AppLocalizations.of(context)!.write_first_message,
-                          style: TextStyle(
-                              color: Theme.of(context)
-                                  .colorScheme
-                                  .onSurfaceVariant),
-                        ),
-                      );
-                    }
-
-                    return ListView.builder(
-                      controller: _scrollController,
-                      padding: const EdgeInsets.all(16),
-                      itemCount: messages.length,
-                      itemBuilder: (context, index) {
-                        final msg = messages[index];
-                        final isMe =
-                            msg['sender_id'] == _supabase.auth.currentUser!.id;
-                        return _buildMessageBubble(msg, isMe);
-                      },
-                    );
-                  },
-                ),
-              ),
+              Expanded(child: _buildMessageList()),
               _buildMessageInput(),
             ],
           ),
@@ -285,6 +245,62 @@ class _ConversationScreenState extends State<ConversationScreen> {
           ),
         ],
       ),
+    );
+  }
+
+  Widget _buildMessageList() {
+    if (_messagesError != null) {
+      return Center(
+          child: Text(ErrorReporter.message(context, _messagesError!)));
+    }
+
+    final messages = _messages;
+    if (messages == null) {
+      return const Center(child: CircularProgressIndicator());
+    }
+
+    if (messages.isEmpty) {
+      return Center(
+        child: Text(
+          AppLocalizations.of(context)!.write_first_message,
+          style:
+              TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant),
+        ),
+      );
+    }
+
+    // Автоскрол до низу при нових повідомленнях.
+    //
+    // Якщо людина сама піднялася вгору читати старе листування, смикати її
+    // вниз не можна — тому зсуваємось лише коли вона й так біля кінця.
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!_scrollController.hasClients) return;
+      final pos = _scrollController.position;
+      final distanceToBottom = pos.maxScrollExtent - pos.pixels;
+      if (distanceToBottom < 4) return;
+
+      if (distanceToBottom > 600) {
+        // Здалеку анімація нічого не показує — тільки гальмує.
+        _scrollController.jumpTo(pos.maxScrollExtent);
+      } else {
+        _scrollController.animateTo(
+          pos.maxScrollExtent,
+          duration: const Duration(milliseconds: 300),
+          curve: Curves.easeOut,
+        );
+      }
+    });
+
+    final myId = _supabase.auth.currentUser?.id;
+
+    return ListView.builder(
+      controller: _scrollController,
+      padding: const EdgeInsets.all(16),
+      itemCount: messages.length,
+      itemBuilder: (context, index) {
+        final msg = messages[index];
+        return _buildMessageBubble(msg, msg['sender_id'] == myId);
+      },
     );
   }
 

@@ -79,8 +79,10 @@ class _ChatScreenState extends State<ChatScreen> {
     final navigator = Navigator.of(context);
 
     try {
-      await _chatService.markMessagesAsRead(roomId);
-      if (!mounted) return;
+      // Позначення прочитаним більше не тримає перехід: екран розмови робить
+      // це сам, щойно отримує список. Раніше тап по чату чекав на мережевий
+      // запит, і на повільному зв'язку виглядав як зависання.
+      unawaited(_chatService.markMessagesAsRead(roomId));
 
       await navigator.push(
         MaterialPageRoute(
