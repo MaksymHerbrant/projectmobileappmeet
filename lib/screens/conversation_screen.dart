@@ -1,6 +1,7 @@
 import '../theme/app_theme.dart';
 import 'package:dating_app/l10n/gen/app_localizations.dart';
 import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -37,10 +38,23 @@ class _ConversationScreenState extends State<ConversationScreen> {
   // 1. Створюємо змінну для стріму
   late final Stream<List<Map<String, dynamic>>> _messagesStream;
 
+  /// Підписку треба тримати, щоб скасувати її при виході: інакше слухач
+  /// живе далі й продовжує позначати повідомлення прочитаними вже після
+  /// того, як екран закрито.
+  StreamSubscription<List<Map<String, dynamic>>>? _messagesSub;
+
+  /// Повідомлення, які вже позначено прочитаними в цьому відкритті.
+  ///
+  /// Це і є запобіжник від зациклення: слухач стріму сам змінює таблицю,
+  /// на яку підписаний, тож без нього кожна відповідь сервера знову
+  /// запускала оновлення — і застосунок захлинався запитами.
+  final Set<String> _markedRead = {};
+
   @override
   void initState() {
     super.initState();
-    ChatService().markMessagesAsRead(widget.roomId);
+    // Перший знімок стріму приходить одразу після підписки, і саме він
+    // запускає позначення прочитаним — окремий виклик тут зайвий.
 
     // 2. Ініціалізуємо стрім один раз
     _messagesStream = _supabase
@@ -49,67 +63,58 @@ class _ConversationScreenState extends State<ConversationScreen> {
         .eq('room_id', widget.roomId)
         .order('created_at', ascending: true);
 
-    // 3. ✨ МАГІЯ: Слухаємо стрім у фоні і перевіряємо нові повідомлення
-    _messagesStream.listen((messages) {
+    // 3. Нові повідомлення від співрозмовника одразу позначаємо прочитаними.
+    _messagesSub = _messagesStream.listen((messages) {
       if (!mounted) return;
-      final myId = _supabase.auth.currentUser!.id;
-
-      // Перевіряємо, чи є НЕпрочитані повідомлення ВІД співрозмовника
-      final hasUnreadFromOther = messages
-          .any((msg) => msg['sender_id'] != myId && msg['is_read'] == false);
-
-      if (hasUnreadFromOther) {
-        _markMessagesAsRead();
-      }
+      _markMessagesAsRead(messages);
     });
-
-    // Первинний виклик про всяк випадок
-    _markMessagesAsRead();
   }
 
   @override
   void dispose() {
+    _messagesSub?.cancel();
     _messageController.dispose();
     _scrollController.dispose();
     super.dispose();
   }
 
-  // 👇 НОВА ФУНКЦІЯ
-  Future<void> _markMessagesAsRead() async {
-    final myId = _supabase.auth.currentUser!.id;
+  /// Позначає прочитаними тільки ті повідомлення, які ще не позначали.
+  ///
+  /// Раніше метод оновлював усі непрочитані щоразу, коли стрім щось віддавав,
+  /// і додатково переписував `rooms.last_message` тим самим значенням, щоб
+  /// «розбудити» список чатів. Обидві дії змінюють таблиці, на які підписані
+  /// стріми, тож відповідь сервера запускала наступний виток — і так по колу.
+  Future<void> _markMessagesAsRead(List<Map<String, dynamic>> messages) async {
+    final myId = _supabase.auth.currentUser?.id;
+    if (myId == null) return;
+
+    final pending = messages
+        .where((m) => m['sender_id'] != myId && m['is_read'] == false)
+        .map((m) => m['id'].toString())
+        .where(_markedRead.add)
+        .toList();
+
+    // Нічого нового — і будити список чатів немає підстав.
+    if (pending.isEmpty) return;
 
     try {
-      // 1. Позначаємо як прочитані
       await _supabase
           .from('messages')
-          .update({'is_read': true})
-          .eq('room_id', widget.roomId)
-          .neq('sender_id', myId)
-          .eq('is_read', false);
+          .update({'is_read': true}).inFilter('id', pending);
 
-      // 2. 🔥 ГОЛОВНИЙ ТРЮК: Оновлюємо кімнату, щоб список чатів "прокинувся"
-      // Ми просто оновлюємо updated_at або перезаписуємо last_message_time тим самим значенням
-      // Це змусить Stream у ChatService перезапуститися і перерахувати unread_count (який стане 0)
-
-      /* Варіант А: Якщо у вас є колонка updated_at (рекомендовано)
-         await _supabase.from('rooms').update({
-           'updated_at': DateTime.now().toIso8601String()
-         }).eq('id', widget.roomId);
-      */
-
-      // Варіант Б (Хак): Якщо немає updated_at, беремо поточний last_message
-      // (Це безпечно, бо текст не змінюється, але Supabase побачить подію UPDATE)
-      final roomData = await _supabase
+      // Список чатів слухає зміни кімнат, тож лічильник непрочитаних
+      // оновлюється лише після справжньої зміни — не на кожну подію стріму.
+      final room = await _supabase
           .from('rooms')
           .select('last_message')
           .eq('id', widget.roomId)
           .single();
       await _supabase.from('rooms').update(
-          {'last_message': roomData['last_message']}).eq('id', widget.roomId);
-
-      debugPrint("✅ Прочитано і оновлено");
+          {'last_message': room['last_message']}).eq('id', widget.roomId);
     } catch (e) {
-      debugPrint("❌ Помилка: $e");
+      // Позначку знімаємо, щоб наступна спроба була можливою.
+      _markedRead.removeAll(pending);
+      debugPrint('Не вдалося позначити прочитаним: $e');
     }
   }
 
@@ -175,12 +180,26 @@ class _ConversationScreenState extends State<ConversationScreen> {
 
                     final messages = snapshot.data!;
 
-                    // Автоскрол до низу при нових повідомленнях
+                    // Автоскрол до низу при нових повідомленнях.
+                    //
+                    // Кожна перебудова реєструє новий колбек, тож без
+                    // перевірки анімації накладаються одна на одну. І якщо
+                    // людина сама піднялася вгору читати старе листування,
+                    // смикати її вниз не можна.
                     if (messages.isNotEmpty) {
                       WidgetsBinding.instance.addPostFrameCallback((_) {
-                        if (_scrollController.hasClients) {
+                        if (!_scrollController.hasClients) return;
+                        final pos = _scrollController.position;
+                        final distanceToBottom =
+                            pos.maxScrollExtent - pos.pixels;
+                        if (distanceToBottom < 4) return;
+
+                        if (distanceToBottom > 600) {
+                          // Здалеку анімація нічого не показує — тільки гальмує.
+                          _scrollController.jumpTo(pos.maxScrollExtent);
+                        } else {
                           _scrollController.animateTo(
-                            _scrollController.position.maxScrollExtent,
+                            pos.maxScrollExtent,
                             duration: const Duration(milliseconds: 300),
                             curve: Curves.easeOut,
                           );
