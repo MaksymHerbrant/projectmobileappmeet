@@ -89,7 +89,7 @@ class MatchesService {
         'p_radius_km': radiusKm,
         'p_limit': limit,
         'p_offset': offset,
-      });
+      }).withNetworkTimeout();
       return List<Map<String, dynamic>>.from(response as List)
           .map(UserProfile.fromMap)
           .toList();
@@ -111,7 +111,7 @@ class MatchesService {
       final result = await _supabase.rpc('record_swipe', params: {
         'p_receiver': receiverId,
         'p_is_like': isLike,
-      });
+      }).withNetworkTimeout();
 
       final matched = (result is Map && result['matched'] == true);
 
@@ -220,7 +220,7 @@ class MatchesService {
         'p_radius_km': radiusKm,
         'p_limit': limit,
         'p_offset': offset,
-      });
+      }).withNetworkTimeout();
       return List<Map<String, dynamic>>.from(response as List)
           .map(Event.fromMap)
           .toList();
@@ -274,7 +274,7 @@ class MatchesService {
         'p_meeting_point': event.meetingPoint,
         'p_additional_info': event.additionalInfo,
         'p_embedding': vector.toString(),
-      });
+      }).withNetworkTimeout();
     } catch (e, st) {
       ErrorReporter.report(e, st, context: 'createEvent');
       rethrow;
@@ -402,7 +402,7 @@ class MatchesService {
           .single();
       final String otherUserId = likeData['sender_id'];
 
-      await _supabase.rpc('accept_like', params: {'p_like_id': likeId});
+      await _supabase.rpc('accept_like', params: {'p_like_id': likeId}).withNetworkTimeout();
 
       await _notificationService.sendPush(
         receiverId: otherUserId,

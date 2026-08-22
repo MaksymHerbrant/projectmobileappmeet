@@ -3439,6 +3439,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'{taken} of {total} seats'**
   String map_seats(int taken, int total);
+
+  /// No description provided for @profile_load_failed.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn’t load your profile. Check your connection and try again.'**
+  String get profile_load_failed;
 }
 
 class _AppLocalizationsDelegate

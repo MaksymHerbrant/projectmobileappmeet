@@ -1793,4 +1793,8 @@ class AppLocalizationsPt extends AppLocalizations {
   String map_seats(int taken, int total) {
     return '$taken de $total lugares';
   }
+
+  @override
+  String get profile_load_failed =>
+      'Não foi possível carregar o seu perfil. Verifique a ligação e tente novamente.';
 }

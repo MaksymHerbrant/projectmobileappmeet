@@ -1788,4 +1788,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String map_seats(int taken, int total) {
     return '$taken of $total seats';
   }
+
+  @override
+  String get profile_load_failed =>
+      'Couldn’t load your profile. Check your connection and try again.';
 }

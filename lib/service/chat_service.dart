@@ -20,7 +20,7 @@ class ChatService {
 
   Future<List<Map<String, dynamic>>> fetchMyChats() async {
     try {
-      final response = await _supabase.rpc('get_my_chats');
+      final response = await _supabase.rpc('get_my_chats').withNetworkTimeout();
       return List<Map<String, dynamic>>.from(response as List);
     } catch (e, st) {
       ErrorReporter.report(e, st, context: 'fetchMyChats');
@@ -84,7 +84,7 @@ class ChatService {
   Future<String> openPrivateChat(String otherUserId) async {
     final roomId = await _supabase.rpc('get_or_create_private_chat', params: {
       'p_other': otherUserId,
-    });
+    }).withNetworkTimeout();
     return roomId.toString();
   }
 

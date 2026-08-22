@@ -634,5 +634,6 @@
         "type": "int"
       }
     }
-  }
+  },
+  "profile_load_failed": "Não foi possível carregar o seu perfil. Verifique a ligação e tente novamente."
 }

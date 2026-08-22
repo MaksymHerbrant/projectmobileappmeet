@@ -105,7 +105,7 @@ class AuthService {
       final exists = await _supabase.rpc(
         'email_is_registered',
         params: {'p_email': email.trim().toLowerCase()},
-      );
+      ).withNetworkTimeout();
       return exists == true;
     } catch (e, st) {
       await ErrorReporter.report(e, st, context: 'checkEmailRegistered');
@@ -121,7 +121,7 @@ class AuthService {
       final exists = await _supabase.rpc(
         'phone_is_registered',
         params: {'p_phone': fullPhone},
-      );
+      ).withNetworkTimeout();
       return exists == true;
     } catch (e, st) {
       await ErrorReporter.report(e, st, context: 'checkUserExists');
@@ -186,7 +186,7 @@ class AuthService {
     try {
       // Свій профіль цілком (з телефоном) віддає тільки ця RPC — у таблиці
       // приватні колонки закриті для клієнта.
-      final data = await _supabase.rpc('get_my_profile');
+      final data = await _supabase.rpc('get_my_profile').withNetworkTimeout();
       return data == null ? null : Map<String, dynamic>.from(data as Map);
     } catch (e) {
       // Якщо профілю ще немає або помилка мережі
@@ -195,7 +195,7 @@ class AuthService {
   }
   Future<void> deleteAccount() async {
     try {
-      await _supabase.rpc('delete_user');
+      await _supabase.rpc('delete_user').withNetworkTimeout();
       await _supabase.auth.signOut();
     } on PostgrestException catch (e) {
       throw AppFailure(FailureKind.deleteAccount, details: e.message);

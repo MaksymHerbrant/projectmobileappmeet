@@ -131,8 +131,12 @@ class _ChatScreenState extends State<ChatScreen> {
                     child: StreamBuilder<List<Map<String, dynamic>>>(
                       stream: _chatsStream,
                       builder: (context, snapshot) {
+                        // Спінер лише поки даних ще не було. Якщо список уже
+                        // приходив, показуємо його: інакше кожна подія
+                        // realtime змітала б екран у завантаження.
                         if (snapshot.connectionState ==
-                            ConnectionState.waiting) {
+                                ConnectionState.waiting &&
+                            !snapshot.hasData) {
                           return const Center(
                               child: CircularProgressIndicator());
                         }

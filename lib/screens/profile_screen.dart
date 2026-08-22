@@ -62,11 +62,29 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
 
   // 👇 Функція завантаження даних
+  /// Чи вдалося завантажити анкету. Порожній профіль і збій — різні стани,
+  /// і людині треба показувати різне.
+  bool _loadFailed = false;
+
   Future<void> _loadUserData() async {
+    if (mounted) setState(() => _loadFailed = false);
+
     try {
       final profile = await _authService.getCurrentProfile();
+      if (!mounted) return;
 
-      if (mounted && profile != null) {
+      // Раніше тут стояло `if (profile != null)`, і коли профіль не
+      // приходив, _isLoading не скидався ніколи — екран назавжди лишався
+      // зі спінером без жодного способу вийти.
+      if (profile == null) {
+        setState(() {
+          _isLoading = false;
+          _loadFailed = true;
+        });
+        return;
+      }
+
+      {
         setState(() {
           userName =
               profile['full_name'] ?? AppLocalizations.of(context)!.no_name;
@@ -100,7 +118,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
         });
       }
     } catch (e) {
-      if (mounted) setState(() => _isLoading = false);
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+          _loadFailed = true;
+        });
+      }
     }
   }
 
@@ -118,6 +141,28 @@ class _ProfileScreenState extends State<ProfileScreen> {
         if (_isLoading) {
           return const Scaffold(
               body: Center(child: CircularProgressIndicator()));
+        }
+
+        if (_loadFailed) {
+          final t = AppLocalizations.of(context)!;
+          return Scaffold(
+            backgroundColor: Colors.transparent,
+            body: Container(
+              decoration: Ds.background(context),
+              child: SafeArea(
+                child: DsEmptyState(
+                  icon: Icons.cloud_off_rounded,
+                  title: t.err_network,
+                  body: t.profile_load_failed,
+                  actionLabel: t.try_again,
+                  onAction: () {
+                    setState(() => _isLoading = true);
+                    _loadUserData();
+                  },
+                ),
+              ),
+            ),
+          );
         }
 
         return Scaffold(

@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
@@ -56,6 +57,17 @@ class AppFailure implements Exception {
   String toString() => 'AppFailure(${kind.name}${details == null ? '' : ': $details'})';
 }
 
+/// Обмеження часу для мережевих викликів.
+///
+/// Без нього запит, який не отримав відповіді, не завершується ніколи — а
+/// екран, що на нього чекає, лишається зі спінером назавжди. На стільниковій
+/// мережі це трапляється буденно: сервер відповість, але через хвилину, і
+/// весь цей час людина дивиться на кружечок без жодного способу вийти.
+extension NetworkTimeout<T> on Future<T> {
+  Future<T> withNetworkTimeout([Duration limit = const Duration(seconds: 12)]) =>
+      timeout(limit);
+}
+
 /// Єдина точка обробки помилок.
 class ErrorReporter {
   const ErrorReporter._();
@@ -97,6 +109,10 @@ class ErrorReporter {
 
     if (error is StorageException) {
       return AppFailure(FailureKind.storage, details: error.message);
+    }
+
+    if (error is TimeoutException) {
+      return const AppFailure(FailureKind.network, details: 'timeout');
     }
 
     return AppFailure(FailureKind.network, details: error.toString());

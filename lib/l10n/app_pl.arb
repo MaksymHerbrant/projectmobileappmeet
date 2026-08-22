@@ -634,5 +634,6 @@
         "type": "int"
       }
     }
-  }
+  },
+  "profile_load_failed": "Nie udało się wczytać profilu. Sprawdź połączenie i spróbuj ponownie."
 }

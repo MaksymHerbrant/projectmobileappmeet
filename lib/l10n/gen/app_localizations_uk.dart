@@ -1784,4 +1784,8 @@ class AppLocalizationsUk extends AppLocalizations {
   String map_seats(int taken, int total) {
     return '$taken з $total місць';
   }
+
+  @override
+  String get profile_load_failed =>
+      'Не вдалося отримати вашу анкету. Перевірте зв\'язок і спробуйте ще раз.';
 }
