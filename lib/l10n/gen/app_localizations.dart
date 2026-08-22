@@ -3361,6 +3361,24 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'This email is already registered. Sign in with your password — or reset it if you forgot.'**
   String get account_exists_email_body;
+
+  /// No description provided for @feed_enable_location.
+  ///
+  /// In en, this message translates to:
+  /// **'We don’t know where you are — showing everyone'**
+  String get feed_enable_location;
+
+  /// No description provided for @feed_enable_location_action.
+  ///
+  /// In en, this message translates to:
+  /// **'Turn on'**
+  String get feed_enable_location_action;
+
+  /// No description provided for @feed_location_denied.
+  ///
+  /// In en, this message translates to:
+  /// **'Without location permission we can’t show distance'**
+  String get feed_location_denied;
 }
 
 class _AppLocalizationsDelegate

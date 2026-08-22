@@ -781,5 +781,8 @@
   "rg_spam_hint": "Didn’t arrive? Check your Spam folder.",
   "enter_valid_email": "Enter a valid email",
   "or_by_email": "or by email",
-  "account_exists_email_body": "This email is already registered. Sign in with your password — or reset it if you forgot."
+  "account_exists_email_body": "This email is already registered. Sign in with your password — or reset it if you forgot.",
+  "feed_enable_location": "We don’t know where you are — showing everyone",
+  "feed_enable_location_action": "Turn on",
+  "feed_location_denied": "Without location permission we can’t show distance"
 }

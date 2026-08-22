@@ -594,5 +594,8 @@
   "rg_spam_hint": "Nie dotarł? Sprawdź folder Spam.",
   "enter_valid_email": "Podaj poprawny adres e-mail",
   "or_by_email": "albo e-mailem",
-  "account_exists_email_body": "Ten e-mail jest już zarejestrowany. Zaloguj się hasłem albo je zresetuj."
+  "account_exists_email_body": "Ten e-mail jest już zarejestrowany. Zaloguj się hasłem albo je zresetuj.",
+  "feed_enable_location": "Nie wiemy, gdzie jesteś — pokazujemy wszystkich",
+  "feed_enable_location_action": "Włącz",
+  "feed_location_denied": "Bez zgody na lokalizację nie pokażemy odległości"
 }

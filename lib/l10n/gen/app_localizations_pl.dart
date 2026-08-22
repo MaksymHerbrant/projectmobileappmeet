@@ -1740,4 +1740,15 @@ class AppLocalizationsPl extends AppLocalizations {
   @override
   String get account_exists_email_body =>
       'Ten e-mail jest już zarejestrowany. Zaloguj się hasłem albo je zresetuj.';
+
+  @override
+  String get feed_enable_location =>
+      'Nie wiemy, gdzie jesteś — pokazujemy wszystkich';
+
+  @override
+  String get feed_enable_location_action => 'Włącz';
+
+  @override
+  String get feed_location_denied =>
+      'Bez zgody na lokalizację nie pokażemy odległości';
 }

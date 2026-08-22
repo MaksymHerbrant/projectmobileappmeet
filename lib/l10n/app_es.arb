@@ -594,5 +594,8 @@
   "rg_spam_hint": "¿No llegó? Revisa la carpeta de spam.",
   "enter_valid_email": "Introduce un correo válido",
   "or_by_email": "o con el correo",
-  "account_exists_email_body": "Este correo ya está registrado. Inicia sesión con tu contraseña o restablécela si la olvidaste."
+  "account_exists_email_body": "Este correo ya está registrado. Inicia sesión con tu contraseña o restablécela si la olvidaste.",
+  "feed_enable_location": "No sabemos dónde estás: mostramos a todo el mundo",
+  "feed_enable_location_action": "Activar",
+  "feed_location_denied": "Sin permiso de ubicación no podemos mostrar la distancia"
 }

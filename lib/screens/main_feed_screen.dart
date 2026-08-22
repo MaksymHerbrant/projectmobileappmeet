@@ -365,11 +365,59 @@ class _MainFeedScreenState extends State<MainFeedScreen> {
     return _radiusSteps.last;
   }
 
+  /// Просить дозвіл на геолокацію явно — на відміну від тихої спроби при
+  /// запуску, тут системний діалог доречний, бо людина сама натиснула.
+  Future<void> _enableLocation() async {
+    final outcome = await _locationService.refreshMyLocation();
+    if (!mounted) return;
+
+    if (outcome.isSuccess) {
+      setState(() => _hasLocation = true);
+      await _loadUsers();
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+            content: Text(AppLocalizations.of(context)!.feed_location_denied)),
+      );
+    }
+  }
+
   /// Керування радіусом. Без нього «друзі поруч» — просто список усіх, кого
   /// повернув сервер.
+  ///
+  /// Коли позиції немає, повзунок безглуздий — але порожнє місце на його
+  /// боці теж нічого не пояснює. Тому там стоїть рядок із дією: саме
+  /// геолокація перетворює цей екран на «хто поруч».
   Widget _buildRadiusControl() {
     final t = AppLocalizations.of(context)!;
-    if (!_hasLocation) return const SizedBox.shrink();
+
+    if (!_hasLocation) {
+      return Padding(
+        padding: const EdgeInsets.fromLTRB(20, 4, 20, 8),
+        child: GestureDetector(
+          onTap: _enableLocation,
+          behavior: HitTestBehavior.opaque,
+          child: Row(
+            children: [
+              Icon(Icons.location_off_outlined,
+                  size: 18,
+                  color: Theme.of(context).colorScheme.onSurfaceVariant),
+              const SizedBox(width: 10),
+              Expanded(
+                child: Text(t.feed_enable_location, style: Ds.tiny(context)),
+              ),
+              const SizedBox(width: 10),
+              DsChip(
+                label: t.feed_enable_location_action,
+                small: true,
+                selected: true,
+                onTap: _enableLocation,
+              ),
+            ],
+          ),
+        ),
+      );
+    }
 
     // Крок нерівномірний навмисно: між 5 і 10 км різниця відчутна, між 100 і
     // 105 — ні, тож повзунок ходить по заздалегідь обраних значеннях.

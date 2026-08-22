@@ -1740,4 +1740,15 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get account_exists_email_body =>
       'This email is already registered. Sign in with your password — or reset it if you forgot.';
+
+  @override
+  String get feed_enable_location =>
+      'We don’t know where you are — showing everyone';
+
+  @override
+  String get feed_enable_location_action => 'Turn on';
+
+  @override
+  String get feed_location_denied =>
+      'Without location permission we can’t show distance';
 }

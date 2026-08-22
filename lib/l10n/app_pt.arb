@@ -594,5 +594,8 @@
   "rg_spam_hint": "Não chegou? Veja a pasta de spam.",
   "enter_valid_email": "Introduza um e-mail válido",
   "or_by_email": "ou por e-mail",
-  "account_exists_email_body": "Este e-mail já está registado. Inicie sessão com a palavra-passe ou redefina-a."
+  "account_exists_email_body": "Este e-mail já está registado. Inicie sessão com a palavra-passe ou redefina-a.",
+  "feed_enable_location": "Não sabemos onde está — mostramos toda a gente",
+  "feed_enable_location_action": "Ativar",
+  "feed_location_denied": "Sem permissão de localização não podemos mostrar a distância"
 }

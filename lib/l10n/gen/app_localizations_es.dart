@@ -1744,4 +1744,15 @@ class AppLocalizationsEs extends AppLocalizations {
   @override
   String get account_exists_email_body =>
       'Este correo ya está registrado. Inicia sesión con tu contraseña o restablécela si la olvidaste.';
+
+  @override
+  String get feed_enable_location =>
+      'No sabemos dónde estás: mostramos a todo el mundo';
+
+  @override
+  String get feed_enable_location_action => 'Activar';
+
+  @override
+  String get feed_location_denied =>
+      'Sin permiso de ubicación no podemos mostrar la distancia';
 }

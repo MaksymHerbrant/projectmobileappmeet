@@ -1737,4 +1737,14 @@ class AppLocalizationsUk extends AppLocalizations {
   @override
   String get account_exists_email_body =>
       'Ця пошта вже зареєстрована. Увійдіть із паролем — або зміните його, якщо забули.';
+
+  @override
+  String get feed_enable_location => 'Не знаємо, де ви — показуємо всіх підряд';
+
+  @override
+  String get feed_enable_location_action => 'Увімкнути';
+
+  @override
+  String get feed_location_denied =>
+      'Без дозволу на геолокацію відстань показати не вийде';
 }
