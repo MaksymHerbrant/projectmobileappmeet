@@ -1756,4 +1756,41 @@ class AppLocalizationsPt extends AppLocalizations {
   @override
   String get feed_location_denied =>
       'Sem permissão de localização não podemos mostrar a distância';
+
+  @override
+  String get map_title => 'Por perto';
+
+  @override
+  String get map_search_hint => 'Cidade ou zona';
+
+  @override
+  String get map_filter_all => 'Todos';
+
+  @override
+  String get map_filter_people => 'Pessoas';
+
+  @override
+  String get map_filter_events => 'Eventos';
+
+  @override
+  String map_within(int km) {
+    return 'Num raio de $km km';
+  }
+
+  @override
+  String map_counts(int people, int events) {
+    return '$people pessoas · $events eventos';
+  }
+
+  @override
+  String get map_direction_note =>
+      'As distâncias são reais, as direções não: nunca mostramos a posição exata de ninguém.';
+
+  @override
+  String get map_empty => 'Ainda não há ninguém neste raio';
+
+  @override
+  String map_seats(int taken, int total) {
+    return '$taken de $total lugares';
+  }
 }

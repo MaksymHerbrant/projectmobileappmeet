@@ -3379,6 +3379,66 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Without location permission we can’t show distance'**
   String get feed_location_denied;
+
+  /// No description provided for @map_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Nearby'**
+  String get map_title;
+
+  /// No description provided for @map_search_hint.
+  ///
+  /// In en, this message translates to:
+  /// **'City or area'**
+  String get map_search_hint;
+
+  /// No description provided for @map_filter_all.
+  ///
+  /// In en, this message translates to:
+  /// **'All'**
+  String get map_filter_all;
+
+  /// No description provided for @map_filter_people.
+  ///
+  /// In en, this message translates to:
+  /// **'People'**
+  String get map_filter_people;
+
+  /// No description provided for @map_filter_events.
+  ///
+  /// In en, this message translates to:
+  /// **'Events'**
+  String get map_filter_events;
+
+  /// No description provided for @map_within.
+  ///
+  /// In en, this message translates to:
+  /// **'Within {km} km'**
+  String map_within(int km);
+
+  /// No description provided for @map_counts.
+  ///
+  /// In en, this message translates to:
+  /// **'{people} people · {events} events'**
+  String map_counts(int people, int events);
+
+  /// No description provided for @map_direction_note.
+  ///
+  /// In en, this message translates to:
+  /// **'Distances are real, directions are not: we never reveal anyone’s exact position.'**
+  String get map_direction_note;
+
+  /// No description provided for @map_empty.
+  ///
+  /// In en, this message translates to:
+  /// **'Nobody in this radius yet'**
+  String get map_empty;
+
+  /// No description provided for @map_seats.
+  ///
+  /// In en, this message translates to:
+  /// **'{taken} of {total} seats'**
+  String map_seats(int taken, int total);
 }
 
 class _AppLocalizationsDelegate

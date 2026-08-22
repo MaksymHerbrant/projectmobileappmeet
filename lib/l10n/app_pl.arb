@@ -597,5 +597,42 @@
   "account_exists_email_body": "Ten e-mail jest już zarejestrowany. Zaloguj się hasłem albo je zresetuj.",
   "feed_enable_location": "Nie wiemy, gdzie jesteś — pokazujemy wszystkich",
   "feed_enable_location_action": "Włącz",
-  "feed_location_denied": "Bez zgody na lokalizację nie pokażemy odległości"
+  "feed_location_denied": "Bez zgody na lokalizację nie pokażemy odległości",
+  "map_title": "W pobliżu",
+  "map_search_hint": "Miasto lub dzielnica",
+  "map_filter_all": "Wszyscy",
+  "map_filter_people": "Ludzie",
+  "map_filter_events": "Wydarzenia",
+  "map_within": "W promieniu {km} km",
+  "@map_within": {
+    "placeholders": {
+      "km": {
+        "type": "int"
+      }
+    }
+  },
+  "map_counts": "{people} osób · {events} wydarzeń",
+  "@map_counts": {
+    "placeholders": {
+      "people": {
+        "type": "int"
+      },
+      "events": {
+        "type": "int"
+      }
+    }
+  },
+  "map_direction_note": "Odległości są prawdziwe, kierunki nie: dokładnej pozycji nie pokazujemy nikomu.",
+  "map_empty": "W tym promieniu nikogo jeszcze nie ma",
+  "map_seats": "{taken} z {total} miejsc",
+  "@map_seats": {
+    "placeholders": {
+      "taken": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  }
 }

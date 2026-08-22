@@ -1747,4 +1747,41 @@ class AppLocalizationsUk extends AppLocalizations {
   @override
   String get feed_location_denied =>
       'Без дозволу на геолокацію відстань показати не вийде';
+
+  @override
+  String get map_title => 'Поруч';
+
+  @override
+  String get map_search_hint => 'Місто або район';
+
+  @override
+  String get map_filter_all => 'Усі';
+
+  @override
+  String get map_filter_people => 'Люди';
+
+  @override
+  String get map_filter_events => 'Події';
+
+  @override
+  String map_within(int km) {
+    return 'У радіусі $km км';
+  }
+
+  @override
+  String map_counts(int people, int events) {
+    return '$people людей · $events подій';
+  }
+
+  @override
+  String get map_direction_note =>
+      'Відстань справжня, напрямок — умовний: точних координат ми не показуємо нікому.';
+
+  @override
+  String get map_empty => 'У цьому радіусі поки нікого';
+
+  @override
+  String map_seats(int taken, int total) {
+    return '$taken з $total місць';
+  }
 }

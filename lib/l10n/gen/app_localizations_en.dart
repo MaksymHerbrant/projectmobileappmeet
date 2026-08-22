@@ -1751,4 +1751,41 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get feed_location_denied =>
       'Without location permission we can’t show distance';
+
+  @override
+  String get map_title => 'Nearby';
+
+  @override
+  String get map_search_hint => 'City or area';
+
+  @override
+  String get map_filter_all => 'All';
+
+  @override
+  String get map_filter_people => 'People';
+
+  @override
+  String get map_filter_events => 'Events';
+
+  @override
+  String map_within(int km) {
+    return 'Within $km km';
+  }
+
+  @override
+  String map_counts(int people, int events) {
+    return '$people people · $events events';
+  }
+
+  @override
+  String get map_direction_note =>
+      'Distances are real, directions are not: we never reveal anyone’s exact position.';
+
+  @override
+  String get map_empty => 'Nobody in this radius yet';
+
+  @override
+  String map_seats(int taken, int total) {
+    return '$taken of $total seats';
+  }
 }

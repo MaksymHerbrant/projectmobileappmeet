@@ -597,5 +597,42 @@
   "account_exists_email_body": "Ця пошта вже зареєстрована. Увійдіть із паролем — або зміните його, якщо забули.",
   "feed_enable_location": "Не знаємо, де ви — показуємо всіх підряд",
   "feed_enable_location_action": "Увімкнути",
-  "feed_location_denied": "Без дозволу на геолокацію відстань показати не вийде"
+  "feed_location_denied": "Без дозволу на геолокацію відстань показати не вийде",
+  "map_title": "Поруч",
+  "map_search_hint": "Місто або район",
+  "map_filter_all": "Усі",
+  "map_filter_people": "Люди",
+  "map_filter_events": "Події",
+  "map_within": "У радіусі {km} км",
+  "@map_within": {
+    "placeholders": {
+      "km": {
+        "type": "int"
+      }
+    }
+  },
+  "map_counts": "{people} людей · {events} подій",
+  "@map_counts": {
+    "placeholders": {
+      "people": {
+        "type": "int"
+      },
+      "events": {
+        "type": "int"
+      }
+    }
+  },
+  "map_direction_note": "Відстань справжня, напрямок — умовний: точних координат ми не показуємо нікому.",
+  "map_empty": "У цьому радіусі поки нікого",
+  "map_seats": "{taken} з {total} місць",
+  "@map_seats": {
+    "placeholders": {
+      "taken": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  }
 }

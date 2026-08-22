@@ -784,5 +784,42 @@
   "account_exists_email_body": "This email is already registered. Sign in with your password — or reset it if you forgot.",
   "feed_enable_location": "We don’t know where you are — showing everyone",
   "feed_enable_location_action": "Turn on",
-  "feed_location_denied": "Without location permission we can’t show distance"
+  "feed_location_denied": "Without location permission we can’t show distance",
+  "map_title": "Nearby",
+  "map_search_hint": "City or area",
+  "map_filter_all": "All",
+  "map_filter_people": "People",
+  "map_filter_events": "Events",
+  "map_within": "Within {km} km",
+  "@map_within": {
+    "placeholders": {
+      "km": {
+        "type": "int"
+      }
+    }
+  },
+  "map_counts": "{people} people · {events} events",
+  "@map_counts": {
+    "placeholders": {
+      "people": {
+        "type": "int"
+      },
+      "events": {
+        "type": "int"
+      }
+    }
+  },
+  "map_direction_note": "Distances are real, directions are not: we never reveal anyone’s exact position.",
+  "map_empty": "Nobody in this radius yet",
+  "map_seats": "{taken} of {total} seats",
+  "@map_seats": {
+    "placeholders": {
+      "taken": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  }
 }

@@ -1751,4 +1751,41 @@ class AppLocalizationsPl extends AppLocalizations {
   @override
   String get feed_location_denied =>
       'Bez zgody na lokalizację nie pokażemy odległości';
+
+  @override
+  String get map_title => 'W pobliżu';
+
+  @override
+  String get map_search_hint => 'Miasto lub dzielnica';
+
+  @override
+  String get map_filter_all => 'Wszyscy';
+
+  @override
+  String get map_filter_people => 'Ludzie';
+
+  @override
+  String get map_filter_events => 'Wydarzenia';
+
+  @override
+  String map_within(int km) {
+    return 'W promieniu $km km';
+  }
+
+  @override
+  String map_counts(int people, int events) {
+    return '$people osób · $events wydarzeń';
+  }
+
+  @override
+  String get map_direction_note =>
+      'Odległości są prawdziwe, kierunki nie: dokładnej pozycji nie pokazujemy nikomu.';
+
+  @override
+  String get map_empty => 'W tym promieniu nikogo jeszcze nie ma';
+
+  @override
+  String map_seats(int taken, int total) {
+    return '$taken z $total miejsc';
+  }
 }

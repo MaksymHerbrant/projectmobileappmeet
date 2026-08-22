@@ -16,6 +16,7 @@ import '../service/error_reporter.dart';
 import '../service/location_service.dart';
 import 'profile_detail_screen.dart';
 import 'events_screen.dart';
+import 'map_screen.dart';
 import 'package:dating_app/l10n/gen/app_localizations.dart';
 
 class MainFeedScreen extends StatefulWidget {
@@ -323,8 +324,8 @@ class _MainFeedScreenState extends State<MainFeedScreen> {
                   onChanged: _onSearchChanged,
                 ),
               ),
-              if (_searchController.text.isNotEmpty) ...[
-                const SizedBox(width: 12),
+              const SizedBox(width: 12),
+              if (_searchController.text.isNotEmpty)
                 DsIconButton(
                   icon: Icons.close_rounded,
                   onTap: () {
@@ -332,8 +333,17 @@ class _MainFeedScreenState extends State<MainFeedScreen> {
                     FocusScope.of(context).unfocus();
                     _loadUsers();
                   },
+                )
+              else
+                // Кнопка карти з макета: та сама позиція, але залита
+                // основним кольором — це головна дія поруч із пошуком.
+                _MapButton(
+                  onTap: () => Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (_) => MapScreen(radiusKm: _radiusKm),
+                    ),
+                  ),
                 ),
-              ],
             ],
           ),
           if (!_isSearchActive) ...[
@@ -807,6 +817,31 @@ class _MainFeedScreenState extends State<MainFeedScreen> {
           boxShadow: Ds.shadow(context),
         ),
         child: Icon(icon, size: 22, color: foreground),
+      ),
+    );
+  }
+}
+
+/// Кнопка карти в шапці стрічки — `.iconbtn` із заливкою `--pri`.
+class _MapButton extends StatelessWidget {
+  final VoidCallback onTap;
+
+  const _MapButton({required this.onTap});
+
+  @override
+  Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+    return Material(
+      color: scheme.primary,
+      borderRadius: BorderRadius.circular(Ds.rTile),
+      child: InkWell(
+        borderRadius: BorderRadius.circular(Ds.rTile),
+        onTap: onTap,
+        child: SizedBox(
+          width: 44,
+          height: 44,
+          child: Icon(Icons.map_outlined, size: 20, color: scheme.onPrimary),
+        ),
       ),
     );
   }

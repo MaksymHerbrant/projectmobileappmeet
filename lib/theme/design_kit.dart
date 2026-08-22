@@ -1195,7 +1195,13 @@ class DsSearchField extends StatelessWidget {
               cursorColor: scheme.primary,
               decoration: InputDecoration(
                 isDense: true,
+                // Рамку малює контейнер. `border` сам по собі не допомагає:
+                // глобальна тема задає enabledBorder і focusedBorder окремо,
+                // і саме вони проступали другим контуром усередині пігулки.
                 border: InputBorder.none,
+                enabledBorder: InputBorder.none,
+                focusedBorder: InputBorder.none,
+                disabledBorder: InputBorder.none,
                 filled: false,
                 contentPadding: EdgeInsets.zero,
                 hintText: hint,
