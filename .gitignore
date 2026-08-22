@@ -5,7 +5,9 @@
 .flutter-plugins-dependencies
 .metadata
 build/
-pubspec.lock
+# pubspec.lock навмисно НЕ ігнорується: це застосунок, а не бібліотека.
+# Файл фіксує точні версії залежностей, тож збірка на іншій машині й у CI
+# дає той самий результат. Саме розходження версій ламало збірку під iOS.
 
 # IDE
 .idea/
@@ -45,6 +47,11 @@ coverage/
 .DS_Store
 *.log
 *.lock
+# ...окрім лок-файлів залежностей: це застосунок, і точні версії мають
+# лежати в репозиторії, щоб збірка в Юлі та в CI була така сама.
+!pubspec.lock
+!ios/Podfile.lock
+!macos/Podfile.lock
 # Miscellaneous
 *.class
 *.log
