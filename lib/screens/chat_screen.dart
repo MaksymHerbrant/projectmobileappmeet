@@ -27,15 +27,26 @@ class _ChatScreenState extends State<ChatScreen> {
   final Map<String, bool> _typingUsers = {};
   Timer? _refreshTimer; // Додано таймер для автоматичного оновлення часу
 
+  /// Потік чатів створюється один раз.
+  ///
+  /// Раніше він викликався прямо в build(), а кожен виклик відкриває власний
+  /// канал реального часу на таблицю rooms і робить повне завантаження.
+  /// Перебудова ж траплялася на кожну подію присутності й раз на хвилину від
+  /// таймера — канали накопичувались, і врешті система вбивала застосунок.
+  /// Той спалах «завантаження» замість списку — це якраз новий потік, який
+  /// починав з порожнього стану.
+  late final Stream<List<Map<String, dynamic>>> _chatsStream =
+      _chatService.getMyChatsStream();
+
   @override
   void initState() {
     super.initState();
     _initRealtime();
-    // Таймер оновлює екран щохвилини, щоб час "Зараз" змінювався на цифри
+    // Таймер оновлює екран щохвилини, щоб час «Зараз» змінювався на цифри.
+    // Перебудова тут безпечна лише тому, що потік більше не створюється в
+    // build() — інакше кожен такт відкривав би новий канал.
     _refreshTimer = Timer.periodic(const Duration(minutes: 1), (_) {
-      if (mounted) {
-        setState(() {});
-      }
+      if (mounted) setState(() {});
     });
   }
 
@@ -118,7 +129,7 @@ class _ChatScreenState extends State<ChatScreen> {
                   _buildSearchBar(),
                   Expanded(
                     child: StreamBuilder<List<Map<String, dynamic>>>(
-                      stream: _chatService.getMyChatsStream(),
+                      stream: _chatsStream,
                       builder: (context, snapshot) {
                         if (snapshot.connectionState ==
                             ConnectionState.waiting) {

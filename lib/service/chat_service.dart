@@ -15,8 +15,7 @@ class ChatService {
   Stream<List<Map<String, dynamic>>> getMyChatsStream() {
     return _supabase
         .from('rooms')
-        .stream(primaryKey: ['id'])
-        .asyncMap((_) => fetchMyChats());
+        .stream(primaryKey: ['id']).asyncMap((_) => fetchMyChats());
   }
 
   Future<List<Map<String, dynamic>>> fetchMyChats() async {
@@ -28,7 +27,13 @@ class ChatService {
       rethrow;
     }
   }
+
   void subscribeToPresence(String userId, Function(Set<String>) onUpdate) {
+    // Повторна підписка без зняття попередньої лишала б висіти зайвий канал:
+    // «online-users» спільний для всіх, і кожна така копія отримує події
+    // кожного користувача застосунку.
+    unsubscribeFromPresence();
+
     final Set<String> onlineIds = {};
 
     _presenceChannel = _supabase.channel(
@@ -36,38 +41,35 @@ class ChatService {
       opts: const RealtimeChannelConfig(self: true),
     );
 
-    _presenceChannel!
-        .onPresenceJoin((payload) {
-          try {
-            for (final presence in payload.newPresences) {
-              final presenceData = presence.payload;
-              if (presenceData != null && presenceData['user_id'] != null) {
-                onlineIds.add(presenceData['user_id'].toString());
-              }
-            }
-            onUpdate(onlineIds);
-          } catch (e) {
-            debugPrint('Join Error: $e');
+    _presenceChannel!.onPresenceJoin((payload) {
+      try {
+        for (final presence in payload.newPresences) {
+          final presenceData = presence.payload;
+          if (presenceData != null && presenceData['user_id'] != null) {
+            onlineIds.add(presenceData['user_id'].toString());
           }
-        })
-        .onPresenceLeave((payload) {
-          try {
-            for (final presence in payload.leftPresences) {
-              final presenceData = presence.payload;
-              if (presenceData != null && presenceData['user_id'] != null) {
-                onlineIds.remove(presenceData['user_id'].toString());
-              }
-            }
-            onUpdate(onlineIds);
-          } catch (e) {
-            debugPrint('Leave Error: $e');
+        }
+        onUpdate(onlineIds);
+      } catch (e) {
+        debugPrint('Join Error: $e');
+      }
+    }).onPresenceLeave((payload) {
+      try {
+        for (final presence in payload.leftPresences) {
+          final presenceData = presence.payload;
+          if (presenceData != null && presenceData['user_id'] != null) {
+            onlineIds.remove(presenceData['user_id'].toString());
           }
-        })
-        .subscribe((status, error) async {
-          if (status == RealtimeSubscribeStatus.subscribed) {
-            await _presenceChannel!.track({'user_id': userId});
-          }
-        });
+        }
+        onUpdate(onlineIds);
+      } catch (e) {
+        debugPrint('Leave Error: $e');
+      }
+    }).subscribe((status, error) async {
+      if (status == RealtimeSubscribeStatus.subscribed) {
+        await _presenceChannel!.track({'user_id': userId});
+      }
+    });
   }
 
   void unsubscribeFromPresence() {
@@ -89,8 +91,8 @@ class ChatService {
   Future<void> sendMessage(String roomId, String content) async {
     try {
       final myId = _supabase.auth.currentUser!.id;
-      final nowIso = DateTime.now().toUtc().toIso8601String(); 
-      
+      final nowIso = DateTime.now().toUtc().toIso8601String();
+
       await _supabase.from('messages').insert({
         'room_id': roomId,
         'sender_id': myId,
@@ -101,8 +103,8 @@ class ChatService {
       // 🟢 ОНОВЛЕНО: Зберігаємо ID того, хто написав повідомлення
       await _supabase.from('rooms').update({
         'last_message': content,
-        'last_message_time': nowIso, 
-        'last_message_sender_id': myId, 
+        'last_message_time': nowIso,
+        'last_message_sender_id': myId,
       }).eq('id', roomId);
 
       final participants = await _supabase
@@ -137,12 +139,17 @@ class ChatService {
 
   Future<void> addUserToEventChat(String eventId, String userId) async {
     try {
-      final room = await _supabase.from('rooms').select('id').eq('event_id', eventId).maybeSingle();
+      final room = await _supabase
+          .from('rooms')
+          .select('id')
+          .eq('event_id', eventId)
+          .maybeSingle();
       if (room == null) return;
 
       final roomId = room['id'];
 
-      final existing = await _supabase.from('room_participants')
+      final existing = await _supabase
+          .from('room_participants')
           .select()
           .eq('room_id', roomId)
           .eq('profile_id', userId)
@@ -176,5 +183,4 @@ class ChatService {
       ErrorReporter.report(e, st, context: 'markMessagesAsRead');
     }
   }
-
 }
