@@ -30,9 +30,9 @@ class _MainFeedScreenState extends State<MainFeedScreen> {
   final CardSwiperController _cardSwiperController = CardSwiperController();
   final TextEditingController _searchController = TextEditingController();
   final FocusNode _searchFocusNode = FocusNode();
-  
+
   // Стан
-  int _selectedTab = 0; 
+  int _selectedTab = 0;
   bool _isLoading = true;
   bool _isFinished = false;
   bool _isSearchActive = false;
@@ -40,9 +40,9 @@ class _MainFeedScreenState extends State<MainFeedScreen> {
   /// Радіус пошуку в кілометрах. Зберігається між сеансами.
   int _radiusKm = 50;
   bool _hasLocation = true;
-  
+
   List<UserProfile> users = [];
-  Timer? _debounce; 
+  Timer? _debounce;
 
   final Map<String, PageController> _photoControllers = {};
   final Map<String, int> _currentPhotoIndex = {};
@@ -51,7 +51,7 @@ class _MainFeedScreenState extends State<MainFeedScreen> {
   void initState() {
     super.initState();
     _restoreRadiusAndLoad();
-    
+
     _searchFocusNode.addListener(() {
       setState(() {
         _isSearchActive = _searchFocusNode.hasFocus;
@@ -106,8 +106,9 @@ class _MainFeedScreenState extends State<MainFeedScreen> {
         setState(() {
           users = newUsers;
           _isLoading = false;
+          _preloaded.clear();
         });
-        
+
         // 🔥 2. Одразу починаємо вантажити фото перших користувачів
         if (users.isNotEmpty) _preloadImages(context, users[0]);
         if (users.length > 1) _preloadImages(context, users[1]);
@@ -121,13 +122,32 @@ class _MainFeedScreenState extends State<MainFeedScreen> {
       }
     }
   }
-  
-  // 🔥 3. ФУНКЦІЯ ДЛЯ ШВИДКОГО ЗАВАНТАЖЕННЯ (Pre-cache)
+
+  /// Профілі, фото яких уже ставили в чергу завантаження.
+  ///
+  /// Без цього набору попереднє завантаження запускалося повторно для того
+  /// самого профілю щоразу, коли перемальовувалась картка.
+  final Set<String> _preloaded = {};
+
+  /// Попереднє завантаження фото наступної картки.
+  ///
+  /// `onError` тут обов'язковий, а не про всяк випадок: без нього кожна
+  /// невдала картинка кидає виняток у загальний обробник помилок Flutter, і на
+  /// вебі потік таких винятків зупиняє рушій — застосунок перестає
+  /// реагувати на дотики взагалі.
   void _preloadImages(BuildContext context, UserProfile user) {
-    for (var photoUrl in user.photos) {
-      if (photoUrl.isNotEmpty && photoUrl.startsWith('http')) {
-        precacheImage(CachedNetworkImageProvider(photoUrl), context);
-      }
+    if (!_preloaded.add(user.id)) return;
+
+    for (final photoUrl in user.photos) {
+      if (photoUrl.isEmpty || !photoUrl.startsWith('http')) continue;
+      precacheImage(
+        CachedNetworkImageProvider(photoUrl),
+        context,
+        onError: (error, stack) {
+          // Недоступне фото — не подія: картка покаже заглушку з ініціалом.
+          debugPrint('Фото не завантажилось: $photoUrl');
+        },
+      );
     }
   }
 
@@ -135,8 +155,8 @@ class _MainFeedScreenState extends State<MainFeedScreen> {
 
   void _onSearchChanged(String query) {
     if (_debounce?.isActive ?? false) _debounce!.cancel();
-    
-    if (query.isEmpty) return; 
+
+    if (query.isEmpty) return;
 
     _debounce = Timer(const Duration(milliseconds: 500), () async {
       try {
@@ -158,14 +178,21 @@ class _MainFeedScreenState extends State<MainFeedScreen> {
     setState(() => _isFinished = true);
   }
 
-  bool _onSwipe(int previousIndex, int? currentIndex, CardSwiperDirection direction) {
+  bool _onSwipe(
+      int previousIndex, int? currentIndex, CardSwiperDirection direction) {
     if (previousIndex >= users.length) return false;
     final swipedUser = users[previousIndex];
-    
+
     if (direction == CardSwiperDirection.right) {
       _submitSwipe(swipedUser.id, true);
     } else if (direction == CardSwiperDirection.left) {
       _submitSwipe(swipedUser.id, false);
+    }
+
+    // Черга завантаження просувається саме тут: колода зрушила рівно на одну
+    // картку, тож наступну можна почати вантажити заздалегідь.
+    if (currentIndex != null && currentIndex + 1 < users.length) {
+      _preloadImages(context, users[currentIndex + 1]);
     }
 
     return true;
@@ -214,7 +241,7 @@ class _MainFeedScreenState extends State<MainFeedScreen> {
                   Expanded(
                     child: Stack(
                       children: [
-                        _buildBody(), 
+                        _buildBody(),
                         if (_isSearchActive)
                           Positioned.fill(
                             child: GestureDetector(
@@ -225,8 +252,10 @@ class _MainFeedScreenState extends State<MainFeedScreen> {
                               },
                               child: ClipRect(
                                 child: BackdropFilter(
-                                  filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
-                                  child: Container(color: Colors.black.withOpacity(0.1)),
+                                  filter:
+                                      ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+                                  child: Container(
+                                      color: Colors.black.withOpacity(0.1)),
                                 ),
                               ),
                             ),
@@ -234,7 +263,11 @@ class _MainFeedScreenState extends State<MainFeedScreen> {
                       ],
                     ),
                   ),
-                  if (!_isLoading && !_isFinished && users.isNotEmpty && !_isSearchActive && MediaQuery.of(context).viewInsets.bottom == 0)
+                  if (!_isLoading &&
+                      !_isFinished &&
+                      users.isNotEmpty &&
+                      !_isSearchActive &&
+                      MediaQuery.of(context).viewInsets.bottom == 0)
                     _buildBottomActions(),
                 ],
               ),
@@ -260,18 +293,15 @@ class _MainFeedScreenState extends State<MainFeedScreen> {
       onSwipe: _onSwipe,
       onEnd: _onEnd,
       isLoop: false,
-      cardBuilder: (context, index, horizontalThresholdPercentage, verticalThresholdPercentage) {
-        // 🔥 4. ЗАПУСКАЄМО ЗАВАНТАЖЕННЯ НАСТУПНОГО КОРИСТУВАЧА
-        // Поки ми дивимось на index, ми вже качаємо index + 1
-        if (index + 1 < users.length) {
-          _preloadImages(context, users[index + 1]);
-        }
-        
-        return _buildUserCard(users[index]);
-      },
+      // cardBuilder викликається щокадру під час перетягування, тож нічого,
+      // крім побудови картки, тут бути не може.
+      cardBuilder: (context, index, horizontalThresholdPercentage,
+              verticalThresholdPercentage) =>
+          _buildUserCard(users[index]),
       duration: const Duration(milliseconds: 300),
       threshold: 80,
-      allowedSwipeDirection: const AllowedSwipeDirection.only(left: true, right: true, up: false, down: false),
+      allowedSwipeDirection: const AllowedSwipeDirection.only(
+          left: true, right: true, up: false, down: false),
     );
   }
 
@@ -314,7 +344,8 @@ class _MainFeedScreenState extends State<MainFeedScreen> {
                   setState(() => _selectedTab = 0);
                 } else {
                   Navigator.of(context).push(
-                    MaterialPageRoute(builder: (context) => const EventsScreen()),
+                    MaterialPageRoute(
+                        builder: (context) => const EventsScreen()),
                   );
                 }
               },
@@ -342,7 +373,8 @@ class _MainFeedScreenState extends State<MainFeedScreen> {
 
     // Крок нерівномірний навмисно: між 5 і 10 км різниця відчутна, між 100 і
     // 105 — ні, тож повзунок ходить по заздалегідь обраних значеннях.
-    final index = _radiusSteps.indexOf(_radiusKm).clamp(0, _radiusSteps.length - 1);
+    final index =
+        _radiusSteps.indexOf(_radiusKm).clamp(0, _radiusSteps.length - 1);
 
     return Padding(
       padding: const EdgeInsets.fromLTRB(20, 4, 20, 8),
@@ -367,10 +399,14 @@ class _MainFeedScreenState extends State<MainFeedScreen> {
 
     return DsEmptyState(
       icon: Icons.location_searching_rounded,
-      title: _hasLocation ? t.feed_empty_radius_title(_radiusKm) : t.feed_empty_title,
+      title: _hasLocation
+          ? t.feed_empty_radius_title(_radiusKm)
+          : t.feed_empty_title,
       body: _hasLocation ? t.feed_empty_widen_hint : t.feed_empty_no_location,
-      actionLabel: canWiden ? t.search_within_km(_nextRadius(_radiusKm)) : t.refresh,
-      onAction: canWiden ? () => _setRadius(_nextRadius(_radiusKm)) : _loadUsers,
+      actionLabel:
+          canWiden ? t.search_within_km(_nextRadius(_radiusKm)) : t.refresh,
+      onAction:
+          canWiden ? () => _setRadius(_nextRadius(_radiusKm)) : _loadUsers,
       footer: GestureDetector(
         onTap: () => Navigator.of(context).push(
           MaterialPageRoute(builder: (context) => const EventsScreen()),
@@ -452,7 +488,8 @@ class _MainFeedScreenState extends State<MainFeedScreen> {
                   physics: const NeverScrollableScrollPhysics(),
                   itemCount: user.photos.length,
                   itemBuilder: (context, i) => _photo(user.photos[i]),
-                  onPageChanged: (i) => setState(() => _currentPhotoIndex[user.id] = i),
+                  onPageChanged: (i) =>
+                      setState(() => _currentPhotoIndex[user.id] = i),
                 ),
         ),
 
@@ -518,7 +555,8 @@ class _MainFeedScreenState extends State<MainFeedScreen> {
   /// із теми — на світлій темі виходив майже чорний текст на майже чорному
   /// тлі. Тепер він на власній поверхні, тож читається завжди.
   Widget _cardInfo(UserProfile user, AppLocalizations t, ColorScheme scheme) {
-    final mine = context.read<AppStateProvider>().currentUserProfile?.hobbies ?? const <String>[];
+    final mine = context.read<AppStateProvider>().currentUserProfile?.hobbies ??
+        const <String>[];
 
     return Container(
       width: double.infinity,
@@ -540,7 +578,11 @@ class _MainFeedScreenState extends State<MainFeedScreen> {
               ),
               const SizedBox(width: 10),
               if (user.likesMe)
-                DsChip(label: t.likes_you, small: true, selected: true, icon: Icons.favorite_rounded)
+                DsChip(
+                    label: t.likes_you,
+                    small: true,
+                    selected: true,
+                    icon: Icons.favorite_rounded)
               else if (user.affinity != null && user.affinity! > 0)
                 DsChip(
                   label: t.match_percent((user.affinity! * 100).round()),
@@ -603,8 +645,8 @@ class _MainFeedScreenState extends State<MainFeedScreen> {
         // видно наступну — тому вимкнена.
         fadeInDuration: Duration.zero,
         fadeOutDuration: Duration.zero,
-        placeholder: (context, url) => const DsPhotoBlock(radius: 0),
-        errorWidget: (context, url, error) => const DsPhotoBlock(radius: 0),
+        placeholder: (context, url) => const SizedBox.shrink(),
+        errorWidget: (context, url, error) => const SizedBox.shrink(),
       );
     }
     return Image(
@@ -612,7 +654,8 @@ class _MainFeedScreenState extends State<MainFeedScreen> {
       fit: BoxFit.cover,
       width: double.infinity,
       height: double.infinity,
-      errorBuilder: (context, error, stackTrace) => const DsPhotoBlock(radius: 0),
+      errorBuilder: (context, error, stackTrace) =>
+          const DsPhotoBlock(radius: 0),
     );
   }
 
@@ -641,9 +684,13 @@ class _MainFeedScreenState extends State<MainFeedScreen> {
 
   // --- ХЕЛПЕР (Для старих ImageProvider) ---
   ImageProvider _getSingleImageProvider(String? path) {
-    if (path == null || path.isEmpty) return const NetworkImage('https://ui-avatars.com/api/?name=User&format=png&background=random');
+    if (path == null || path.isEmpty)
+      return const NetworkImage(
+          'https://ui-avatars.com/api/?name=User&format=png&background=random');
     if (path.startsWith('http')) return NetworkImage(path);
-    if (path.contains('placeholder')) return const NetworkImage('https://ui-avatars.com/api/?name=User&format=png&background=random');
+    if (path.contains('placeholder'))
+      return const NetworkImage(
+          'https://ui-avatars.com/api/?name=User&format=png&background=random');
     return AssetImage(path);
   }
 

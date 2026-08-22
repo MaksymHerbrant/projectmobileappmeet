@@ -112,7 +112,8 @@ BEGIN
       bio            = 'Тестовий профіль для перевірки підбору: ' || spec[1],
       location       = 'Львів',
       hobbies        = v_tags,
-      photos         = ARRAY['https://i.pravatar.cc/600?img=' || (30 + i)::text],
+      -- DiceBear віддає CORS-заголовки, pravatar — ні.
+      photos         = ARRAY['https://api.dicebear.com/9.x/avataaars/png?size=600&seed=' || v_id::text],
       location_point = point(base_lat + v_offset, base_long),
       last_active_at = now() - (v_hours || ' hours')::interval,
       updated_at     = now()

@@ -164,7 +164,9 @@ BEGIN
       location       = 'Київ',
       hobbies        = v_tags,
       photos         = ARRAY[
-                         'https://i.pravatar.cc/600?img=' || (1 + (i % 70))::text
+                         -- DiceBear, а не pravatar: той віддає зображення без CORS-заголовків,
+                       -- і браузер відмовляється їх декодувати на вебі.
+                       'https://api.dicebear.com/9.x/avataaars/png?size=600&seed=' || v_id::text
                        ],
       embedding      = v_vec::vector,
       location_point = point(v_lat, v_long),
@@ -204,7 +206,7 @@ BEGIN
         || 'головне гарний настрій.',
       event_locations[1 + ((i - 1) % array_length(event_locations, 1))],
       now() + ((i * 2) || ' days')::interval + interval '18 hours',
-      ARRAY['https://picsum.photos/seed/meet' || i::text || '/800/600'],
+      ARRAY['https://api.dicebear.com/9.x/shapes/png?size=600&seed=event' || i::text],
       v_tags,
       4 + (i % 12),
       (i % 6 = 0),          -- кожна шоста подія приватна
@@ -216,7 +218,7 @@ BEGIN
     -- Груповий чат, як його створює create_event_with_chat
     INSERT INTO rooms (is_group, type, name, avatar_url, event_id, last_message, last_message_time)
     VALUES (true, 'group', event_titles[i],
-            'https://picsum.photos/seed/meet' || i::text || '/800/600',
+            'https://api.dicebear.com/9.x/shapes/png?size=600&seed=event' || i::text,
             v_event_id, 'Груповий чат створено 🥳', now())
     RETURNING id INTO v_room_id;
 

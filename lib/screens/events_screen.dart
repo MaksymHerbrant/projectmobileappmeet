@@ -25,13 +25,13 @@ class _EventsScreenState extends State<EventsScreen> {
 
   /// Той самий радіус, що і в стрічці людей — користувач налаштовує його раз.
   int _radiusKm = 50;
-  
+
   // Стан
   List<Event> events = [];
   bool _isLoading = true;
   bool _isFinished = false;
   // 🟢 Тимчасова змінна для зберігання повідомлення перед свайпом
-  String? _pendingMessage; 
+  String? _pendingMessage;
 
   final Map<String, PageController> _photoControllers = {};
   final Map<String, int> _currentPhotoIndex = {};
@@ -52,9 +52,10 @@ class _EventsScreenState extends State<EventsScreen> {
   Future<void> _loadEvents() async {
     setState(() {
       _isLoading = true;
-      _isFinished = false; // 🟢 СКИДАЄМО СТАН AppLocalizations.of(context)!.ended_badge
+      _isFinished =
+          false; // 🟢 СКИДАЄМО СТАН AppLocalizations.of(context)!.ended_badge
     });
-    
+
     try {
       final newEvents = await _matchesService.getEventFeed(radiusKm: _radiusKm);
       if (mounted) {
@@ -73,13 +74,15 @@ class _EventsScreenState extends State<EventsScreen> {
 
   ImageProvider _getSingleImageProvider(String? path) {
     if (path == null || path.isEmpty) {
-      return const NetworkImage('https://ui-avatars.com/api/?name=Event&format=png&background=random');
+      return const NetworkImage(
+          'https://ui-avatars.com/api/?name=Event&format=png&background=random');
     }
     if (path.startsWith('http')) {
       return NetworkImage(path);
     }
     if (path.contains('placeholder')) {
-       return const NetworkImage('https://ui-avatars.com/api/?name=Event&format=png&background=random');
+      return const NetworkImage(
+          'https://ui-avatars.com/api/?name=Event&format=png&background=random');
     }
     return AssetImage(path);
   }
@@ -99,12 +102,14 @@ class _EventsScreenState extends State<EventsScreen> {
                 children: [
                   _buildTopBar(),
                   Expanded(
-                    child: _isLoading 
-                        ? const Center(child: CircularProgressIndicator()) 
+                    child: _isLoading
+                        ? const Center(child: CircularProgressIndicator())
                         : _buildSwipeCards(),
                   ),
                   // Ховаємо кнопки, якщо клавіатура відкрита (опціонально)
-                  if (!_isLoading && events.isNotEmpty && MediaQuery.of(context).viewInsets.bottom == 0)
+                  if (!_isLoading &&
+                      events.isNotEmpty &&
+                      MediaQuery.of(context).viewInsets.bottom == 0)
                     _buildBottomActions(),
                 ],
               ),
@@ -159,12 +164,14 @@ class _EventsScreenState extends State<EventsScreen> {
       onSwipe: _onSwipe,
       onEnd: _onEnd,
       isLoop: false, // Важливо: не зациклювати
-      cardBuilder: (context, index, horizontalThresholdPercentage, verticalThresholdPercentage) {
+      cardBuilder: (context, index, horizontalThresholdPercentage,
+          verticalThresholdPercentage) {
         return _buildEventCard(events[index]);
       },
       duration: const Duration(milliseconds: 300),
       threshold: 80,
-      allowedSwipeDirection: const AllowedSwipeDirection.only(left: true, right: true, up: false, down: false),
+      allowedSwipeDirection: const AllowedSwipeDirection.only(
+          left: true, right: true, up: false, down: false),
     );
   }
 
@@ -204,7 +211,8 @@ class _EventsScreenState extends State<EventsScreen> {
             Expanded(child: _eventPhoto(event, pageController)),
             InkWell(
               onTap: () => Navigator.of(context).push(
-                MaterialPageRoute(builder: (context) => EventDetailScreen(event: event)),
+                MaterialPageRoute(
+                    builder: (context) => EventDetailScreen(event: event)),
               ),
               child: _eventInfo(event, scheme),
             ),
@@ -221,29 +229,24 @@ class _EventsScreenState extends State<EventsScreen> {
     return Stack(
       fit: StackFit.expand,
       children: [
-        DsPhotoBlock(
-          radius: 0,
-          fontSize: 40,
-          initial: event.title.isEmpty ? null : event.title,
-          child: event.photos.isEmpty
-              ? null
-              : PageView.builder(
-                  controller: pageController,
-                  // Свайп самого PageView вимкнено, щоб не конфліктував з карткою.
-                  physics: const NeverScrollableScrollPhysics(),
-                  onPageChanged: (index) => setState(() => _currentPhotoIndex[event.id] = index),
-                  itemCount: event.photos.length,
-                  itemBuilder: (context, i) => Image(
-                    image: _getSingleImageProvider(event.photos[i]),
-                    fit: BoxFit.cover,
-                    width: double.infinity,
-                    height: double.infinity,
-                    errorBuilder: (context, error, stackTrace) =>
-                        const DsPhotoBlock(radius: 0),
-                  ),
-                ),
-        ),
-
+        DsPhotoBlock(radius: 0, fontSize: 40, initial: event.title),
+        if (event.photos.isNotEmpty)
+          PageView.builder(
+            controller: pageController,
+            // Свайп самого PageView вимкнено, щоб не конфліктував з карткою.
+            physics: const NeverScrollableScrollPhysics(),
+            onPageChanged: (index) =>
+                setState(() => _currentPhotoIndex[event.id] = index),
+            itemCount: event.photos.length,
+            itemBuilder: (context, i) => Image(
+              image: _getSingleImageProvider(event.photos[i]),
+              fit: BoxFit.cover,
+              width: double.infinity,
+              height: double.infinity,
+              errorBuilder: (context, error, stackTrace) =>
+                  const SizedBox.shrink(),
+            ),
+          ),
         if (event.photos.length > 1)
           Row(
             children: [
@@ -269,13 +272,12 @@ class _EventsScreenState extends State<EventsScreen> {
               ),
             ],
           ),
-
         Positioned(
           top: 12,
           left: 12,
-          child: DsPill(icon: Icons.schedule_rounded, label: _whenLabel(event, t)),
+          child:
+              DsPill(icon: Icons.schedule_rounded, label: _whenLabel(event, t)),
         ),
-
         Positioned(
           top: 12,
           right: 12,
@@ -323,7 +325,8 @@ class _EventsScreenState extends State<EventsScreen> {
           const SizedBox(height: 6),
           Row(
             children: [
-              Icon(Icons.place_outlined, size: 15, color: scheme.onSurfaceVariant),
+              Icon(Icons.place_outlined,
+                  size: 15, color: scheme.onSurfaceVariant),
               const SizedBox(width: 4),
               Expanded(
                 child: Text(
@@ -338,9 +341,11 @@ class _EventsScreenState extends State<EventsScreen> {
           const SizedBox(height: 10),
           Row(
             children: [
-              Icon(Icons.people_outline_rounded, size: 15, color: scheme.onSurfaceVariant),
+              Icon(Icons.people_outline_rounded,
+                  size: 15, color: scheme.onSurfaceVariant),
               const SizedBox(width: 6),
-              Text(t.participants_count(event.participantsCount), style: Ds.tiny(context)),
+              Text(t.participants_count(event.participantsCount),
+                  style: Ds.tiny(context)),
               const Spacer(),
               if (event.tags.isNotEmpty)
                 Flexible(
@@ -349,7 +354,9 @@ class _EventsScreenState extends State<EventsScreen> {
                     spacing: 6,
                     children: [
                       for (final tag in event.tags.take(2))
-                        DsChip(label: InterestLabels.of(context, tag), small: true),
+                        DsChip(
+                            label: InterestLabels.of(context, tag),
+                            small: true),
                     ],
                   ),
                 ),
@@ -383,20 +390,24 @@ class _EventsScreenState extends State<EventsScreen> {
   }
 
   // 🟢 ГОЛОВНА ЛОГІКА СВАЙПІВ
-  bool _onSwipe(int previousIndex, int? currentIndex, CardSwiperDirection direction) {
+  bool _onSwipe(
+      int previousIndex, int? currentIndex, CardSwiperDirection direction) {
     if (previousIndex >= events.length) return false;
-    
+
     final swipedEvent = events[previousIndex];
-    
+
     if (direction == CardSwiperDirection.right) {
       debugPrint('Лайк події: ${swipedEvent.title}');
-      
+
       // 🟢 Передаємо повідомлення (якщо воно є)
-      _matchesService.recordEventSwipe(swipedEvent.id, true, message: _pendingMessage);
-      
+      _matchesService.recordEventSwipe(swipedEvent.id, true,
+          message: _pendingMessage);
+
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text(_pendingMessage != null ? AppLocalizations.of(context)!.request_sent_msg : AppLocalizations.of(context)!.request_sent), 
+          content: Text(_pendingMessage != null
+              ? AppLocalizations.of(context)!.request_sent_msg
+              : AppLocalizations.of(context)!.request_sent),
           backgroundColor: Theme.of(context).extension<AppSemantics>()!.success,
           duration: const Duration(seconds: 1),
         ),
@@ -405,15 +416,15 @@ class _EventsScreenState extends State<EventsScreen> {
       debugPrint('Пропуск події: ${swipedEvent.title}');
       _matchesService.recordEventSwipe(swipedEvent.id, false);
     }
-    
+
     // Очищаємо повідомлення після свайпу
     _pendingMessage = null;
-    
+
     if (currentIndex != null && currentIndex < events.length) {
-       _currentPhotoIndex[events[currentIndex].id] = 0;
-       _photoControllers[events[currentIndex].id]?.jumpToPage(0);
+      _currentPhotoIndex[events[currentIndex].id] = 0;
+      _photoControllers[events[currentIndex].id]?.jumpToPage(0);
     }
-    
+
     return true;
   }
 
@@ -514,10 +525,10 @@ class _EventsScreenState extends State<EventsScreen> {
               setState(() {
                 _pendingMessage = textController.text.trim();
               });
-              
+
               // 2. Закриваємо діалог
               Navigator.pop(context);
-              
+
               // 3. Робимо свайп вправо (Лайк). Це викличе _onSwipe, де ми використаємо _pendingMessage
               controller.swipe(CardSwiperDirection.right);
             },
@@ -534,7 +545,8 @@ class _EventsScreenState extends State<EventsScreen> {
     return DsNavBar(
       index: 0,
       onChanged: (i) => Navigator.of(context).pushReplacement(
-        MaterialPageRoute(builder: (context) => MainNavigationScreen(initialIndex: i)),
+        MaterialPageRoute(
+            builder: (context) => MainNavigationScreen(initialIndex: i)),
       ),
       items: [
         DsNavItem(icon: Icons.style_outlined, label: t.nav_feed),
