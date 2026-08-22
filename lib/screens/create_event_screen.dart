@@ -16,11 +16,12 @@ class CreateEventScreen extends StatefulWidget {
   State<CreateEventScreen> createState() => _CreateEventScreenState();
 }
 
-class _CreateEventScreenState extends State<CreateEventScreen> with TickerProviderStateMixin {
+class _CreateEventScreenState extends State<CreateEventScreen>
+    with TickerProviderStateMixin {
   final _matchesService = MatchesService();
   final _formKey = GlobalKey<FormState>();
   final _scrollController = ScrollController();
-  
+
   // Контролери анімації
   late AnimationController _fadeController;
   late AnimationController _slideController;
@@ -32,7 +33,7 @@ class _CreateEventScreenState extends State<CreateEventScreen> with TickerProvid
   final _descriptionController = TextEditingController();
   final _locationController = TextEditingController();
   final _maxParticipantsController = TextEditingController();
-  
+
   // Контролери для приватної події
   final _privateLocationController = TextEditingController();
   final _meetingPointController = TextEditingController();
@@ -45,15 +46,29 @@ class _CreateEventScreenState extends State<CreateEventScreen> with TickerProvid
   bool _isPrivateEvent = false;
   bool _isLoading = false;
   List<String> _selectedTags = [];
-  
+
   // Локальні фотографії
   final ImagePicker _picker = ImagePicker();
   List<PickedPhoto> _selectedLocalPhotos = [];
 
   final List<String> _availableTags = [
-    'Музика', 'Танці', 'Спорт', 'Подорожі', 'Освіта', 'Вечірка',
-    'Кава', 'Кіно', 'Мистецтво', 'Походи', 'Гори', 'Природа',
-    'IT', 'Програмування', 'Геймінг', 'Фотографія', 'Кулінарія'
+    'Музика',
+    'Танці',
+    'Спорт',
+    'Подорожі',
+    'Освіта',
+    'Вечірка',
+    'Кава',
+    'Кіно',
+    'Мистецтво',
+    'Походи',
+    'Гори',
+    'Природа',
+    'IT',
+    'Програмування',
+    'Геймінг',
+    'Фотографія',
+    'Кулінарія'
   ];
 
   @override
@@ -64,15 +79,18 @@ class _CreateEventScreenState extends State<CreateEventScreen> with TickerProvid
   }
 
   void _initAnimations() {
-    _fadeController = AnimationController(duration: const Duration(milliseconds: 800), vsync: this);
-    _slideController = AnimationController(duration: const Duration(milliseconds: 600), vsync: this);
-    
+    _fadeController = AnimationController(
+        duration: const Duration(milliseconds: 800), vsync: this);
+    _slideController = AnimationController(
+        duration: const Duration(milliseconds: 600), vsync: this);
+
     _fadeAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
       CurvedAnimation(parent: _fadeController, curve: Curves.easeInOut),
     );
-    _slideAnimation = Tween<Offset>(begin: const Offset(0, 0.3), end: Offset.zero).animate(
-      CurvedAnimation(parent: _slideController, curve: Curves.easeOutBack)
-    );
+    _slideAnimation =
+        Tween<Offset>(begin: const Offset(0, 0.3), end: Offset.zero).animate(
+            CurvedAnimation(
+                parent: _slideController, curve: Curves.easeOutBack));
 
     _fadeController.forward();
     _slideController.forward();
@@ -103,7 +121,7 @@ class _CreateEventScreenState extends State<CreateEventScreen> with TickerProvid
         maxWidth: 1080,
         maxHeight: 1920,
       );
-      
+
       if (image != null) {
         final photo = await PickedPhoto.fromXFile(image);
         if (!mounted) return;
@@ -124,7 +142,7 @@ class _CreateEventScreenState extends State<CreateEventScreen> with TickerProvid
   @override
   Widget build(BuildContext context) {
     final t = AppLocalizations.of(context)!;
-    
+
     return Scaffold(
       backgroundColor: Theme.of(context).colorScheme.surface,
       body: SafeArea(
@@ -251,8 +269,10 @@ class _CreateEventScreenState extends State<CreateEventScreen> with TickerProvid
           hint: AppLocalizations.of(context)!.ev_title_hint,
           icon: Icons.title,
           validator: (value) {
-            if (value?.isEmpty ?? true) return AppLocalizations.of(context)!.ev_enter_title;
-            if (value!.length < 3) return AppLocalizations.of(context)!.ev_title_min;
+            if (value?.isEmpty ?? true)
+              return AppLocalizations.of(context)!.ev_enter_title;
+            if (value!.length < 3)
+              return AppLocalizations.of(context)!.ev_title_min;
             return null;
           },
         ),
@@ -264,8 +284,10 @@ class _CreateEventScreenState extends State<CreateEventScreen> with TickerProvid
           icon: Icons.description,
           maxLines: 3,
           validator: (value) {
-            if (value?.isEmpty ?? true) return AppLocalizations.of(context)!.ev_add_description;
-            if (value!.length < 10) return AppLocalizations.of(context)!.ev_desc_min;
+            if (value?.isEmpty ?? true)
+              return AppLocalizations.of(context)!.ev_add_description;
+            if (value!.length < 10)
+              return AppLocalizations.of(context)!.ev_desc_min;
             return null;
           },
         ),
@@ -276,7 +298,8 @@ class _CreateEventScreenState extends State<CreateEventScreen> with TickerProvid
           hint: AppLocalizations.of(context)!.ev_area_hint,
           icon: Icons.location_on,
           validator: (value) {
-            if (value?.isEmpty ?? true) return AppLocalizations.of(context)!.ev_set_location;
+            if (value?.isEmpty ?? true)
+              return AppLocalizations.of(context)!.ev_set_location;
             return null;
           },
         ),
@@ -288,10 +311,13 @@ class _CreateEventScreenState extends State<CreateEventScreen> with TickerProvid
           icon: Icons.people,
           keyboardType: TextInputType.number,
           validator: (value) {
-            if (value?.isEmpty ?? true) return AppLocalizations.of(context)!.ev_set_participants;
+            if (value?.isEmpty ?? true)
+              return AppLocalizations.of(context)!.ev_set_participants;
             final num = int.tryParse(value!);
-            if (num == null || num < 2) return AppLocalizations.of(context)!.ev_min_participants;
-            if (num > 100) return AppLocalizations.of(context)!.ev_max_participants;
+            if (num == null || num < 2)
+              return AppLocalizations.of(context)!.ev_min_participants;
+            if (num > 100)
+              return AppLocalizations.of(context)!.ev_max_participants;
             return null;
           },
         ),
@@ -324,24 +350,46 @@ class _CreateEventScreenState extends State<CreateEventScreen> with TickerProvid
           color: Theme.of(context).colorScheme.surface,
           borderRadius: BorderRadius.circular(16),
           border: Border.all(
-            color: _selectedDate == null ? Theme.of(context).colorScheme.outlineVariant : Theme.of(context).colorScheme.primary,
+            color: _selectedDate == null
+                ? Theme.of(context).colorScheme.outlineVariant
+                : Theme.of(context).colorScheme.primary,
             width: 1.5,
           ),
-          boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 8, offset: const Offset(0, 2))],
+          boxShadow: [
+            BoxShadow(
+                color: Colors.black.withOpacity(0.05),
+                blurRadius: 8,
+                offset: const Offset(0, 2))
+          ],
         ),
         child: Row(
           children: [
-            Icon(Icons.calendar_today, color: _selectedDate == null ? Theme.of(context).colorScheme.outlineVariant : Theme.of(context).colorScheme.primary, size: 20),
+            Icon(Icons.calendar_today,
+                color: _selectedDate == null
+                    ? Theme.of(context).colorScheme.outlineVariant
+                    : Theme.of(context).colorScheme.primary,
+                size: 20),
             const SizedBox(width: 12),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(AppLocalizations.of(context)!.ev_date, style: TextStyle(fontSize: 12, color: Theme.of(context).colorScheme.onSurfaceVariant, fontWeight: FontWeight.w500)),
+                  Text(AppLocalizations.of(context)!.ev_date,
+                      style: TextStyle(
+                          fontSize: 12,
+                          color: Theme.of(context).colorScheme.onSurfaceVariant,
+                          fontWeight: FontWeight.w500)),
                   const SizedBox(height: 2),
                   Text(
-                    _selectedDate == null ? AppLocalizations.of(context)!.ev_pick_date : DateFormat('dd.MM.yyyy').format(_selectedDate!),
-                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600, color: _selectedDate == null ? Theme.of(context).colorScheme.outlineVariant : Colors.black87),
+                    _selectedDate == null
+                        ? AppLocalizations.of(context)!.ev_pick_date
+                        : DateFormat('dd.MM.yyyy').format(_selectedDate!),
+                    style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w600,
+                        color: _selectedDate == null
+                            ? Theme.of(context).colorScheme.outlineVariant
+                            : Colors.black87),
                   ),
                 ],
               ),
@@ -361,24 +409,46 @@ class _CreateEventScreenState extends State<CreateEventScreen> with TickerProvid
           color: Theme.of(context).colorScheme.surface,
           borderRadius: BorderRadius.circular(16),
           border: Border.all(
-            color: _selectedTime == null ? Theme.of(context).colorScheme.outlineVariant : Theme.of(context).colorScheme.primary,
+            color: _selectedTime == null
+                ? Theme.of(context).colorScheme.outlineVariant
+                : Theme.of(context).colorScheme.primary,
             width: 1.5,
           ),
-          boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 8, offset: const Offset(0, 2))],
+          boxShadow: [
+            BoxShadow(
+                color: Colors.black.withOpacity(0.05),
+                blurRadius: 8,
+                offset: const Offset(0, 2))
+          ],
         ),
         child: Row(
           children: [
-            Icon(Icons.access_time, color: _selectedTime == null ? Theme.of(context).colorScheme.outlineVariant : Theme.of(context).colorScheme.primary, size: 20),
+            Icon(Icons.access_time,
+                color: _selectedTime == null
+                    ? Theme.of(context).colorScheme.outlineVariant
+                    : Theme.of(context).colorScheme.primary,
+                size: 20),
             const SizedBox(width: 12),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(AppLocalizations.of(context)!.ev_time, style: TextStyle(fontSize: 12, color: Theme.of(context).colorScheme.onSurfaceVariant, fontWeight: FontWeight.w500)),
+                  Text(AppLocalizations.of(context)!.ev_time,
+                      style: TextStyle(
+                          fontSize: 12,
+                          color: Theme.of(context).colorScheme.onSurfaceVariant,
+                          fontWeight: FontWeight.w500)),
                   const SizedBox(height: 2),
                   Text(
-                    _selectedTime == null ? AppLocalizations.of(context)!.ev_pick_time : _selectedTime!.format(context),
-                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600, color: _selectedTime == null ? Theme.of(context).colorScheme.outlineVariant : Colors.black87),
+                    _selectedTime == null
+                        ? AppLocalizations.of(context)!.ev_pick_time
+                        : _selectedTime!.format(context),
+                    style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w600,
+                        color: _selectedTime == null
+                            ? Theme.of(context).colorScheme.outlineVariant
+                            : Colors.black87),
                   ),
                 ],
               ),
@@ -399,20 +469,33 @@ class _CreateEventScreenState extends State<CreateEventScreen> with TickerProvid
           decoration: BoxDecoration(
             color: Theme.of(context).colorScheme.surface,
             borderRadius: BorderRadius.circular(16),
-            border: Border.all(color: _isPrivateEvent ? Theme.of(context).colorScheme.primary : Theme.of(context).colorScheme.outlineVariant, width: 1.5),
-            boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 8, offset: const Offset(0, 2))],
+            border: Border.all(
+                color: _isPrivateEvent
+                    ? Theme.of(context).colorScheme.primary
+                    : Theme.of(context).colorScheme.outlineVariant,
+                width: 1.5),
+            boxShadow: [
+              BoxShadow(
+                  color: Colors.black.withOpacity(0.05),
+                  blurRadius: 8,
+                  offset: const Offset(0, 2))
+            ],
           ),
           child: Row(
             children: [
               Container(
                 padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(
-                  color: _isPrivateEvent ? Theme.of(context).colorScheme.primary : Theme.of(context).colorScheme.outlineVariant,
+                  color: _isPrivateEvent
+                      ? Theme.of(context).colorScheme.primary
+                      : Theme.of(context).colorScheme.outlineVariant,
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: Icon(
                   _isPrivateEvent ? Icons.lock : Icons.public,
-                  color: _isPrivateEvent ? Theme.of(context).colorScheme.primary : Theme.of(context).colorScheme.outlineVariant,
+                  color: _isPrivateEvent
+                      ? Theme.of(context).colorScheme.primary
+                      : Theme.of(context).colorScheme.outlineVariant,
                   size: 24,
                 ),
               ),
@@ -421,11 +504,23 @@ class _CreateEventScreenState extends State<CreateEventScreen> with TickerProvid
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(_isPrivateEvent ? AppLocalizations.of(context)!.ev_private_party : AppLocalizations.of(context)!.ev_public, style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Theme.of(context).colorScheme.onSurface)),
+                    Text(
+                        _isPrivateEvent
+                            ? AppLocalizations.of(context)!.ev_private_party
+                            : AppLocalizations.of(context)!.ev_public,
+                        style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                            color: Theme.of(context).colorScheme.onSurface)),
                     const SizedBox(height: 4),
                     Text(
-                      _isPrivateEvent ? AppLocalizations.of(context)!.ev_private_hint : AppLocalizations.of(context)!.ev_public_hint,
-                      style: TextStyle(fontSize: 14, color: Theme.of(context).colorScheme.onSurfaceVariant, height: 1.3),
+                      _isPrivateEvent
+                          ? AppLocalizations.of(context)!.ev_private_hint
+                          : AppLocalizations.of(context)!.ev_public_hint,
+                      style: TextStyle(
+                          fontSize: 14,
+                          color: Theme.of(context).colorScheme.onSurfaceVariant,
+                          height: 1.3),
                     ),
                   ],
                 ),
@@ -441,7 +536,8 @@ class _CreateEventScreenState extends State<CreateEventScreen> with TickerProvid
                   activeColor: Colors.white,
                   activeTrackColor: Theme.of(context).colorScheme.primary,
                   inactiveThumbColor: Colors.white,
-                  inactiveTrackColor: Theme.of(context).colorScheme.outlineVariant,
+                  inactiveTrackColor:
+                      Theme.of(context).colorScheme.outlineVariant,
                 ),
               ),
             ],
@@ -460,15 +556,43 @@ class _CreateEventScreenState extends State<CreateEventScreen> with TickerProvid
         icon: Icons.lock_outline,
         color: Theme.of(context).colorScheme.primary,
         children: [
-          Text(AppLocalizations.of(context)!.ev_private_note, style: TextStyle(fontSize: 14, color: Theme.of(context).colorScheme.primary, fontStyle: FontStyle.italic, height: 1.4)),
+          Text(AppLocalizations.of(context)!.ev_private_note,
+              style: TextStyle(
+                  fontSize: 14,
+                  color: Theme.of(context).colorScheme.primary,
+                  fontStyle: FontStyle.italic,
+                  height: 1.4)),
           const SizedBox(height: 16),
-          _buildTextField(controller: _privateLocationController, label: AppLocalizations.of(context)!.ev_exact_address, hint: AppLocalizations.of(context)!.ev_address_example, icon: Icons.home, validator: _isPrivateEvent ? (v) => v?.isEmpty ?? true ? AppLocalizations.of(context)!.ev_exact_hint : null : null),
+          _buildTextField(
+              controller: _privateLocationController,
+              label: AppLocalizations.of(context)!.ev_exact_address,
+              hint: AppLocalizations.of(context)!.ev_address_example,
+              icon: Icons.home,
+              validator: _isPrivateEvent
+                  ? (v) => v?.isEmpty ?? true
+                      ? AppLocalizations.of(context)!.ev_exact_hint
+                      : null
+                  : null),
           const SizedBox(height: 16),
-          _buildTextField(controller: _meetingPointController, label: AppLocalizations.of(context)!.ev_meeting_point, hint: AppLocalizations.of(context)!.ev_meeting_example, icon: Icons.meeting_room),
+          _buildTextField(
+              controller: _meetingPointController,
+              label: AppLocalizations.of(context)!.ev_meeting_point,
+              hint: AppLocalizations.of(context)!.ev_meeting_example,
+              icon: Icons.meeting_room),
           const SizedBox(height: 16),
-          _buildTextField(controller: _additionalInfoController, label: AppLocalizations.of(context)!.ev_extra_info, hint: AppLocalizations.of(context)!.ev_extra_hint, icon: Icons.info, maxLines: 2),
+          _buildTextField(
+              controller: _additionalInfoController,
+              label: AppLocalizations.of(context)!.ev_extra_info,
+              hint: AppLocalizations.of(context)!.ev_extra_hint,
+              icon: Icons.info,
+              maxLines: 2),
           const SizedBox(height: 16),
-          _buildTextField(controller: _privateMessageController, label: AppLocalizations.of(context)!.ev_message_title, hint: AppLocalizations.of(context)!.ev_message_hint, icon: Icons.message, maxLines: 3),
+          _buildTextField(
+              controller: _privateMessageController,
+              label: AppLocalizations.of(context)!.ev_message_title,
+              hint: AppLocalizations.of(context)!.ev_message_hint,
+              icon: Icons.message,
+              maxLines: 3),
         ],
       ),
     );
@@ -479,7 +603,11 @@ class _CreateEventScreenState extends State<CreateEventScreen> with TickerProvid
       title: AppLocalizations.of(context)!.ev_tags,
       icon: Icons.tag,
       children: [
-        Text(AppLocalizations.of(context)!.ev_tags_hint, style: TextStyle(fontSize: 14, color: Theme.of(context).colorScheme.onSurfaceVariant, height: 1.4)),
+        Text(AppLocalizations.of(context)!.ev_tags_hint,
+            style: TextStyle(
+                fontSize: 14,
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
+                height: 1.4)),
         const SizedBox(height: 16),
         Wrap(
           spacing: 8,
@@ -490,18 +618,47 @@ class _CreateEventScreenState extends State<CreateEventScreen> with TickerProvid
               onTap: () => _toggleTag(tag),
               child: AnimatedContainer(
                 duration: const Duration(milliseconds: 200),
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                 decoration: BoxDecoration(
-                  color: isSelected ? Theme.of(context).colorScheme.primaryContainer : Theme.of(context).colorScheme.surface,
+                  color: isSelected
+                      ? Theme.of(context).colorScheme.primaryContainer
+                      : Theme.of(context).colorScheme.surface,
                   borderRadius: BorderRadius.circular(20),
-                  border: Border.all(color: isSelected ? Theme.of(context).colorScheme.primary : Theme.of(context).colorScheme.outlineVariant, width: 1.5),
-                  boxShadow: isSelected ? [BoxShadow(color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.2), blurRadius: 4, offset: const Offset(0, 2))] : null,
+                  border: Border.all(
+                      color: isSelected
+                          ? Theme.of(context).colorScheme.primary
+                          : Theme.of(context).colorScheme.outlineVariant,
+                      width: 1.5),
+                  boxShadow: isSelected
+                      ? [
+                          BoxShadow(
+                              color: Theme.of(context)
+                                  .colorScheme
+                                  .primary
+                                  .withValues(alpha: 0.2),
+                              blurRadius: 4,
+                              offset: const Offset(0, 2))
+                        ]
+                      : null,
                 ),
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    if (isSelected) ...[Icon(Icons.check_circle, size: 16, color: Theme.of(context).colorScheme.primary), SizedBox(width: 4)],
-                    Text(InterestLabels.of(context, tag), style: TextStyle(color: isSelected ? Theme.of(context).colorScheme.primary : Theme.of(context).colorScheme.outlineVariant, fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500)),
+                    if (isSelected) ...[
+                      Icon(Icons.check_circle,
+                          size: 16,
+                          color: Theme.of(context).colorScheme.primary),
+                      SizedBox(width: 4)
+                    ],
+                    Text(InterestLabels.of(context, tag),
+                        style: TextStyle(
+                            color: isSelected
+                                ? Theme.of(context).colorScheme.primary
+                                : Theme.of(context).colorScheme.outlineVariant,
+                            fontWeight: isSelected
+                                ? FontWeight.w600
+                                : FontWeight.w500)),
                   ],
                 ),
               ),
@@ -512,7 +669,7 @@ class _CreateEventScreenState extends State<CreateEventScreen> with TickerProvid
     );
   }
 
-  // 🟢 ОНОВЛЕНА СЕКЦІЯ ФОТОГРАФІЙ 
+  // 🟢 ОНОВЛЕНА СЕКЦІЯ ФОТОГРАФІЙ
   Widget _buildPhotosSection(AppLocalizations t) {
     return _buildSection(
       title: AppLocalizations.of(context)!.ev_photos,
@@ -520,16 +677,19 @@ class _CreateEventScreenState extends State<CreateEventScreen> with TickerProvid
       children: [
         Text(
           AppLocalizations.of(context)!.ev_photos_hint,
-          style: TextStyle(fontSize: 14, color: Theme.of(context).colorScheme.onSurfaceVariant),
+          style: TextStyle(
+              fontSize: 14,
+              color: Theme.of(context).colorScheme.onSurfaceVariant),
         ),
         const SizedBox(height: 16),
         SizedBox(
           height: 120,
           child: ListView.builder(
             scrollDirection: Axis.horizontal,
-            itemCount: _selectedLocalPhotos.length < 5 ? _selectedLocalPhotos.length + 1 : 5,
+            itemCount: _selectedLocalPhotos.length < 5
+                ? _selectedLocalPhotos.length + 1
+                : 5,
             itemBuilder: (context, index) {
-              
               if (index == _selectedLocalPhotos.length) {
                 return GestureDetector(
                   onTap: _pickImage,
@@ -539,14 +699,22 @@ class _CreateEventScreenState extends State<CreateEventScreen> with TickerProvid
                     decoration: BoxDecoration(
                       color: Theme.of(context).colorScheme.primary,
                       borderRadius: BorderRadius.circular(16),
-                      border: Border.all(color: Theme.of(context).colorScheme.primary, style: BorderStyle.solid, width: 2),
+                      border: Border.all(
+                          color: Theme.of(context).colorScheme.primary,
+                          style: BorderStyle.solid,
+                          width: 2),
                     ),
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Icon(Icons.add_a_photo, color: Theme.of(context).colorScheme.primary, size: 32),
+                        Icon(Icons.add_a_photo,
+                            color: Theme.of(context).colorScheme.primary,
+                            size: 32),
                         const SizedBox(height: 8),
-                        Text(AppLocalizations.of(context)!.add, style: TextStyle(color: Theme.of(context).colorScheme.primary, fontWeight: FontWeight.bold)),
+                        Text(AppLocalizations.of(context)!.add,
+                            style: TextStyle(
+                                color: Theme.of(context).colorScheme.primary,
+                                fontWeight: FontWeight.bold)),
                       ],
                     ),
                   ),
@@ -563,6 +731,7 @@ class _CreateEventScreenState extends State<CreateEventScreen> with TickerProvid
                       image: DecorationImage(
                         image: MemoryImage(_selectedLocalPhotos[index].bytes),
                         fit: BoxFit.cover,
+                        onError: (e, s) => debugPrint('Фото не завантажилось'),
                       ),
                     ),
                   ),
@@ -577,7 +746,8 @@ class _CreateEventScreenState extends State<CreateEventScreen> with TickerProvid
                           color: Theme.of(context).colorScheme.onSurfaceVariant,
                           shape: BoxShape.circle,
                         ),
-                        child: const Icon(Icons.close, color: Colors.white, size: 16),
+                        child: const Icon(Icons.close,
+                            color: Colors.white, size: 16),
                       ),
                     ),
                   ),
@@ -602,7 +772,10 @@ class _CreateEventScreenState extends State<CreateEventScreen> with TickerProvid
         color: color ?? Theme.of(context).colorScheme.surface,
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
-          BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 10, offset: const Offset(0, 2)),
+          BoxShadow(
+              color: Colors.black.withOpacity(0.05),
+              blurRadius: 10,
+              offset: const Offset(0, 2)),
         ],
       ),
       child: Column(
@@ -616,10 +789,15 @@ class _CreateEventScreenState extends State<CreateEventScreen> with TickerProvid
                   color: Theme.of(context).colorScheme.primary,
                   borderRadius: BorderRadius.circular(10),
                 ),
-                child: Icon(icon, color: Theme.of(context).colorScheme.primary, size: 20),
+                child: Icon(icon,
+                    color: Theme.of(context).colorScheme.primary, size: 20),
               ),
               const SizedBox(width: 12),
-              Text(title, style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Theme.of(context).colorScheme.onSurface)),
+              Text(title,
+                  style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                      color: Theme.of(context).colorScheme.onSurface)),
             ],
           ),
           const SizedBox(height: 16),
@@ -647,14 +825,26 @@ class _CreateEventScreenState extends State<CreateEventScreen> with TickerProvid
         labelText: label,
         hintText: hint,
         prefixIcon: Icon(icon, color: Theme.of(context).colorScheme.primary),
-        border: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: BorderSide(color: Theme.of(context).colorScheme.outlineVariant)),
-        enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: BorderSide(color: Theme.of(context).colorScheme.outlineVariant)),
-        focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: BorderSide(color: Theme.of(context).colorScheme.primary, width: 2)),
-        errorBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: BorderSide(color: Theme.of(context).colorScheme.error)),
+        border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(16),
+            borderSide: BorderSide(
+                color: Theme.of(context).colorScheme.outlineVariant)),
+        enabledBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(16),
+            borderSide: BorderSide(
+                color: Theme.of(context).colorScheme.outlineVariant)),
+        focusedBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(16),
+            borderSide: BorderSide(
+                color: Theme.of(context).colorScheme.primary, width: 2)),
+        errorBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(16),
+            borderSide: BorderSide(color: Theme.of(context).colorScheme.error)),
         filled: true,
         fillColor: Theme.of(context).colorScheme.outlineVariant,
         labelStyle: TextStyle(color: Theme.of(context).colorScheme.primary),
-        hintStyle: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant),
+        hintStyle:
+            TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant),
       ),
     );
   }
@@ -669,20 +859,27 @@ class _CreateEventScreenState extends State<CreateEventScreen> with TickerProvid
           backgroundColor: Theme.of(context).colorScheme.primary,
           foregroundColor: Colors.white,
           elevation: 8,
-          shadowColor: Theme.of(context).colorScheme.primary.withValues(alpha: 0.3),
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+          shadowColor:
+              Theme.of(context).colorScheme.primary.withValues(alpha: 0.3),
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         ),
         child: _isLoading
             ? const SizedBox(
-                width: 24, height: 24,
-                child: CircularProgressIndicator(strokeWidth: 2, valueColor: AlwaysStoppedAnimation<Color>(Colors.white)),
+                width: 24,
+                height: 24,
+                child: CircularProgressIndicator(
+                    strokeWidth: 2,
+                    valueColor: AlwaysStoppedAnimation<Color>(Colors.white)),
               )
             : Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   const Icon(Icons.add_circle_outline, size: 24),
                   const SizedBox(width: 8),
-                  Text(t.create_event, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                  Text(t.create_event,
+                      style: const TextStyle(
+                          fontSize: 18, fontWeight: FontWeight.bold)),
                 ],
               ),
       ),
@@ -737,9 +934,11 @@ class _CreateEventScreenState extends State<CreateEventScreen> with TickerProvid
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(AppLocalizations.of(context)!.ev_max_tags),
-            backgroundColor: Theme.of(context).extension<AppSemantics>()!.warning,
+            backgroundColor:
+                Theme.of(context).extension<AppSemantics>()!.warning,
             behavior: SnackBarBehavior.floating,
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+            shape:
+                RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
           ),
         );
       }
@@ -794,7 +993,8 @@ class _CreateEventScreenState extends State<CreateEventScreen> with TickerProvid
               fileOptions: FileOptions(contentType: photo.mimeType),
             );
 
-        final imageUrl = supabase.storage.from('event_photos').getPublicUrl(filePath);
+        final imageUrl =
+            supabase.storage.from('event_photos').getPublicUrl(filePath);
         uploadedPhotoUrls.add(imageUrl);
       }
 
@@ -816,11 +1016,15 @@ class _CreateEventScreenState extends State<CreateEventScreen> with TickerProvid
         tags: _selectedTags,
         participantsCount: int.tryParse(_maxParticipantsController.text) ?? 10,
         isPrivate: _isPrivateEvent,
-        privateLocation: _isPrivateEvent ? _privateLocationController.text.trim() : null,
-        meetingPoint: _isPrivateEvent && _meetingPointController.text.isNotEmpty 
-            ? _meetingPointController.text.trim() : null,
-        additionalInfo: _isPrivateEvent && _additionalInfoController.text.isNotEmpty 
-            ? _additionalInfoController.text.trim() : null,
+        privateLocation:
+            _isPrivateEvent ? _privateLocationController.text.trim() : null,
+        meetingPoint: _isPrivateEvent && _meetingPointController.text.isNotEmpty
+            ? _meetingPointController.text.trim()
+            : null,
+        additionalInfo:
+            _isPrivateEvent && _additionalInfoController.text.isNotEmpty
+                ? _additionalInfoController.text.trim()
+                : null,
       );
 
       await _matchesService.createEvent(event);
@@ -829,10 +1033,13 @@ class _CreateEventScreenState extends State<CreateEventScreen> with TickerProvid
         Navigator.of(context).pop(event);
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text(AppLocalizations.of(context)!.ev_created_ok(event.title)),
-            backgroundColor: Theme.of(context).extension<AppSemantics>()!.success,
+            content:
+                Text(AppLocalizations.of(context)!.ev_created_ok(event.title)),
+            backgroundColor:
+                Theme.of(context).extension<AppSemantics>()!.success,
             behavior: SnackBarBehavior.floating,
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+            shape:
+                RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
           ),
         );
       }

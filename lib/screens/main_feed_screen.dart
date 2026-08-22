@@ -4,6 +4,7 @@ import '../providers/app_state_provider.dart';
 import 'dart:async';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:ui'; // Для ефекту блюру
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_card_swiper/flutter_card_swiper.dart';
@@ -131,11 +132,12 @@ class _MainFeedScreenState extends State<MainFeedScreen> {
 
   /// Попереднє завантаження фото наступної картки.
   ///
-  /// `onError` тут обов'язковий, а не про всяк випадок: без нього кожна
-  /// невдала картинка кидає виняток у загальний обробник помилок Flutter, і на
-  /// вебі потік таких винятків зупиняє рушій — застосунок перестає
-  /// реагувати на дотики взагалі.
+  /// На вебі не виконується взагалі. Браузер і так кешує відповіді, тож
+  /// виграшу немає, а декілька одночасних декодувань через CanvasKit
+  /// вивалюються в `Aborted()` — після чого рушій працює з пошкодженою
+  /// пам'яттю і застосунок перестає реагувати на дотики.
   void _preloadImages(BuildContext context, UserProfile user) {
+    if (kIsWeb) return;
     if (!_preloaded.add(user.id)) return;
 
     for (final photoUrl in user.photos) {
@@ -684,6 +686,23 @@ class _MainFeedScreenState extends State<MainFeedScreen> {
 
   Widget _photo(String photo) {
     if (photo.startsWith('http')) {
+      // На вебі — звичайний Image.network: він вантажить фото через власний
+      // механізм браузера, який уміє віддати зображення в CanvasKit без
+      // проміжного декодування байтів. cached_network_image на вебі йде
+      // іншим шляхом і саме там народжується EncodingError.
+      // На телефоні кеш навпаки цінний — там лишається він.
+      if (kIsWeb) {
+        return Image.network(
+          photo,
+          fit: BoxFit.cover,
+          width: double.infinity,
+          height: double.infinity,
+          errorBuilder: (_, __, ___) => const SizedBox.shrink(),
+          loadingBuilder: (context, child, progress) =>
+              progress == null ? child : const SizedBox.shrink(),
+        );
+      }
+
       return CachedNetworkImage(
         imageUrl: photo,
         fit: BoxFit.cover,

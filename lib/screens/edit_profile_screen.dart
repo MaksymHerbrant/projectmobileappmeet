@@ -13,7 +13,8 @@ import '../service/location_service.dart'; // 👇 ВАЖЛИВО: Імпорт 
 class EditProfileScreen extends StatefulWidget {
   final Map<String, dynamic> profileData;
 
-  const EditProfileScreen({Key? key, required this.profileData}) : super(key: key);
+  const EditProfileScreen({Key? key, required this.profileData})
+      : super(key: key);
 
   @override
   State<EditProfileScreen> createState() => _EditProfileScreenState();
@@ -31,36 +32,53 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   late TextEditingController _locationController;
   late TextEditingController _bioController;
   TextEditingController? _hobbySearchController;
-  
+
   // 🟢 Координати для "Розумного пошуку"
   double? _latitude;
   double? _longitude;
-  
+
   // Дата народження
   DateTime? _birthDate;
 
   // Фото
-  List<String> _existingPhotoUrls = []; 
-  List<PickedPhoto> _newPhotoFiles = [];       
-  bool _isUploading = false;            
+  List<String> _existingPhotoUrls = [];
+  List<PickedPhoto> _newPhotoFiles = [];
+  bool _isUploading = false;
 
   // Хобі
   List<String> _selectedHobbies = [];
   final List<String> _availableHobbies = [
-    'Геймінг', 'Настільні ігри', 'Музика Lo-Fi', 'Похід з наметом',
-    'Фентезі книги', 'Фотографія', 'Подорожі', 'Кулінарія',
-    'Спорт', 'Читання', 'Музика', 'Танці', 'Малювання',
-    'Програмування', 'Йога', 'Біг', 'Велоспорт', 'Плавання',
+    'Геймінг',
+    'Настільні ігри',
+    'Музика Lo-Fi',
+    'Похід з наметом',
+    'Фентезі книги',
+    'Фотографія',
+    'Подорожі',
+    'Кулінарія',
+    'Спорт',
+    'Читання',
+    'Музика',
+    'Танці',
+    'Малювання',
+    'Програмування',
+    'Йога',
+    'Біг',
+    'Велоспорт',
+    'Плавання',
   ];
 
   @override
   void initState() {
     super.initState();
     // Ініціалізація полів
-    _nameController = TextEditingController(text: widget.profileData['name'] ?? '');
-    _locationController = TextEditingController(text: widget.profileData['location'] ?? '');
-    _bioController = TextEditingController(text: widget.profileData['aboutMe'] ?? '');
-    
+    _nameController =
+        TextEditingController(text: widget.profileData['name'] ?? '');
+    _locationController =
+        TextEditingController(text: widget.profileData['location'] ?? '');
+    _bioController =
+        TextEditingController(text: widget.profileData['aboutMe'] ?? '');
+
     // Ініціалізація дати
     if (widget.profileData['birthDate'] is DateTime) {
       _birthDate = widget.profileData['birthDate'];
@@ -78,7 +96,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     }
 
     _hobbySearchController = TextEditingController();
-    
+
     // Хобі
     if (widget.profileData['hobbies'] != null) {
       _selectedHobbies = List<String>.from(widget.profileData['hobbies']);
@@ -136,16 +154,17 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
         final filePath = '$userId/$fileName';
 
         await _supabase.storage.from('avatars').uploadBinary(
-          filePath,
-          photo.bytes,
-          fileOptions: FileOptions(
-            cacheControl: '3600',
-            upsert: false,
-            contentType: photo.mimeType,
-          ),
-        );
+              filePath,
+              photo.bytes,
+              fileOptions: FileOptions(
+                cacheControl: '3600',
+                upsert: false,
+                contentType: photo.mimeType,
+              ),
+            );
 
-        final imageUrl = _supabase.storage.from('avatars').getPublicUrl(filePath);
+        final imageUrl =
+            _supabase.storage.from('avatars').getPublicUrl(filePath);
         uploadedUrls.add(imageUrl);
       } catch (e) {
         debugPrint("Помилка завантаження фото: $e");
@@ -171,7 +190,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
         );
       },
     );
-    
+
     if (picked != null && picked != _birthDate) {
       setState(() {
         _birthDate = picked;
@@ -183,9 +202,18 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
 
   Future<void> _saveProfile() async {
     // 1. Валідація
-    if (_nameController.text.trim().isEmpty) { _showErrorDialog(AppLocalizations.of(context)!.pr_enter_name); return; }
-    if (_locationController.text.trim().isEmpty) { _showErrorDialog(AppLocalizations.of(context)!.pr_enter_location); return; }
-    if (_birthDate == null) { _showErrorDialog(AppLocalizations.of(context)!.pr_need_birth); return; }
+    if (_nameController.text.trim().isEmpty) {
+      _showErrorDialog(AppLocalizations.of(context)!.pr_enter_name);
+      return;
+    }
+    if (_locationController.text.trim().isEmpty) {
+      _showErrorDialog(AppLocalizations.of(context)!.pr_enter_location);
+      return;
+    }
+    if (_birthDate == null) {
+      _showErrorDialog(AppLocalizations.of(context)!.pr_need_birth);
+      return;
+    }
 
     setState(() => _isUploading = true);
 
@@ -199,7 +227,8 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
       // Якщо це ручне введення міста (без GPS), пробуємо знайти координати
       if (lat == 0 && long == 0 && _locationController.text.isNotEmpty) {
         try {
-          List<Location> locations = await locationFromAddress(_locationController.text);
+          List<Location> locations =
+              await locationFromAddress(_locationController.text);
           if (locations.isNotEmpty) {
             lat = locations.first.latitude;
             long = locations.first.longitude;
@@ -214,7 +243,10 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
 
       // 4. Завантажуємо нові фото
       final newUploadedUrls = await _uploadNewPhotos();
-      final List<String> finalPhotoList = [..._existingPhotoUrls, ...newUploadedUrls];
+      final List<String> finalPhotoList = [
+        ..._existingPhotoUrls,
+        ...newUploadedUrls
+      ];
 
       // 5. Оновлюємо базу даних (ОДНИМ ЗАПИТОМ)
       final Map<String, dynamic> updates = {
@@ -224,10 +256,10 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
         'hobbies': _selectedHobbies,
         'photos': finalPhotoList,
         'embedding': vector.toString(),
-        
+
         // 👇 ВАЖЛИВЕ ВИПРАВЛЕННЯ 👇
         // У колонку 'location' пишемо ТІЛЬКИ ТЕКСТ (назву міста)
-        'location': _locationController.text.trim(), 
+        'location': _locationController.text.trim(),
       };
 
       // Координати пишемо не сюди, а через RPC нижче: прямий запис у
@@ -247,7 +279,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
       final uiData = {
         'name': updates['full_name'],
         'location': updates['location'], // Повертаємо саме текст!
-        'birthDate': _birthDate, 
+        'birthDate': _birthDate,
         'aboutMe': updates['bio'],
         'hobbies': updates['hobbies'],
         'photos': finalPhotoList,
@@ -256,12 +288,16 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
       if (mounted) {
         Navigator.of(context).pop(uiData);
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(AppLocalizations.of(context)!.pr_saved), backgroundColor: Theme.of(context).extension<AppSemantics>()!.success),
+          SnackBar(
+              content: Text(AppLocalizations.of(context)!.pr_saved),
+              backgroundColor:
+                  Theme.of(context).extension<AppSemantics>()!.success),
         );
       }
     } catch (e) {
       debugPrint("Full save error: $e");
-      if (mounted) _showErrorDialog(AppLocalizations.of(context)!.pr_save_failed);
+      if (mounted)
+        _showErrorDialog(AppLocalizations.of(context)!.pr_save_failed);
     } finally {
       if (mounted) setState(() => _isUploading = false);
     }
@@ -293,23 +329,27 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(t.pr_your_photos.toUpperCase(), style: Ds.label(context)),
+                      Text(t.pr_your_photos.toUpperCase(),
+                          style: Ds.label(context)),
                       const SizedBox(height: 8),
                       _buildPhotosGallery(),
                       const SizedBox(height: 16),
                       Text(t.pr_name.toUpperCase(), style: Ds.label(context)),
                       const SizedBox(height: 8),
-                      DsTextField(controller: _nameController, hint: t.pr_enter_name),
+                      DsTextField(
+                          controller: _nameController, hint: t.pr_enter_name),
                       const SizedBox(height: 16),
                       Text(t.pr_about.toUpperCase(), style: Ds.label(context)),
                       const SizedBox(height: 8),
                       _buildBioSection(),
                       const SizedBox(height: 16),
-                      Text(t.pr_location.toUpperCase(), style: Ds.label(context)),
+                      Text(t.pr_location.toUpperCase(),
+                          style: Ds.label(context)),
                       const SizedBox(height: 8),
                       _buildLocationSection(),
                       const SizedBox(height: 16),
-                      Text(t.pr_birth_date.toUpperCase(), style: Ds.label(context)),
+                      Text(t.pr_birth_date.toUpperCase(),
+                          style: Ds.label(context)),
                       const SizedBox(height: 8),
                       _buildBirthDateSection(),
                       const SizedBox(height: 16),
@@ -351,7 +391,14 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   Widget _buildPhotosGallery() {
     final tiles = <Widget>[
       ..._existingPhotoUrls.map((url) => _buildPhotoItem(
-            image: Image.network(url, fit: BoxFit.cover),
+            image: Image.network(
+              url,
+              fit: BoxFit.cover,
+              // Без цього невдале фото кидає виняток у загальний обробник, а
+              // на вебі потік таких винятків зупиняє рушій малювання.
+              errorBuilder: (_, __, ___) =>
+                  DsPhotoBlock(radius: 12, fontSize: 18),
+            ),
             onRemove: () => _removeExistingPhoto(url),
           )),
       ..._newPhotoFiles.map((file) => _buildPhotoItem(
@@ -376,7 +423,8 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     );
   }
 
-  Widget _buildPhotoItem({required Widget image, required VoidCallback onRemove}) {
+  Widget _buildPhotoItem(
+      {required Widget image, required VoidCallback onRemove}) {
     return Stack(
       fit: StackFit.expand,
       children: [
@@ -425,7 +473,8 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
             maxLines: 4,
             maxLength: 300,
             onChanged: (_) => setState(() {}),
-            style: TextStyle(fontSize: 15, height: 1.5, color: scheme.onSurface),
+            style:
+                TextStyle(fontSize: 15, height: 1.5, color: scheme.onSurface),
             cursorColor: scheme.primary,
             decoration: InputDecoration(
               isDense: true,
@@ -435,7 +484,8 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
               focusedBorder: InputBorder.none,
               filled: false,
               hintText: AppLocalizations.of(context)!.pr_about_hint,
-              hintStyle: TextStyle(fontSize: 15, color: scheme.onSurfaceVariant),
+              hintStyle:
+                  TextStyle(fontSize: 15, color: scheme.onSurfaceVariant),
             ),
           ),
         ),
@@ -480,7 +530,8 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
       onTap: _selectDate,
       child: Row(
         children: [
-          Icon(Icons.calendar_today_outlined, size: 18, color: scheme.onSurfaceVariant),
+          Icon(Icons.calendar_today_outlined,
+              size: 18, color: scheme.onSurfaceVariant),
           const SizedBox(width: 10),
           Text(
             dateText,
@@ -597,7 +648,18 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     );
   }
 
-  void _showMaxHobbiesDialog() { showDialog(context: context, builder: (context) => AlertDialog(title: Text(AppLocalizations.of(context)!.pr_limit), content: Text(AppLocalizations.of(context)!.pr_max_hobbies), actions: [TextButton(onPressed: () => Navigator.of(context).pop(), child: const Text('OK'))])); }
+  void _showMaxHobbiesDialog() {
+    showDialog(
+        context: context,
+        builder: (context) => AlertDialog(
+                title: Text(AppLocalizations.of(context)!.pr_limit),
+                content: Text(AppLocalizations.of(context)!.pr_max_hobbies),
+                actions: [
+                  TextButton(
+                      onPressed: () => Navigator.of(context).pop(),
+                      child: const Text('OK'))
+                ]));
+  }
 
   void _showErrorDialog(String message) {
     showDialog(

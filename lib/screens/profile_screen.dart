@@ -20,7 +20,7 @@ class ProfileScreen extends StatefulWidget {
 class _ProfileScreenState extends State<ProfileScreen> {
   final PageController _photoController = PageController();
   final _authService = AuthService();
-  
+
   int _currentPhotoIndex = 0;
   bool _isLoading = true;
 
@@ -28,29 +28,30 @@ class _ProfileScreenState extends State<ProfileScreen> {
   DateTime? userBirthDate;
 
   // 🟢 ЗМІНЕНО: Список фото тепер динамічний (посилання з бази), а не assets
-  List<String> userPhotos = []; 
+  List<String> userPhotos = [];
 
   // Обчислюємо вік автоматично
   int get userAge {
     if (userBirthDate == null) return 0;
     final today = DateTime.now();
     int age = today.year - userBirthDate!.year;
-    if (today.month < userBirthDate!.month || 
-        (today.month == userBirthDate!.month && today.day < userBirthDate!.day)) {
+    if (today.month < userBirthDate!.month ||
+        (today.month == userBirthDate!.month &&
+            today.day < userBirthDate!.day)) {
       age--;
     }
     return age;
   }
-  
+
   String userName = '';
   String? userLocation; // null → підставляємо стандартне значення у build
   String? aboutMe; // null → показуємо «Завантаження…» у build
-  
+
   // Хобі
   List<String> hobbies = [
     'Геймінг', 'Музика', 'Подорожі' // Це дефолтні, потім завантажаться з бази
   ];
-  
+
   bool _showFullAboutMe = false;
   bool _showFullHobbies = false;
 
@@ -64,17 +65,19 @@ class _ProfileScreenState extends State<ProfileScreen> {
   Future<void> _loadUserData() async {
     try {
       final profile = await _authService.getCurrentProfile();
-      
+
       if (mounted && profile != null) {
         setState(() {
-          userName = profile['full_name'] ?? AppLocalizations.of(context)!.no_name;
-          aboutMe = profile['bio'] ?? AppLocalizations.of(context)!.default_bio; 
-          userLocation = profile['location'] ?? AppLocalizations.of(context)!.default_country;
-          
+          userName =
+              profile['full_name'] ?? AppLocalizations.of(context)!.no_name;
+          aboutMe = profile['bio'] ?? AppLocalizations.of(context)!.default_bio;
+          userLocation = profile['location'] ??
+              AppLocalizations.of(context)!.default_country;
+
           // Обробка дати
           if (profile['birth_date'] != null) {
             try {
-              userBirthDate = DateTime.parse(profile['birth_date']); 
+              userBirthDate = DateTime.parse(profile['birth_date']);
             } catch (e) {
               print('Помилка формату дати: $e');
             }
@@ -92,7 +95,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
           if (profile['hobbies'] != null) {
             hobbies = List<String>.from(profile['hobbies']);
           }
-          
+
           _isLoading = false;
         });
       }
@@ -103,7 +106,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   /// Єдине джерело назв інтересів. Раніше тут була власна мапа на кілька
   /// значень, тож більшість інтересів лишалась українською в будь-якій мові.
-  List<String> _getLocalizedHobbies(List<String> hobbies, BuildContext context) {
+  List<String> _getLocalizedHobbies(
+      List<String> hobbies, BuildContext context) {
     return hobbies.map((h) => InterestLabels.of(context, h)).toList();
   }
 
@@ -112,7 +116,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
     return Consumer<LocaleProvider>(
       builder: (context, localeProvider, child) {
         if (_isLoading) {
-          return const Scaffold(body: Center(child: CircularProgressIndicator()));
+          return const Scaffold(
+              body: Center(child: CircularProgressIndicator()));
         }
 
         return Scaffold(
@@ -158,7 +163,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
           else
             PageView.builder(
               controller: _photoController,
-              onPageChanged: (index) => setState(() => _currentPhotoIndex = index),
+              onPageChanged: (index) =>
+                  setState(() => _currentPhotoIndex = index),
               itemCount: userPhotos.length,
               itemBuilder: (context, index) => Image.network(
                 userPhotos[index],
@@ -227,13 +233,19 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           fontSize: 27,
                           fontWeight: FontWeight.w800,
                           letterSpacing: -0.5,
-                          shadows: [Shadow(color: Color(0x80000000), blurRadius: 12, offset: Offset(0, 2))],
+                          shadows: [
+                            Shadow(
+                                color: Color(0x80000000),
+                                blurRadius: 12,
+                                offset: Offset(0, 2))
+                          ],
                         ),
                       ),
                       const SizedBox(height: 4),
                       Row(
                         children: [
-                          const Icon(Icons.place_outlined, size: 15, color: Colors.white),
+                          const Icon(Icons.place_outlined,
+                              size: 15, color: Colors.white),
                           const SizedBox(width: 6),
                           Flexible(
                             child: Text(
@@ -243,7 +255,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
                               style: const TextStyle(
                                 color: Colors.white,
                                 fontSize: 13.5,
-                                shadows: [Shadow(color: Color(0x80000000), blurRadius: 12)],
+                                shadows: [
+                                  Shadow(
+                                      color: Color(0x80000000), blurRadius: 12)
+                                ],
                               ),
                             ),
                           ),
@@ -261,7 +276,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           width: 22,
                           height: 3,
                           decoration: BoxDecoration(
-                            color: i == _currentPhotoIndex ? Colors.white : Colors.white54,
+                            color: i == _currentPhotoIndex
+                                ? Colors.white
+                                : Colors.white54,
                             borderRadius: BorderRadius.circular(2),
                           ),
                         ),
@@ -303,7 +320,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 onTap: _openEditProfile,
                 child: Text(
                   t.profile_add_about,
-                  style: Ds.sub(context).copyWith(color: Theme.of(context).colorScheme.primary),
+                  style: Ds.sub(context)
+                      .copyWith(color: Theme.of(context).colorScheme.primary),
                 ),
               )
             else ...[
@@ -311,12 +329,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 _showFullAboutMe || about.length <= 160
                     ? about
                     : '${about.substring(0, 160)}…',
-                style: Ds.sub(context).copyWith(color: Theme.of(context).colorScheme.onSurface),
+                style: Ds.sub(context)
+                    .copyWith(color: Theme.of(context).colorScheme.onSurface),
               ),
               if (about.length > 160) ...[
                 const SizedBox(height: 8),
                 GestureDetector(
-                  onTap: () => setState(() => _showFullAboutMe = !_showFullAboutMe),
+                  onTap: () =>
+                      setState(() => _showFullAboutMe = !_showFullAboutMe),
                   child: Text(
                     _showFullAboutMe ? t.less : t.more,
                     style: Ds.tiny(context).copyWith(
@@ -335,7 +355,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 onTap: _openEditProfile,
                 child: Text(
                   t.profile_add_interests,
-                  style: Ds.sub(context).copyWith(color: Theme.of(context).colorScheme.primary),
+                  style: Ds.sub(context)
+                      .copyWith(color: Theme.of(context).colorScheme.primary),
                 ),
               )
             else
@@ -352,7 +373,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       label: _showFullHobbies ? t.less : t.more,
                       small: true,
                       selected: true,
-                      onTap: () => setState(() => _showFullHobbies = !_showFullHobbies),
+                      onTap: () =>
+                          setState(() => _showFullHobbies = !_showFullHobbies),
                     ),
                 ],
               ),
@@ -388,16 +410,17 @@ class _ProfileScreenState extends State<ProfileScreen> {
     );
   }
 
-
   void _openEditProfile() async {
     final profileData = {
       'name': userName,
-      'location': (userLocation ?? AppLocalizations.of(context)!.default_country),
+      'location':
+          (userLocation ?? AppLocalizations.of(context)!.default_country),
       'birthDate': userBirthDate,
-      '(aboutMe ?? AppLocalizations.of(context)!.loading_info)': (aboutMe ?? AppLocalizations.of(context)!.loading_info),
+      '(aboutMe ?? AppLocalizations.of(context)!.loading_info)':
+          (aboutMe ?? AppLocalizations.of(context)!.loading_info),
       'hobbies': hobbies,
       // 🟢 Передаємо поточні фото в редагування
-      'photos': userPhotos, 
+      'photos': userPhotos,
     };
 
     final result = await Navigator.of(context).push(
@@ -411,11 +434,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
         userName = result['name'];
         userLocation = result['location'];
         if (result['birthDate'] != null) {
-          userBirthDate = result['birthDate'] as DateTime; 
+          userBirthDate = result['birthDate'] as DateTime;
         }
-        aboutMe = result['(aboutMe ?? AppLocalizations.of(context)!.loading_info)'];
+        aboutMe =
+            result['(aboutMe ?? AppLocalizations.of(context)!.loading_info)'];
         hobbies = List<String>.from(result['hobbies']);
-        
+
         // 🟢 Оновлюємо список фото після редагування
         if (result['photos'] != null) {
           userPhotos = List<String>.from(result['photos']);

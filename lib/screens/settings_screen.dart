@@ -7,6 +7,7 @@ import '../providers/theme_provider.dart';
 import 'package:dating_app/l10n/gen/app_localizations.dart';
 import '../service/auth_service.dart'; // Імпортуємо твій сервіс
 import 'change_password_screen.dart';
+
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({Key? key}) : super(key: key);
 
@@ -134,30 +135,29 @@ class _SettingsScreenState extends State<SettingsScreen> {
     return DsSection(
       title: t.language,
       rows: [
-          _buildChoiceTile(
-            label: t.language_system,
-            // Показуємо, яку саме мову дав телефон, інакше «як у телефоні»
-            // нічого не пояснює.
-            trailing: LocaleProvider.getLanguageName(
-                LocaleProvider.supportedLocales
-                    .firstWhere(
-                      (l) =>
-                          l.languageCode ==
-                          provider.effectiveLocale.languageCode,
-                      orElse: () => const Locale('en', 'US'),
-                    )
-                    .languageCode),
-            selected: provider.followSystem,
-            onTap: provider.useSystemLanguage,
-          ),
-          ...LocaleProvider.languageCodes.map((code) {
-            return _buildChoiceTile(
-              label: LocaleProvider.getLanguageName(code),
-              selected: !provider.followSystem &&
-                  provider.effectiveLocale.languageCode == code,
-              onTap: () => provider.changeLanguageByCode(code),
-            );
-          }),
+        _buildChoiceTile(
+          label: t.language_system,
+          // Показуємо, яку саме мову дав телефон, інакше «як у телефоні»
+          // нічого не пояснює.
+          trailing:
+              LocaleProvider.getLanguageName(LocaleProvider.supportedLocales
+                  .firstWhere(
+                    (l) =>
+                        l.languageCode == provider.effectiveLocale.languageCode,
+                    orElse: () => const Locale('en', 'US'),
+                  )
+                  .languageCode),
+          selected: provider.followSystem,
+          onTap: provider.useSystemLanguage,
+        ),
+        ...LocaleProvider.languageCodes.map((code) {
+          return _buildChoiceTile(
+            label: LocaleProvider.getLanguageName(code),
+            selected: !provider.followSystem &&
+                provider.effectiveLocale.languageCode == code,
+            onTap: () => provider.changeLanguageByCode(code),
+          );
+        }),
       ],
     );
   }
@@ -211,36 +211,38 @@ class _SettingsScreenState extends State<SettingsScreen> {
     return DsSection(
       title: AppLocalizations.of(context)!.account,
       rows: [
-          _buildListTile(
-            title: AppLocalizations.of(context)!.change_password,
-            subtitle: AppLocalizations.of(context)!.st_update_password,
-            icon: Icons.lock,
-            onTap: () {
-              // 👇 ДОДАНО ПЕРЕХІД НА ЕКРАН ЗМІНИ ПАРОЛЯ
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => const ChangePasswordScreen()),
-              );
-            },
-          ),
-          // 🟢 КНОПКА ВИХОДУ
-          _buildListTile(
-            title: t.sign_out,
-            subtitle: AppLocalizations.of(context)!.st_end_session,
-            icon: Icons.logout,
-            onTap: _showLogoutDialog,
-            isDestructive: true,
-          ),
-          _buildListTile(
-            title: AppLocalizations.of(context)!.delete_account,
-            subtitle: AppLocalizations.of(context)!.st_delete_data,
-            icon: Icons.delete_forever,
-            onTap: _showDeleteAccountDialog, // 👇 ДОДАНО
-            isDestructive: true,
-          ),
+        _buildListTile(
+          title: AppLocalizations.of(context)!.change_password,
+          subtitle: AppLocalizations.of(context)!.st_update_password,
+          icon: Icons.lock,
+          onTap: () {
+            // 👇 ДОДАНО ПЕРЕХІД НА ЕКРАН ЗМІНИ ПАРОЛЯ
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                  builder: (context) => const ChangePasswordScreen()),
+            );
+          },
+        ),
+        // 🟢 КНОПКА ВИХОДУ
+        _buildListTile(
+          title: t.sign_out,
+          subtitle: AppLocalizations.of(context)!.st_end_session,
+          icon: Icons.logout,
+          onTap: _showLogoutDialog,
+          isDestructive: true,
+        ),
+        _buildListTile(
+          title: AppLocalizations.of(context)!.delete_account,
+          subtitle: AppLocalizations.of(context)!.st_delete_data,
+          icon: Icons.delete_forever,
+          onTap: _showDeleteAccountDialog, // 👇 ДОДАНО
+          isDestructive: true,
+        ),
       ],
     );
   }
+
 // --- ЛОГІКА ВИДАЛЕННЯ АКАУНТА ---
   void _showDeleteAccountDialog() {
     final t = AppLocalizations.of(context)!;
@@ -254,9 +256,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
         ),
         actions: [
           TextButton(
-            onPressed: () => Navigator.pop(dialogContext), 
-            child: Text(t.cancel)
-          ),
+              onPressed: () => Navigator.pop(dialogContext),
+              child: Text(t.cancel)),
           TextButton(
             onPressed: () async {
               // 1. ЗБЕРІГАЄМО необхідні інструменти головного екрана ДО асинхронних дій
@@ -264,33 +265,35 @@ class _SettingsScreenState extends State<SettingsScreen> {
               final navigator = Navigator.of(context);
 
               // 2. Закриваємо діалог, використовуючи його власний контекст
-              Navigator.pop(dialogContext); 
-              
+              Navigator.pop(dialogContext);
+
               try {
                 await _authService.deleteAccount();
                 if (mounted) {
                   // 3. Використовуємо збережений навігатор
-                  navigator.pushNamedAndRemoveUntil('/landing', (route) => false);
+                  navigator.pushNamedAndRemoveUntil(
+                      '/landing', (route) => false);
                 }
               } catch (e) {
                 if (mounted) {
                   // 4. Використовуємо збережений месенджер (він не null, бо ми його зберегли)
                   scaffoldMessenger.showSnackBar(
                     SnackBar(
-                      content: Text(t.delete_account_failed), 
-                      backgroundColor: Theme.of(context).colorScheme.error
-                    ),
+                        content: Text(t.delete_account_failed),
+                        backgroundColor: Theme.of(context).colorScheme.error),
                   );
                 }
               }
             },
-            style: TextButton.styleFrom(foregroundColor: Theme.of(context).colorScheme.error),
+            style: TextButton.styleFrom(
+                foregroundColor: Theme.of(context).colorScheme.error),
             child: Text(t.delete_forever),
           ),
         ],
       ),
     );
   }
+
   // --- ЛОГІКА ВИХОДУ ---
   void _showLogoutDialog() {
     final t = AppLocalizations.of(context)!;
@@ -300,16 +303,19 @@ class _SettingsScreenState extends State<SettingsScreen> {
         title: Text(t.logout_title),
         content: Text(t.logout_confirm),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(context), child: Text(t.cancel)),
+          TextButton(
+              onPressed: () => Navigator.pop(context), child: Text(t.cancel)),
           TextButton(
             onPressed: () async {
               await _authService.signOut();
               if (mounted) {
                 // Повертаємось на LandingScreen і видаляємо всі екрани з черги
-                Navigator.of(context).pushNamedAndRemoveUntil('/landing', (route) => false);
+                Navigator.of(context)
+                    .pushNamedAndRemoveUntil('/landing', (route) => false);
               }
             },
-            style: TextButton.styleFrom(foregroundColor: Theme.of(context).colorScheme.error),
+            style: TextButton.styleFrom(
+                foregroundColor: Theme.of(context).colorScheme.error),
             child: Text(t.sign_out),
           ),
         ],

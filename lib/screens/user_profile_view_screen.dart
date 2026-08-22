@@ -10,7 +10,7 @@ import 'profile_screen.dart'; // Імпорт профілю користува�
 
 class UserProfileViewScreen extends StatefulWidget {
   final UserProfile user;
-  
+
   const UserProfileViewScreen({Key? key, required this.user}) : super(key: key);
 
   @override
@@ -42,37 +42,38 @@ class _UserProfileViewScreenState extends State<UserProfileViewScreen> {
     return Consumer<LocaleProvider>(
       builder: (context, localeProvider, child) {
         return Scaffold(
-      backgroundColor: Theme.of(context).colorScheme.surface,
-      body: Container(
-        decoration: BoxDecoration(
-            gradient: LinearGradient(
-            begin: Alignment.bottomCenter,
-            end: Alignment.topCenter,
-            colors: AppTheme.backgroundGradient(context),
-          ),
-        ),
-        child: SafeArea(
-          child: Column(
-            children: [
-              _buildTopBar(),
-              Expanded(
-                child: SingleChildScrollView(
-                  child: Column(
-                    children: [
-                      _buildProfileCard(),
-                      const SizedBox(height: 24),
-                      _buildAboutMeSection(),
-                      const SizedBox(height: 24),
-                      _buildHobbiesSection(),
-                      const SizedBox(height: 100), // Місце для bottom navigation
-                    ],
-                  ),
-                ),
+          backgroundColor: Theme.of(context).colorScheme.surface,
+          body: Container(
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.bottomCenter,
+                end: Alignment.topCenter,
+                colors: AppTheme.backgroundGradient(context),
               ),
-            ],
+            ),
+            child: SafeArea(
+              child: Column(
+                children: [
+                  _buildTopBar(),
+                  Expanded(
+                    child: SingleChildScrollView(
+                      child: Column(
+                        children: [
+                          _buildProfileCard(),
+                          const SizedBox(height: 24),
+                          _buildAboutMeSection(),
+                          const SizedBox(height: 24),
+                          _buildHobbiesSection(),
+                          const SizedBox(
+                              height: 100), // Місце для bottom navigation
+                        ],
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
           ),
-        ),
-      ),
         );
       },
     );
@@ -98,7 +99,8 @@ class _UserProfileViewScreenState extends State<UserProfileViewScreen> {
                   ),
                 ],
               ),
-              child: Icon(Icons.arrow_back, color: Theme.of(context).colorScheme.onSurface),
+              child: Icon(Icons.arrow_back,
+                  color: Theme.of(context).colorScheme.onSurface),
             ),
           ),
           const SizedBox(width: 16),
@@ -144,11 +146,14 @@ class _UserProfileViewScreenState extends State<UserProfileViewScreen> {
                   itemBuilder: (context, index) {
                     return Container(
                       decoration: BoxDecoration(
-                        borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
-                                                 image: DecorationImage(
-                           image: AssetImage(widget.user.photos[index]),
-                           fit: BoxFit.cover,
-                         ),
+                        borderRadius: const BorderRadius.vertical(
+                            top: Radius.circular(20)),
+                        image: DecorationImage(
+                          image: AssetImage(widget.user.photos[index]),
+                          fit: BoxFit.cover,
+                          onError: (e, s) =>
+                              debugPrint('Фото не завантажилось'),
+                        ),
                       ),
                     );
                   },
@@ -179,7 +184,7 @@ class _UserProfileViewScreenState extends State<UserProfileViewScreen> {
               ],
             ),
           ),
-          
+
           // Інформація про користувача
           Padding(
             padding: const EdgeInsets.all(20),
@@ -198,12 +203,15 @@ class _UserProfileViewScreenState extends State<UserProfileViewScreen> {
                     ),
                     const Spacer(),
                     Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 12, vertical: 6),
                       decoration: BoxDecoration(
-                        color: const Color.fromARGB(255, 76, 120, 175).withOpacity(0.1),
+                        color: const Color.fromARGB(255, 76, 120, 175)
+                            .withOpacity(0.1),
                         borderRadius: BorderRadius.circular(20),
                         border: Border.all(
-                          color: const Color.fromARGB(255, 76, 120, 175).withOpacity(0.3),
+                          color: const Color.fromARGB(255, 76, 120, 175)
+                              .withOpacity(0.3),
                           width: 1,
                         ),
                       ),
@@ -329,12 +337,15 @@ class _UserProfileViewScreenState extends State<UserProfileViewScreen> {
             runSpacing: 8,
             children: widget.user.hobbies.map((hobby) {
               return Container(
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                 decoration: BoxDecoration(
-                  color: const Color.fromARGB(255, 30, 111, 233).withOpacity(0.15),
+                  color:
+                      const Color.fromARGB(255, 30, 111, 233).withOpacity(0.15),
                   borderRadius: BorderRadius.circular(20),
                   border: Border.all(
-                    color: const Color.fromARGB(255, 30, 91, 233).withOpacity(0.3),
+                    color:
+                        const Color.fromARGB(255, 30, 91, 233).withOpacity(0.3),
                     width: 1,
                   ),
                 ),
@@ -353,4 +364,4 @@ class _UserProfileViewScreenState extends State<UserProfileViewScreen> {
       ),
     );
   }
-} 
+}

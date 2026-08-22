@@ -12,10 +12,10 @@ class ChangePasswordScreen extends StatefulWidget {
 
 class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
   final _authService = AuthService();
-  
+
   final _passwordController = TextEditingController();
   final _confirmPasswordController = TextEditingController();
-  
+
   bool _isLoading = false;
   bool _isPasswordVisible = false;
 
@@ -34,11 +34,13 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
     final confirmPassword = _confirmPasswordController.text;
 
     if (newPassword.length < 6) {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(AppLocalizations.of(context)!.password_too_short)));
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          content: Text(AppLocalizations.of(context)!.password_too_short)));
       return;
     }
     if (newPassword != confirmPassword) {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(AppLocalizations.of(context)!.passwords_do_not_match)));
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          content: Text(AppLocalizations.of(context)!.passwords_do_not_match)));
       return;
     }
 
@@ -47,10 +49,13 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
     try {
       // Оновлюємо пароль у базі даних
       await _authService.updatePassword(newPassword);
-      
+
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(AppLocalizations.of(context)!.password_changed), backgroundColor: Theme.of(context).extension<AppSemantics>()!.success),
+          SnackBar(
+              content: Text(AppLocalizations.of(context)!.password_changed),
+              backgroundColor:
+                  Theme.of(context).extension<AppSemantics>()!.success),
         );
         // 👇 ЗАКРИВАЄМО ЕКРАН (АВТОМАТИЧНИЙ РЕДИРЕКТ НАЗАД У SETTINGS)
         Navigator.pop(context);
@@ -59,9 +64,8 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text(e.toString().replaceAll('Exception:', '').trim()), 
-            backgroundColor: Theme.of(context).colorScheme.error
-          ),
+              content: Text(e.toString().replaceAll('Exception:', '').trim()),
+              backgroundColor: Theme.of(context).colorScheme.error),
         );
       }
     } finally {
@@ -77,7 +81,8 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
         backgroundColor: Theme.of(context).colorScheme.surface,
         elevation: 0,
         leading: IconButton(
-          icon: Icon(Icons.arrow_back, color: Theme.of(context).colorScheme.onSurface),
+          icon: Icon(Icons.arrow_back,
+              color: Theme.of(context).colorScheme.onSurface),
           onPressed: _isLoading ? null : () => Navigator.pop(context),
         ),
       ),
@@ -95,37 +100,44 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
               const SizedBox(height: 8),
               Text(
                 AppLocalizations.of(context)!.create_new_password_hint,
-                style: TextStyle(fontSize: 16, color: Theme.of(context).colorScheme.onSurfaceVariant),
+                style: TextStyle(
+                    fontSize: 16,
+                    color: Theme.of(context).colorScheme.onSurfaceVariant),
               ),
               const SizedBox(height: 40),
-              
+
               // Поле нового пароля
               TextField(
                 controller: _passwordController,
                 obscureText: !_isPasswordVisible,
                 decoration: InputDecoration(
                   labelText: AppLocalizations.of(context)!.new_password,
-                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                  border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12)),
                   suffixIcon: IconButton(
-                    icon: Icon(_isPasswordVisible ? Icons.visibility : Icons.visibility_off),
-                    onPressed: () => setState(() => _isPasswordVisible = !_isPasswordVisible),
+                    icon: Icon(_isPasswordVisible
+                        ? Icons.visibility
+                        : Icons.visibility_off),
+                    onPressed: () => setState(
+                        () => _isPasswordVisible = !_isPasswordVisible),
                   ),
                 ),
               ),
               const SizedBox(height: 16),
-              
+
               // Підтвердження пароля
               TextField(
                 controller: _confirmPasswordController,
                 obscureText: !_isPasswordVisible,
                 decoration: InputDecoration(
                   labelText: AppLocalizations.of(context)!.confirm_new_password,
-                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                  border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12)),
                 ),
               ),
-              
+
               const Spacer(),
-              
+
               // Кнопка Зберегти
               SizedBox(
                 width: double.infinity,
@@ -134,11 +146,20 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Theme.of(context).colorScheme.primary,
                     padding: const EdgeInsets.symmetric(vertical: 16),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12)),
                   ),
-                  child: _isLoading 
-                    ? const SizedBox(height: 20, width: 20, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2))
-                    : Text(AppLocalizations.of(context)!.save_password, style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontSize: 16, fontWeight: FontWeight.bold)),
+                  child: _isLoading
+                      ? const SizedBox(
+                          height: 20,
+                          width: 20,
+                          child: CircularProgressIndicator(
+                              color: Colors.white, strokeWidth: 2))
+                      : Text(AppLocalizations.of(context)!.save_password,
+                          style: TextStyle(
+                              color: Theme.of(context).colorScheme.onSurface,
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold)),
                 ),
               ),
               const SizedBox(height: 20),

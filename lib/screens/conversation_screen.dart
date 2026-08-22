@@ -33,7 +33,7 @@ class _ConversationScreenState extends State<ConversationScreen> {
   final _supabase = Supabase.instance.client;
   final TextEditingController _messageController = TextEditingController();
   final ScrollController _scrollController = ScrollController();
-  
+
   // 1. Створюємо змінну для стріму
   late final Stream<List<Map<String, dynamic>>> _messagesStream;
 
@@ -41,7 +41,7 @@ class _ConversationScreenState extends State<ConversationScreen> {
   void initState() {
     super.initState();
     ChatService().markMessagesAsRead(widget.roomId);
-    
+
     // 2. Ініціалізуємо стрім один раз
     _messagesStream = _supabase
         .from('messages')
@@ -53,10 +53,10 @@ class _ConversationScreenState extends State<ConversationScreen> {
     _messagesStream.listen((messages) {
       if (!mounted) return;
       final myId = _supabase.auth.currentUser!.id;
-      
+
       // Перевіряємо, чи є НЕпрочитані повідомлення ВІД співрозмовника
-      final hasUnreadFromOther = messages.any((msg) => 
-          msg['sender_id'] != myId && msg['is_read'] == false);
+      final hasUnreadFromOther = messages
+          .any((msg) => msg['sender_id'] != myId && msg['is_read'] == false);
 
       if (hasUnreadFromOther) {
         _markMessagesAsRead();
@@ -66,6 +66,7 @@ class _ConversationScreenState extends State<ConversationScreen> {
     // Первинний виклик про всяк випадок
     _markMessagesAsRead();
   }
+
   @override
   void dispose() {
     _messageController.dispose();
@@ -79,16 +80,17 @@ class _ConversationScreenState extends State<ConversationScreen> {
 
     try {
       // 1. Позначаємо як прочитані
-      await _supabase.from('messages')
+      await _supabase
+          .from('messages')
           .update({'is_read': true})
           .eq('room_id', widget.roomId)
           .neq('sender_id', myId)
           .eq('is_read', false);
-      
+
       // 2. 🔥 ГОЛОВНИЙ ТРЮК: Оновлюємо кімнату, щоб список чатів "прокинувся"
       // Ми просто оновлюємо updated_at або перезаписуємо last_message_time тим самим значенням
       // Це змусить Stream у ChatService перезапуститися і перерахувати unread_count (який стане 0)
-      
+
       /* Варіант А: Якщо у вас є колонка updated_at (рекомендовано)
          await _supabase.from('rooms').update({
            'updated_at': DateTime.now().toIso8601String()
@@ -97,33 +99,36 @@ class _ConversationScreenState extends State<ConversationScreen> {
 
       // Варіант Б (Хак): Якщо немає updated_at, беремо поточний last_message
       // (Це безпечно, бо текст не змінюється, але Supabase побачить подію UPDATE)
-      final roomData = await _supabase.from('rooms').select('last_message').eq('id', widget.roomId).single();
-      await _supabase.from('rooms').update({
-         'last_message': roomData['last_message'] 
-      }).eq('id', widget.roomId);
+      final roomData = await _supabase
+          .from('rooms')
+          .select('last_message')
+          .eq('id', widget.roomId)
+          .single();
+      await _supabase.from('rooms').update(
+          {'last_message': roomData['last_message']}).eq('id', widget.roomId);
 
       debugPrint("✅ Прочитано і оновлено");
     } catch (e) {
       debugPrint("❌ Помилка: $e");
     }
   }
+
   // 🔥 ГОЛОВНИЙ МЕТОД ВІДПРАВКИ
   Future<void> _sendMessage() async {
     final text = _messageController.text.trim();
     if (text.isEmpty) return;
 
     _messageController.clear();
-    
+
     // Тимчасово прибираємо клавіатуру, щоб екран не стрибав (опціонально)
-    // FocusScope.of(context).unfocus(); 
+    // FocusScope.of(context).unfocus();
 
     try {
       debugPrint("📤 Викликаємо ChatService для відправки...");
-      
+
       // ВИКЛИКАЄМО НАШ СЕРВІС!
       // Він сам збереже повідомлення, оновить кімнату і ВІДПРАВИТЬ ПУШ!
       await ChatService().sendMessage(widget.roomId, text);
-
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -139,11 +144,11 @@ class _ConversationScreenState extends State<ConversationScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Theme.of(context).colorScheme.surface,
-      
+
       appBar: _buildAppBar(), // Винесли в окремий метод
       body: Container(
         decoration: BoxDecoration(
-            gradient: LinearGradient(
+          gradient: LinearGradient(
             begin: Alignment.bottomCenter,
             end: Alignment.topCenter,
             colors: AppTheme.backgroundGradient(context),
@@ -156,17 +161,20 @@ class _ConversationScreenState extends State<ConversationScreen> {
               // 🔥 STREAM BUILDER (Слухає базу в реальному часі)
               Expanded(
                 child: StreamBuilder<List<Map<String, dynamic>>>(
-                  stream: _messagesStream, // Використовуємо нашу змінну! // Старі зверху, нові знизу
+                  stream:
+                      _messagesStream, // Використовуємо нашу змінну! // Старі зверху, нові знизу
                   builder: (context, snapshot) {
                     if (snapshot.hasError) {
-                      return Center(child: Text(ErrorReporter.message(context, snapshot.error!)));
+                      return Center(
+                          child: Text(
+                              ErrorReporter.message(context, snapshot.error!)));
                     }
                     if (!snapshot.hasData) {
                       return const Center(child: CircularProgressIndicator());
                     }
 
                     final messages = snapshot.data!;
-                    
+
                     // Автоскрол до низу при нових повідомленнях
                     if (messages.isNotEmpty) {
                       WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -184,7 +192,10 @@ class _ConversationScreenState extends State<ConversationScreen> {
                       return Center(
                         child: Text(
                           AppLocalizations.of(context)!.write_first_message,
-                          style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant),
+                          style: TextStyle(
+                              color: Theme.of(context)
+                                  .colorScheme
+                                  .onSurfaceVariant),
                         ),
                       );
                     }
@@ -195,7 +206,8 @@ class _ConversationScreenState extends State<ConversationScreen> {
                       itemCount: messages.length,
                       itemBuilder: (context, index) {
                         final msg = messages[index];
-                        final isMe = msg['sender_id'] == _supabase.auth.currentUser!.id;
+                        final isMe =
+                            msg['sender_id'] == _supabase.auth.currentUser!.id;
                         return _buildMessageBubble(msg, isMe);
                       },
                     );
@@ -215,7 +227,8 @@ class _ConversationScreenState extends State<ConversationScreen> {
       backgroundColor: Theme.of(context).colorScheme.surface,
       elevation: 1,
       leading: IconButton(
-        icon: Icon(Icons.arrow_back, color: Theme.of(context).colorScheme.onSurface),
+        icon: Icon(Icons.arrow_back,
+            color: Theme.of(context).colorScheme.onSurface),
         onPressed: () => Navigator.pop(context),
       ),
       title: Row(
@@ -231,14 +244,20 @@ class _ConversationScreenState extends State<ConversationScreen> {
               children: [
                 Text(
                   widget.userName, // Ім'я береться з параметрів
-                  style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontSize: 16),
+                  style: TextStyle(
+                      color: Theme.of(context).colorScheme.onSurface,
+                      fontSize: 16),
                   overflow: TextOverflow.ellipsis,
                 ),
                 if (!widget.isGroup)
                   Text(
-                    widget.isOnline ? AppLocalizations.of(context)!.online : AppLocalizations.of(context)!.offline,
+                    widget.isOnline
+                        ? AppLocalizations.of(context)!.online
+                        : AppLocalizations.of(context)!.offline,
                     style: TextStyle(
-                      color: widget.isOnline ? Theme.of(context).extension<AppSemantics>()!.success : Colors.grey,
+                      color: widget.isOnline
+                          ? Theme.of(context).extension<AppSemantics>()!.success
+                          : Colors.grey,
                       fontSize: 12,
                     ),
                   ),
@@ -259,17 +278,25 @@ class _ConversationScreenState extends State<ConversationScreen> {
       child: Container(
         margin: const EdgeInsets.symmetric(vertical: 4),
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-        constraints: BoxConstraints(maxWidth: MediaQuery.of(context).size.width * 0.75),
+        constraints:
+            BoxConstraints(maxWidth: MediaQuery.of(context).size.width * 0.75),
         decoration: BoxDecoration(
-          color: isMe ? Theme.of(context).colorScheme.primaryContainer : Theme.of(context).colorScheme.surface,
+          color: isMe
+              ? Theme.of(context).colorScheme.primaryContainer
+              : Theme.of(context).colorScheme.surface,
           borderRadius: BorderRadius.only(
             topLeft: const Radius.circular(20),
             topRight: const Radius.circular(20),
-            bottomLeft: isMe ? const Radius.circular(20) : const Radius.circular(4),
-            bottomRight: isMe ? const Radius.circular(4) : const Radius.circular(20),
+            bottomLeft:
+                isMe ? const Radius.circular(20) : const Radius.circular(4),
+            bottomRight:
+                isMe ? const Radius.circular(4) : const Radius.circular(20),
           ),
           boxShadow: [
-            BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 4, offset: const Offset(0, 1)),
+            BoxShadow(
+                color: Colors.black.withOpacity(0.05),
+                blurRadius: 4,
+                offset: const Offset(0, 1)),
           ],
         ),
         child: Column(
@@ -278,7 +305,8 @@ class _ConversationScreenState extends State<ConversationScreen> {
           children: [
             Text(
               content,
-              style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontSize: 15),
+              style: TextStyle(
+                  color: Theme.of(context).colorScheme.onSurface, fontSize: 15),
             ),
             const SizedBox(height: 4),
             Row(
@@ -287,14 +315,18 @@ class _ConversationScreenState extends State<ConversationScreen> {
               children: [
                 Text(
                   DateFormat('HH:mm').format(time),
-                  style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant, fontSize: 11),
+                  style: TextStyle(
+                      color: Theme.of(context).colorScheme.onSurfaceVariant,
+                      fontSize: 11),
                 ),
                 if (isMe) ...[
                   const SizedBox(width: 4),
                   Icon(
                     (message['is_read'] ?? false) ? Icons.done_all : Icons.done,
                     size: 14,
-                    color: (message['is_read'] ?? false) ? Theme.of(context).colorScheme.primary : Colors.grey,
+                    color: (message['is_read'] ?? false)
+                        ? Theme.of(context).colorScheme.primary
+                        : Colors.grey,
                   ),
                 ]
               ],
@@ -308,7 +340,8 @@ class _ConversationScreenState extends State<ConversationScreen> {
   Widget _buildMessageInput() {
     return Container(
       color: Theme.of(context).colorScheme.surface,
-      child: SafeArea( // Захищаємо контент від налізання на Home Indicator
+      child: SafeArea(
+        // Захищаємо контент від налізання на Home Indicator
         top: false,
         child: Padding(
           padding: const EdgeInsets.all(16),
@@ -325,7 +358,8 @@ class _ConversationScreenState extends State<ConversationScreen> {
                       borderRadius: BorderRadius.circular(25),
                       borderSide: BorderSide.none,
                     ),
-                    contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                    contentPadding: const EdgeInsets.symmetric(
+                        horizontal: 20, vertical: 10),
                   ),
                   textInputAction: TextInputAction.send,
                   onSubmitted: (_) => _sendMessage(),
@@ -335,7 +369,8 @@ class _ConversationScreenState extends State<ConversationScreen> {
               GestureDetector(
                 onTap: _sendMessage,
                 child: CircleAvatar(
-                  backgroundColor: Theme.of(context).colorScheme.primaryContainer,
+                  backgroundColor:
+                      Theme.of(context).colorScheme.primaryContainer,
                   child: Icon(Icons.send,
                       color: Theme.of(context).colorScheme.onPrimaryContainer),
                 ),
@@ -346,5 +381,4 @@ class _ConversationScreenState extends State<ConversationScreen> {
       ),
     );
   }
-
 }

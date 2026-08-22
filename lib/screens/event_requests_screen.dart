@@ -12,7 +12,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 
 class EventRequestsScreen extends StatefulWidget {
   final Event event;
-  
+
   const EventRequestsScreen({Key? key, required this.event}) : super(key: key);
 
   @override
@@ -34,8 +34,9 @@ class _EventRequestsScreenState extends State<EventRequestsScreen> {
     setState(() => _isLoading = true);
     try {
       // 1. Завантажуємо заявки з бази
-      final requests = await _matchesService.getRequestsForEvent(widget.event.id);
-      
+      final requests =
+          await _matchesService.getRequestsForEvent(widget.event.id);
+
       // 2. Отримуємо дані поточного користувача (ТЕБЕ), щоб було з чим порівнювати
       final myId = Supabase.instance.client.auth.currentUser!.id;
       final myProfileData = await Supabase.instance.client
@@ -44,7 +45,8 @@ class _EventRequestsScreenState extends State<EventRequestsScreen> {
           .eq('id', myId)
           .single();
 
-      final List<String> myHobbies = List<String>.from(myProfileData['hobbies'] ?? []);
+      final List<String> myHobbies =
+          List<String>.from(myProfileData['hobbies'] ?? []);
       final String myLocation = myProfileData['location'] ?? '';
 
       // 3. ✨ АЛГОРИТМ КОРИСНОЇ СХОЖОСТІ
@@ -58,7 +60,8 @@ class _EventRequestsScreenState extends State<EventRequestsScreen> {
         }
 
         // Б) Спільні інтереси (+10 балів за кожен збіг)
-        final commonHobbiesCount = user.hobbies.where((hobby) => myHobbies.contains(hobby)).length;
+        final commonHobbiesCount =
+            user.hobbies.where((hobby) => myHobbies.contains(hobby)).length;
         matchScore += (commonHobbiesCount * 10);
 
         // В) Наявність повідомлення (+5 балів, бо людина проявила ініціативу)
@@ -71,7 +74,8 @@ class _EventRequestsScreenState extends State<EventRequestsScreen> {
       }
 
       // 4. Сортуємо список: від найбільшого балу до найменшого
-      requests.sort((a, b) => (b['match_score'] as int).compareTo(a['match_score'] as int));
+      requests.sort((a, b) =>
+          (b['match_score'] as int).compareTo(a['match_score'] as int));
 
       if (mounted) {
         setState(() {
@@ -87,10 +91,14 @@ class _EventRequestsScreenState extends State<EventRequestsScreen> {
 
   // Хелпер для фото
   ImageProvider _getImageProvider(List<String>? photos) {
-    if (photos == null || photos.isEmpty) return const NetworkImage('https://ui-avatars.com/api/?name=User&format=png&background=random');
+    if (photos == null || photos.isEmpty)
+      return const NetworkImage(
+          'https://ui-avatars.com/api/?name=User&format=png&background=random');
     final path = photos.first;
     if (path.startsWith('http')) return NetworkImage(path);
-    if (path.contains('placeholder')) return const NetworkImage('https://ui-avatars.com/api/?name=User&format=png&background=random');
+    if (path.contains('placeholder'))
+      return const NetworkImage(
+          'https://ui-avatars.com/api/?name=User&format=png&background=random');
     return AssetImage(path);
   }
 
@@ -113,7 +121,7 @@ class _EventRequestsScreenState extends State<EventRequestsScreen> {
                 children: [
                   _buildTopBar(),
                   Expanded(
-                    child: _isLoading 
+                    child: _isLoading
                         ? const Center(child: CircularProgressIndicator())
                         : _buildRequestsList(),
                   ),
@@ -139,10 +147,14 @@ class _EventRequestsScreenState extends State<EventRequestsScreen> {
                 color: Theme.of(context).colorScheme.surface.withOpacity(0.9),
                 borderRadius: BorderRadius.circular(12),
                 boxShadow: [
-                  BoxShadow(color: Colors.black.withOpacity(0.1), blurRadius: 8, offset: const Offset(0, 2)),
+                  BoxShadow(
+                      color: Colors.black.withOpacity(0.1),
+                      blurRadius: 8,
+                      offset: const Offset(0, 2)),
                 ],
               ),
-              child: Icon(Icons.arrow_back, color: Theme.of(context).colorScheme.onSurface),
+              child: Icon(Icons.arrow_back,
+                  color: Theme.of(context).colorScheme.onSurface),
             ),
           ),
           const SizedBox(width: 16),
@@ -152,11 +164,16 @@ class _EventRequestsScreenState extends State<EventRequestsScreen> {
               children: [
                 Text(
                   AppLocalizations.of(context)!.event_requests,
-                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Theme.of(context).colorScheme.onSurface),
+                  style: TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                      color: Theme.of(context).colorScheme.onSurface),
                 ),
                 Text(
                   widget.event.title,
-                  style: TextStyle(fontSize: 14, color: Theme.of(context).colorScheme.onSurfaceVariant),
+                  style: TextStyle(
+                      fontSize: 14,
+                      color: Theme.of(context).colorScheme.onSurfaceVariant),
                   overflow: TextOverflow.ellipsis,
                 ),
               ],
@@ -178,8 +195,8 @@ class _EventRequestsScreenState extends State<EventRequestsScreen> {
       itemBuilder: (context, index) {
         final item = _eventRequests[index];
         return _buildUserCardWithMessage(
-          item['user'] as UserProfile, 
-          item['message'] as String?, 
+          item['user'] as UserProfile,
+          item['message'] as String?,
           item['hasMessage'] as bool,
           item['request_id'] as String, // ID заявки для прийняття/відхилення
         );
@@ -187,13 +204,19 @@ class _EventRequestsScreenState extends State<EventRequestsScreen> {
     );
   }
 
-  Widget _buildUserCardWithMessage(UserProfile user, String? message, bool hasMessage, String requestId) {
+  Widget _buildUserCardWithMessage(
+      UserProfile user, String? message, bool hasMessage, String requestId) {
     return Container(
       margin: const EdgeInsets.only(bottom: 16),
       decoration: BoxDecoration(
         color: Theme.of(context).colorScheme.surface,
         borderRadius: BorderRadius.circular(20),
-        boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.08), blurRadius: 12, offset: const Offset(0, 4))],
+        boxShadow: [
+          BoxShadow(
+              color: Colors.black.withOpacity(0.08),
+              blurRadius: 12,
+              offset: const Offset(0, 4))
+        ],
       ),
       child: Column(
         children: [
@@ -201,38 +224,54 @@ class _EventRequestsScreenState extends State<EventRequestsScreen> {
           Container(
             height: 200,
             decoration: BoxDecoration(
-              borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
+              borderRadius:
+                  const BorderRadius.vertical(top: Radius.circular(20)),
               image: DecorationImage(
                 image: _getImageProvider(user.photos), // 🟢 Фікс картинок
                 fit: BoxFit.cover,
+                onError: (e, s) => debugPrint('Фото не завантажилось'),
               ),
             ),
             child: Stack(
               children: [
                 Container(
                   decoration: BoxDecoration(
-                    borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
+                    borderRadius:
+                        const BorderRadius.vertical(top: Radius.circular(20)),
                     gradient: LinearGradient(
-                      begin: Alignment.topCenter, end: Alignment.bottomCenter,
-                      colors: [Colors.transparent, Colors.black.withOpacity(0.6)],
+                      begin: Alignment.topCenter,
+                      end: Alignment.bottomCenter,
+                      colors: [
+                        Colors.transparent,
+                        Colors.black.withOpacity(0.6)
+                      ],
                     ),
                   ),
                 ),
                 // Іконка інформації
                 Positioned(
-                  top: 12, right: 12,
+                  top: 12,
+                  right: 12,
                   child: GestureDetector(
                     onTap: () => _showUserMenu(context, user, requestId),
                     child: Container(
                       padding: const EdgeInsets.all(6),
-                      decoration: BoxDecoration(color: Theme.of(context).colorScheme.surface.withOpacity(0.2), borderRadius: BorderRadius.circular(8)),
-                      child: const Icon(Icons.info, color: Colors.white, size: 18),
+                      decoration: BoxDecoration(
+                          color: Theme.of(context)
+                              .colorScheme
+                              .surface
+                              .withOpacity(0.2),
+                          borderRadius: BorderRadius.circular(8)),
+                      child:
+                          const Icon(Icons.info, color: Colors.white, size: 18),
                     ),
                   ),
                 ),
                 // Інформація внизу фото
                 Positioned(
-                  bottom: 0, left: 0, right: 0,
+                  bottom: 0,
+                  left: 0,
+                  right: 0,
                   child: Padding(
                     padding: const EdgeInsets.all(16),
                     child: Column(
@@ -240,15 +279,29 @@ class _EventRequestsScreenState extends State<EventRequestsScreen> {
                       children: [
                         Row(
                           children: [
-                            Text('${user.name}, ${user.age}', style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontSize: 18, fontWeight: FontWeight.bold)),
+                            Text('${user.name}, ${user.age}',
+                                style: TextStyle(
+                                    color:
+                                        Theme.of(context).colorScheme.onSurface,
+                                    fontSize: 18,
+                                    fontWeight: FontWeight.bold)),
                             const SizedBox(width: 8),
-                            Icon(Icons.location_on, color: Colors.white.withOpacity(0.8), size: 16),
-                            Text(user.location, style: TextStyle(color: Colors.white.withOpacity(0.8), fontSize: 14)),
+                            Icon(Icons.location_on,
+                                color: Colors.white.withOpacity(0.8), size: 16),
+                            Text(user.location,
+                                style: TextStyle(
+                                    color: Colors.white.withOpacity(0.8),
+                                    fontSize: 14)),
                           ],
                         ),
                         if (user.description.isNotEmpty) ...[
                           const SizedBox(height: 4),
-                          Text(user.description, style: TextStyle(color: Colors.white.withOpacity(0.9), fontSize: 14), maxLines: 1, overflow: TextOverflow.ellipsis),
+                          Text(user.description,
+                              style: TextStyle(
+                                  color: Colors.white.withOpacity(0.9),
+                                  fontSize: 14),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis),
                         ]
                       ],
                     ),
@@ -257,7 +310,7 @@ class _EventRequestsScreenState extends State<EventRequestsScreen> {
               ],
             ),
           ),
-          
+
           // Інтереси
           if (user.hobbies.isNotEmpty)
             Padding(
@@ -265,19 +318,34 @@ class _EventRequestsScreenState extends State<EventRequestsScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(AppLocalizations.of(context)!.common_interests, style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: Theme.of(context).colorScheme.onSurfaceVariant)),
+                  Text(AppLocalizations.of(context)!.common_interests,
+                      style: TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w600,
+                          color:
+                              Theme.of(context).colorScheme.onSurfaceVariant)),
                   const SizedBox(height: 8),
                   Wrap(
-                    spacing: 8, runSpacing: 4,
+                    spacing: 8,
+                    runSpacing: 4,
                     children: user.hobbies.take(3).map((hobby) {
                       return Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 12, vertical: 6),
                         decoration: BoxDecoration(
-                          color: const Color.fromARGB(255, 30, 111, 233).withOpacity(0.15),
+                          color: const Color.fromARGB(255, 30, 111, 233)
+                              .withOpacity(0.15),
                           borderRadius: BorderRadius.circular(20),
-                          border: Border.all(color: const Color.fromARGB(255, 30, 91, 233).withOpacity(0.3), width: 1),
+                          border: Border.all(
+                              color: const Color.fromARGB(255, 30, 91, 233)
+                                  .withOpacity(0.3),
+                              width: 1),
                         ),
-                        child: Text(hobby, style: const TextStyle(fontSize: 12, color: Color.fromARGB(255, 30, 101, 233), fontWeight: FontWeight.w600)),
+                        child: Text(hobby,
+                            style: const TextStyle(
+                                fontSize: 12,
+                                color: Color.fromARGB(255, 30, 101, 233),
+                                fontWeight: FontWeight.w600)),
                       );
                     }).toList(),
                   ),
@@ -293,20 +361,31 @@ class _EventRequestsScreenState extends State<EventRequestsScreen> {
               decoration: BoxDecoration(
                 color: const Color.fromARGB(255, 76, 120, 175).withOpacity(0.1),
                 borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: const Color.fromARGB(255, 76, 120, 175).withOpacity(0.3), width: 1),
+                border: Border.all(
+                    color: const Color.fromARGB(255, 76, 120, 175)
+                        .withOpacity(0.3),
+                    width: 1),
               ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Row(
                     children: [
-                      const Icon(Icons.message, size: 16, color: Color.fromARGB(255, 76, 120, 175)),
+                      const Icon(Icons.message,
+                          size: 16, color: Color.fromARGB(255, 76, 120, 175)),
                       const SizedBox(width: 6),
-                      Text(AppLocalizations.of(context)!.message, style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: Color.fromARGB(255, 76, 120, 175))),
+                      Text(AppLocalizations.of(context)!.message,
+                          style: const TextStyle(
+                              fontSize: 12,
+                              fontWeight: FontWeight.w600,
+                              color: Color.fromARGB(255, 76, 120, 175))),
                     ],
                   ),
                   const SizedBox(height: 6),
-                  Text(message, style: TextStyle(fontSize: 14, color: Theme.of(context).colorScheme.onSurface)),
+                  Text(message,
+                      style: TextStyle(
+                          fontSize: 14,
+                          color: Theme.of(context).colorScheme.onSurface)),
                 ],
               ),
             ),
@@ -343,7 +422,11 @@ class _EventRequestsScreenState extends State<EventRequestsScreen> {
     );
   }
 
-  Widget _buildActionButton({required IconData icon, required Color color, required VoidCallback onTap, required String label}) {
+  Widget _buildActionButton(
+      {required IconData icon,
+      required Color color,
+      required VoidCallback onTap,
+      required String label}) {
     return GestureDetector(
       onTap: onTap,
       child: Container(
@@ -351,13 +434,22 @@ class _EventRequestsScreenState extends State<EventRequestsScreen> {
         decoration: BoxDecoration(
           color: color,
           borderRadius: BorderRadius.circular(12),
-          boxShadow: [BoxShadow(color: color.withOpacity(0.3), blurRadius: 8, offset: const Offset(0, 2))],
+          boxShadow: [
+            BoxShadow(
+                color: color.withOpacity(0.3),
+                blurRadius: 8,
+                offset: const Offset(0, 2))
+          ],
         ),
         child: Column(
           children: [
             Icon(icon, color: Colors.white, size: 20),
             const SizedBox(height: 4),
-            Text(label, style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontSize: 12, fontWeight: FontWeight.w600)),
+            Text(label,
+                style: TextStyle(
+                    color: Theme.of(context).colorScheme.onSurface,
+                    fontSize: 12,
+                    fontWeight: FontWeight.w600)),
           ],
         ),
       ),
@@ -376,20 +468,31 @@ class _EventRequestsScreenState extends State<EventRequestsScreen> {
               decoration: BoxDecoration(
                 color: Theme.of(context).colorScheme.surface.withOpacity(0.9),
                 borderRadius: BorderRadius.circular(50),
-                boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.1), blurRadius: 12, offset: const Offset(0, 4))],
+                boxShadow: [
+                  BoxShadow(
+                      color: Colors.black.withOpacity(0.1),
+                      blurRadius: 12,
+                      offset: const Offset(0, 4))
+                ],
               ),
-              child: const Icon(Icons.people, size: 48, color: Color.fromARGB(255, 76, 120, 175)),
+              child: const Icon(Icons.people,
+                  size: 48, color: Color.fromARGB(255, 76, 120, 175)),
             ),
             const SizedBox(height: 24),
             Text(
               AppLocalizations.of(context)!.no_event_requests,
-              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Theme.of(context).colorScheme.onSurface),
+              style: TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                  color: Theme.of(context).colorScheme.onSurface),
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 8),
             Text(
               AppLocalizations.of(context)!.no_event_requests_subtitle,
-              style: TextStyle(fontSize: 16, color: Theme.of(context).colorScheme.onSurfaceVariant),
+              style: TextStyle(
+                  fontSize: 16,
+                  color: Theme.of(context).colorScheme.onSurfaceVariant),
               textAlign: TextAlign.center,
             ),
           ],
@@ -407,11 +510,17 @@ class _EventRequestsScreenState extends State<EventRequestsScreen> {
       });
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(AppLocalizations.of(context)!.user_accepted(userName)), backgroundColor: Theme.of(context).extension<AppSemantics>()!.success),
+          SnackBar(
+              content:
+                  Text(AppLocalizations.of(context)!.user_accepted(userName)),
+              backgroundColor:
+                  Theme.of(context).extension<AppSemantics>()!.success),
         );
       }
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(AppLocalizations.of(context)!.error), backgroundColor: Theme.of(context).colorScheme.error));
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          content: Text(AppLocalizations.of(context)!.error),
+          backgroundColor: Theme.of(context).colorScheme.error));
     }
   }
 
@@ -424,11 +533,16 @@ class _EventRequestsScreenState extends State<EventRequestsScreen> {
       });
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(AppLocalizations.of(context)!.user_declined(userName)), backgroundColor: Colors.grey),
+          SnackBar(
+              content:
+                  Text(AppLocalizations.of(context)!.user_declined(userName)),
+              backgroundColor: Colors.grey),
         );
       }
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(AppLocalizations.of(context)!.error), backgroundColor: Theme.of(context).colorScheme.error));
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          content: Text(AppLocalizations.of(context)!.error),
+          backgroundColor: Theme.of(context).colorScheme.error));
     }
   }
 
@@ -445,22 +559,37 @@ class _EventRequestsScreenState extends State<EventRequestsScreen> {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Container(margin: const EdgeInsets.only(top: 12), width: 40, height: 4, decoration: BoxDecoration(color: Theme.of(context).colorScheme.outlineVariant, borderRadius: BorderRadius.circular(2))),
+              Container(
+                  margin: const EdgeInsets.only(top: 12),
+                  width: 40,
+                  height: 4,
+                  decoration: BoxDecoration(
+                      color: Theme.of(context).colorScheme.outlineVariant,
+                      borderRadius: BorderRadius.circular(2))),
               const SizedBox(height: 20),
               ListTile(
-                leading: const Icon(Icons.person, color: Color.fromARGB(255, 76, 120, 175)),
-                title: Text(AppLocalizations.of(context)!.view_profile, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500)),
+                leading: const Icon(Icons.person,
+                    color: Color.fromARGB(255, 76, 120, 175)),
+                title: Text(AppLocalizations.of(context)!.view_profile,
+                    style: const TextStyle(
+                        fontSize: 16, fontWeight: FontWeight.w500)),
                 onTap: () {
                   Navigator.pop(context);
                   _handleViewProfile(user);
                 },
               ),
               ListTile(
-                leading: Icon(Icons.block, color: Theme.of(context).colorScheme.error),
-                title: Text(AppLocalizations.of(context)!.block_user, style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500, color: Theme.of(context).colorScheme.error)),
+                leading: Icon(Icons.block,
+                    color: Theme.of(context).colorScheme.error),
+                title: Text(AppLocalizations.of(context)!.block_user,
+                    style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w500,
+                        color: Theme.of(context).colorScheme.error)),
                 onTap: () {
                   Navigator.pop(context);
-                  _handleReject(requestId, user.name); // Блокування поки працює як відхилення
+                  _handleReject(requestId,
+                      user.name); // Блокування поки працює як відхилення
                 },
               ),
               const SizedBox(height: 20),
@@ -472,6 +601,7 @@ class _EventRequestsScreenState extends State<EventRequestsScreen> {
   }
 
   void _handleViewProfile(UserProfile user) {
-    Navigator.of(context).push(MaterialPageRoute(builder: (context) => UserProfileViewScreen(user: user)));
+    Navigator.of(context).push(MaterialPageRoute(
+        builder: (context) => UserProfileViewScreen(user: user)));
   }
 }

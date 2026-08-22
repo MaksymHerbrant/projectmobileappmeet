@@ -160,7 +160,6 @@ class LandingScreen extends StatelessWidget {
 /// Концентричні кола, що розходяться від знака.
 ///
 
-
 class _Mark extends StatelessWidget {
   const _Mark({required this.scheme});
   final ColorScheme scheme;
@@ -188,10 +187,6 @@ class _Mark extends StatelessWidget {
   }
 }
 
-
-
-
-
 class _FootNote extends StatelessWidget {
   const _FootNote({required this.onSignIn});
   final VoidCallback onSignIn;
@@ -209,9 +204,8 @@ class _FootNote extends StatelessWidget {
     // збирається з локалізованого шаблону, а не склеюванням шматків.
     const tMark = '@@T@@';
     const pMark = '@@P@@';
-    final parts = t
-        .terms_line(tMark, pMark)
-        .split(RegExp('(?=@@[TP]@@)|(?<=@@[TP]@@)'));
+    final parts =
+        t.terms_line(tMark, pMark).split(RegExp('(?=@@[TP]@@)|(?<=@@[TP]@@)'));
 
     return ConstrainedBox(
       constraints: const BoxConstraints(maxWidth: 310),
@@ -222,7 +216,8 @@ class _FootNote extends StatelessWidget {
             children: [
               Text(t.have_account, style: base),
               const SizedBox(width: 5),
-              GestureDetector(onTap: onSignIn, child: Text(t.login, style: link)),
+              GestureDetector(
+                  onTap: onSignIn, child: Text(t.login, style: link)),
             ],
           ),
           const SizedBox(height: 2),

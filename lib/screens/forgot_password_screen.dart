@@ -14,7 +14,7 @@ class ForgotPasswordScreen extends StatefulWidget {
 class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
   final _authService = AuthService();
   final PageController _pageController = PageController();
-  
+
   int _currentStep = 0;
   bool _isLoading = false;
   bool _isPasswordVisible = false;
@@ -22,8 +22,9 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
   final TextEditingController _phoneController = TextEditingController();
   final TextEditingController _smsController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
-  final TextEditingController _confirmPasswordController = TextEditingController();
-  
+  final TextEditingController _confirmPasswordController =
+      TextEditingController();
+
   final FocusNode _smsFocusNode = FocusNode();
 
   @override
@@ -44,7 +45,8 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
       if (_currentStep == 0) {
         // КРОК 1: ТЕЛЕФОН
         final phone = _phoneController.text.trim();
-        if (phone.length < 9) throw Exception(AppLocalizations.of(context)!.enter_valid_phone);
+        if (phone.length < 9)
+          throw Exception(AppLocalizations.of(context)!.enter_valid_phone);
 
         // Перевіряємо, чи Є такий користувач
         final bool exists = await _authService.checkUserExists(phone);
@@ -55,32 +57,37 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
         // Відправляємо SMS
         await _authService.signInWithPhone(phone);
         _goToNextPage();
-        
+
         Future.delayed(const Duration(milliseconds: 400), () {
           if (mounted) _smsFocusNode.requestFocus();
         });
-
       } else if (_currentStep == 1) {
         // КРОК 2: SMS
-        if (_smsController.text.length < 6) throw Exception(AppLocalizations.of(context)!.rg_code_incomplete);
+        if (_smsController.text.length < 6)
+          throw Exception(AppLocalizations.of(context)!.rg_code_incomplete);
         // Перевірка коду авторизує користувача
-        await _authService.verifyOtp(_phoneController.text, _smsController.text);
+        await _authService.verifyOtp(
+            _phoneController.text, _smsController.text);
         _goToNextPage();
-
       } else if (_currentStep == 2) {
         // КРОК 3: НОВИЙ ПАРОЛЬ
-        if (_passwordController.text.length < 6) throw Exception(AppLocalizations.of(context)!.rg_password_short);
-        if (_passwordController.text != _confirmPasswordController.text) throw Exception(AppLocalizations.of(context)!.passwords_do_not_match);
-        
+        if (_passwordController.text.length < 6)
+          throw Exception(AppLocalizations.of(context)!.rg_password_short);
+        if (_passwordController.text != _confirmPasswordController.text)
+          throw Exception(AppLocalizations.of(context)!.passwords_do_not_match);
+
         // Оновлюємо пароль у базі
         await _authService.updatePassword(_passwordController.text);
-        
+
         // Опціонально: робимо logout і відправляємо на вхід
         await _authService.signOut();
-        
+
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text(AppLocalizations.of(context)!.password_changed), backgroundColor: Theme.of(context).extension<AppSemantics>()!.success),
+            SnackBar(
+                content: Text(AppLocalizations.of(context)!.password_changed),
+                backgroundColor:
+                    Theme.of(context).extension<AppSemantics>()!.success),
           );
           // Повертаємось на екран входу
           Navigator.of(context).pushAndRemoveUntil(
@@ -93,9 +100,8 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text(e.toString().replaceAll('Exception:', '').trim()), 
-            backgroundColor: Theme.of(context).colorScheme.error
-          ),
+              content: Text(e.toString().replaceAll('Exception:', '').trim()),
+              backgroundColor: Theme.of(context).colorScheme.error),
         );
       }
     } finally {
@@ -105,13 +111,15 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
 
   void _goToNextPage() {
     setState(() => _currentStep++);
-    _pageController.nextPage(duration: const Duration(milliseconds: 300), curve: Curves.easeInOut);
+    _pageController.nextPage(
+        duration: const Duration(milliseconds: 300), curve: Curves.easeInOut);
   }
 
   void _previousStep() {
     FocusScope.of(context).unfocus();
     setState(() => _currentStep--);
-    _pageController.previousPage(duration: const Duration(milliseconds: 300), curve: Curves.easeInOut);
+    _pageController.previousPage(
+        duration: const Duration(milliseconds: 300), curve: Curves.easeInOut);
   }
 
   @override
@@ -122,33 +130,59 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
         backgroundColor: Theme.of(context).colorScheme.surface,
         elevation: 0,
         leading: IconButton(
-          icon: Icon(Icons.arrow_back, color: Theme.of(context).colorScheme.onSurface),
-          onPressed: _isLoading ? null : (_currentStep > 0 ? _previousStep : () => Navigator.pop(context)),
+          icon: Icon(Icons.arrow_back,
+              color: Theme.of(context).colorScheme.onSurface),
+          onPressed: _isLoading
+              ? null
+              : (_currentStep > 0
+                  ? _previousStep
+                  : () => Navigator.pop(context)),
         ),
-        title: Text(AppLocalizations.of(context)!.recovery_step_of(_currentStep + 1, 3), style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant, fontSize: 14)),
+        title: Text(
+            AppLocalizations.of(context)!.recovery_step_of(_currentStep + 1, 3),
+            style: TextStyle(
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
+                fontSize: 14)),
       ),
       body: PageView(
         controller: _pageController,
         physics: const NeverScrollableScrollPhysics(),
         children: [
-          _buildStep(title: AppLocalizations.of(context)!.fp_title, subtitle: AppLocalizations.of(context)!.fp_enter_phone, content: _buildPhoneInput()),
-          _buildStep(title: AppLocalizations.of(context)!.rg_sms_title, subtitle: AppLocalizations.of(context)!.rg_enter_6, content: _buildSmsInput()),
-          _buildStep(title: AppLocalizations.of(context)!.new_password, subtitle: AppLocalizations.of(context)!.fp_new_strong, content: _buildPasswordInput()),
+          _buildStep(
+              title: AppLocalizations.of(context)!.fp_title,
+              subtitle: AppLocalizations.of(context)!.fp_enter_phone,
+              content: _buildPhoneInput()),
+          _buildStep(
+              title: AppLocalizations.of(context)!.rg_sms_title,
+              subtitle: AppLocalizations.of(context)!.rg_enter_6,
+              content: _buildSmsInput()),
+          _buildStep(
+              title: AppLocalizations.of(context)!.new_password,
+              subtitle: AppLocalizations.of(context)!.fp_new_strong,
+              content: _buildPasswordInput()),
         ],
       ),
     );
   }
 
-  Widget _buildStep({required String title, required String subtitle, required Widget content}) {
+  Widget _buildStep(
+      {required String title,
+      required String subtitle,
+      required Widget content}) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 24),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const SizedBox(height: 20),
-          Text(title, style: const TextStyle(fontSize: 26, fontWeight: FontWeight.bold)),
+          Text(title,
+              style:
+                  const TextStyle(fontSize: 26, fontWeight: FontWeight.bold)),
           const SizedBox(height: 8),
-          Text(subtitle, style: TextStyle(fontSize: 16, color: Theme.of(context).colorScheme.onSurfaceVariant)),
+          Text(subtitle,
+              style: TextStyle(
+                  fontSize: 16,
+                  color: Theme.of(context).colorScheme.onSurfaceVariant)),
           const SizedBox(height: 40),
           content,
           const Spacer(),
@@ -159,11 +193,20 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
               style: ElevatedButton.styleFrom(
                 backgroundColor: Theme.of(context).colorScheme.primary,
                 padding: const EdgeInsets.symmetric(vertical: 16),
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12)),
               ),
-              child: _isLoading 
-                ? const SizedBox(height: 20, width: 20, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2))
-                : Text(AppLocalizations.of(context)!.continue_text, style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontSize: 16, fontWeight: FontWeight.bold)),
+              child: _isLoading
+                  ? const SizedBox(
+                      height: 20,
+                      width: 20,
+                      child: CircularProgressIndicator(
+                          color: Colors.white, strokeWidth: 2))
+                  : Text(AppLocalizations.of(context)!.continue_text,
+                      style: TextStyle(
+                          color: Theme.of(context).colorScheme.onSurface,
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold)),
             ),
           ),
           const SizedBox(height: 20),
@@ -180,7 +223,10 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
       autofocus: true,
       decoration: InputDecoration(
         prefixText: '+380 ',
-        prefixStyle: TextStyle(fontSize: 18, color: Theme.of(context).colorScheme.onSurface, fontWeight: FontWeight.bold),
+        prefixStyle: TextStyle(
+            fontSize: 18,
+            color: Theme.of(context).colorScheme.onSurface,
+            fontWeight: FontWeight.bold),
         border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
         hintText: 'XX XXX XXXX',
       ),
@@ -196,23 +242,32 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: List.generate(6, (index) {
               String char = "";
-              if (_smsController.text.length > index) char = _smsController.text[index];
+              if (_smsController.text.length > index)
+                char = _smsController.text[index];
               bool isFocused = _smsController.text.length == index;
               return Container(
-                width: 45, height: 55,
+                width: 45,
+                height: 55,
                 alignment: Alignment.center,
                 decoration: BoxDecoration(
                   color: Theme.of(context).colorScheme.surfaceContainerHighest,
-                  border: Border.all(color: isFocused ? Theme.of(context).colorScheme.primary : Theme.of(context).colorScheme.outlineVariant, width: 2),
+                  border: Border.all(
+                      color: isFocused
+                          ? Theme.of(context).colorScheme.primary
+                          : Theme.of(context).colorScheme.outlineVariant,
+                      width: 2),
                   borderRadius: BorderRadius.circular(10),
                 ),
-                child: Text(char, style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold)),
+                child: Text(char,
+                    style: const TextStyle(
+                        fontSize: 22, fontWeight: FontWeight.bold)),
               );
             }),
           ),
         ),
         SizedBox(
-          height: 0, width: 0,
+          height: 0,
+          width: 0,
           child: TextField(
             controller: _smsController,
             focusNode: _smsFocusNode,
@@ -220,7 +275,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
             maxLength: 6,
             onChanged: (v) {
               setState(() {});
-              if (v.length == 6) _handleNext(); 
+              if (v.length == 6) _handleNext();
             },
           ),
         ),
@@ -238,8 +293,10 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
             labelText: AppLocalizations.of(context)!.new_password,
             border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
             suffixIcon: IconButton(
-              icon: Icon(_isPasswordVisible ? Icons.visibility : Icons.visibility_off),
-              onPressed: () => setState(() => _isPasswordVisible = !_isPasswordVisible),
+              icon: Icon(
+                  _isPasswordVisible ? Icons.visibility : Icons.visibility_off),
+              onPressed: () =>
+                  setState(() => _isPasswordVisible = !_isPasswordVisible),
             ),
           ),
         ),
@@ -247,7 +304,10 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
         TextField(
           controller: _confirmPasswordController,
           obscureText: !_isPasswordVisible,
-          decoration: InputDecoration(labelText: AppLocalizations.of(context)!.confirm_new_password, border: OutlineInputBorder(borderRadius: BorderRadius.circular(12))),
+          decoration: InputDecoration(
+              labelText: AppLocalizations.of(context)!.confirm_new_password,
+              border:
+                  OutlineInputBorder(borderRadius: BorderRadius.circular(12))),
         ),
       ],
     );

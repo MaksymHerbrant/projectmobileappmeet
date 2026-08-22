@@ -11,9 +11,9 @@ import '../models/event.dart';
 import '../providers/app_state_provider.dart'; // ВАЖЛИВО: Імпорт провайдера
 
 // Імпорти екранів
-import 'event_requests_screen.dart'; 
-import 'user_profile_view_screen.dart'; 
-import 'create_event_screen.dart'; 
+import 'event_requests_screen.dart';
+import 'user_profile_view_screen.dart';
+import 'create_event_screen.dart';
 
 class MatchesScreen extends StatefulWidget {
   const MatchesScreen({Key? key}) : super(key: key);
@@ -22,7 +22,8 @@ class MatchesScreen extends StatefulWidget {
   State<MatchesScreen> createState() => _MatchesScreenState();
 }
 
-class _MatchesScreenState extends State<MatchesScreen> with SingleTickerProviderStateMixin {
+class _MatchesScreenState extends State<MatchesScreen>
+    with SingleTickerProviderStateMixin {
   late TabController _tabController;
   int _selectedTab = 0; // 0 - Запити, 1 - Мої події, 2 - Запрошення
   int _invitationsFilter = 0; // 0 - Очікувані, 1 - Прийняті
@@ -38,7 +39,7 @@ class _MatchesScreenState extends State<MatchesScreen> with SingleTickerProvider
         });
       }
     });
-    
+
     // 🔥 ВАЖЛИВО: Завантажуємо дані через провайдер при старті
     WidgetsBinding.instance.addPostFrameCallback((_) {
       context.read<AppStateProvider>().loadAllData();
@@ -54,18 +55,20 @@ class _MatchesScreenState extends State<MatchesScreen> with SingleTickerProvider
   // 🟢 Хелпер для картинок (Network vs Asset)
   ImageProvider _getImageProvider(List<String>? photos) {
     if (photos == null || photos.isEmpty) {
-      return const NetworkImage('https://ui-avatars.com/api/?name=User&format=png&background=random');
+      return const NetworkImage(
+          'https://ui-avatars.com/api/?name=User&format=png&background=random');
     }
-    
+
     final String path = photos.first;
-    
+
     if (path.startsWith('http')) {
       return NetworkImage(path);
     }
-    
+
     // Для демо-даних (assets/...)
     if (path.contains('placeholder')) {
-       return const NetworkImage('https://ui-avatars.com/api/?name=User&format=png&background=random');
+      return const NetworkImage(
+          'https://ui-avatars.com/api/?name=User&format=png&background=random');
     }
 
     return AssetImage(path);
@@ -74,12 +77,14 @@ class _MatchesScreenState extends State<MatchesScreen> with SingleTickerProvider
   @override
   Widget build(BuildContext context) {
     final t = AppLocalizations.of(context)!;
-    
+
     // 🔥 Використовуємо дані з провайдера
     final appState = context.watch<AppStateProvider>();
 
     // Якщо йде завантаження І немає даних - показуємо спіннер
-    if (appState.isLoading && appState.incomingRequests.isEmpty && appState.myEvents.isEmpty) {
+    if (appState.isLoading &&
+        appState.incomingRequests.isEmpty &&
+        appState.myEvents.isEmpty) {
       return Scaffold(
         backgroundColor: Colors.transparent,
         body: Container(
@@ -94,28 +99,28 @@ class _MatchesScreenState extends State<MatchesScreen> with SingleTickerProvider
       body: Container(
         decoration: Ds.background(context),
         child: SafeArea(
-        child: Column(
-          children: [
-            _buildTopBar(t),
-            _buildTabBar(t),
-            Expanded(
-              child: TabBarView(
-                controller: _tabController,
-                children: [
-                  // Вкладка 1: Лайки (беремо з провайдера)
-                  _buildLikedMeTab(appState.incomingRequests, t),
-                  
-                  // Вкладка 2: Мої події (беремо з провайдера)
-                  _buildMyEventsTab(appState.myEvents, t),
-                  
-                  // Вкладка 3: Запрошення (беремо з провайдера)
-                  _buildEventInvitationsTab(appState.myEventApplications, t),
-                ],
+          child: Column(
+            children: [
+              _buildTopBar(t),
+              _buildTabBar(t),
+              Expanded(
+                child: TabBarView(
+                  controller: _tabController,
+                  children: [
+                    // Вкладка 1: Лайки (беремо з провайдера)
+                    _buildLikedMeTab(appState.incomingRequests, t),
+
+                    // Вкладка 2: Мої події (беремо з провайдера)
+                    _buildMyEventsTab(appState.myEvents, t),
+
+                    // Вкладка 3: Запрошення (беремо з провайдера)
+                    _buildEventInvitationsTab(appState.myEventApplications, t),
+                  ],
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
-      ),
       ),
     );
   }
@@ -147,7 +152,8 @@ class _MatchesScreenState extends State<MatchesScreen> with SingleTickerProvider
 
   // --- Вкладка 1: Вхідні лайки (Requests) ---
 
-  Widget _buildLikedMeTab(List<Map<String, dynamic>> requests, AppLocalizations t) {
+  Widget _buildLikedMeTab(
+      List<Map<String, dynamic>> requests, AppLocalizations t) {
     if (requests.isEmpty) {
       return RefreshIndicator(
         onRefresh: () => context.read<AppStateProvider>().loadAllData(),
@@ -164,9 +170,10 @@ class _MatchesScreenState extends State<MatchesScreen> with SingleTickerProvider
         ),
       );
     }
-    
+
     return RefreshIndicator(
-      onRefresh: () => context.read<AppStateProvider>().refreshIncomingRequests(),
+      onRefresh: () =>
+          context.read<AppStateProvider>().refreshIncomingRequests(),
       child: ListView.builder(
         padding: const EdgeInsets.all(20),
         itemCount: requests.length,
@@ -226,10 +233,13 @@ class _MatchesScreenState extends State<MatchesScreen> with SingleTickerProvider
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          user.age > 0 ? '${user.name}, ${user.age}' : user.name,
+                          user.age > 0
+                              ? '${user.name}, ${user.age}'
+                              : user.name,
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
-                          style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
+                          style: const TextStyle(
+                              fontSize: 16, fontWeight: FontWeight.w700),
                         ),
                         if (interests.isNotEmpty) ...[
                           const SizedBox(height: 3),
@@ -246,7 +256,9 @@ class _MatchesScreenState extends State<MatchesScreen> with SingleTickerProvider
                   if (user.distanceKm != null) ...[
                     const SizedBox(width: 8),
                     DsChip(
-                      label: t.dist_km_short(user.distanceKm!.toStringAsFixed(1).replaceAll('.', ',')),
+                      label: t.dist_km_short(user.distanceKm!
+                          .toStringAsFixed(1)
+                          .replaceAll('.', ',')),
                       small: true,
                       icon: Icons.place_outlined,
                     ),
@@ -265,7 +277,8 @@ class _MatchesScreenState extends State<MatchesScreen> with SingleTickerProvider
                 ),
                 child: Text(
                   message,
-                  style: Ds.tiny(context).copyWith(color: scheme.onSecondaryContainer),
+                  style: Ds.tiny(context)
+                      .copyWith(color: scheme.onSecondaryContainer),
                 ),
               ),
             ],
@@ -311,7 +324,9 @@ class _MatchesScreenState extends State<MatchesScreen> with SingleTickerProvider
           height: 44,
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(Ds.rField),
-            border: ghost ? Border.all(color: scheme.outlineVariant, width: 1.5) : null,
+            border: ghost
+                ? Border.all(color: scheme.outlineVariant, width: 1.5)
+                : null,
           ),
           alignment: Alignment.center,
           child: Text(
@@ -342,14 +357,19 @@ class _MatchesScreenState extends State<MatchesScreen> with SingleTickerProvider
         ),
         Expanded(
           child: events.isEmpty
-              ? _buildEmptyState(icon: Icons.event, title: t.no_created_events, subtitle: t.no_created_events_subtitle)
+              ? _buildEmptyState(
+                  icon: Icons.event,
+                  title: t.no_created_events,
+                  subtitle: t.no_created_events_subtitle)
               : RefreshIndicator(
-                  onRefresh: () => context.read<AppStateProvider>().refreshMyEvents(),
+                  onRefresh: () =>
+                      context.read<AppStateProvider>().refreshMyEvents(),
                   child: ListView.builder(
                     physics: const AlwaysScrollableScrollPhysics(),
                     padding: const EdgeInsets.symmetric(horizontal: 20),
                     itemCount: events.length,
-                    itemBuilder: (context, index) => _buildEventCard(events[index], t),
+                    itemBuilder: (context, index) =>
+                        _buildEventCard(events[index], t),
                   ),
                 ),
         ),
@@ -421,7 +441,8 @@ class _MatchesScreenState extends State<MatchesScreen> with SingleTickerProvider
                     const SizedBox(height: 6),
                     Row(
                       children: [
-                        Icon(Icons.place_outlined, size: 15, color: scheme.onSurfaceVariant),
+                        Icon(Icons.place_outlined,
+                            size: 15, color: scheme.onSurfaceVariant),
                         const SizedBox(width: 4),
                         Expanded(
                           child: Text(
@@ -459,10 +480,12 @@ class _MatchesScreenState extends State<MatchesScreen> with SingleTickerProvider
 
   // --- Вкладка 3: Запрошення (Invitations) ---
 
-  Widget _buildEventInvitationsTab(List<Map<String, dynamic>> invitations, AppLocalizations t) {
+  Widget _buildEventInvitationsTab(
+      List<Map<String, dynamic>> invitations, AppLocalizations t) {
     // Фільтруємо на клієнті (оскільки дані вже завантажені в провайдер)
     final filteredList = invitations.where((item) {
-      final isAccepted = item['status'] == 'accepted'; // Перевір поле статусу в моделі
+      final isAccepted =
+          item['status'] == 'accepted'; // Перевір поле статусу в моделі
       return _invitationsFilter == 1 ? isAccepted : !isAccepted;
     }).toList();
 
@@ -482,26 +505,31 @@ class _MatchesScreenState extends State<MatchesScreen> with SingleTickerProvider
         Expanded(
           child: RefreshIndicator(
             onRefresh: () => context.read<AppStateProvider>().loadAllData(),
-            child: filteredList.isEmpty 
-              ? ListView(
-                  children: [
-                    SizedBox(height: MediaQuery.of(context).size.height * 0.3),
-                    _buildEmptyState(
-                      icon: _invitationsFilter == 0 ? Icons.schedule : Icons.check_circle,
-                      title: _invitationsFilter == 0 ? AppLocalizations.of(context)!.m_no_pending : AppLocalizations.of(context)!.m_no_accepted,
-                      subtitle: AppLocalizations.of(context)!.m_requests_here,
+            child: filteredList.isEmpty
+                ? ListView(
+                    children: [
+                      SizedBox(
+                          height: MediaQuery.of(context).size.height * 0.3),
+                      _buildEmptyState(
+                        icon: _invitationsFilter == 0
+                            ? Icons.schedule
+                            : Icons.check_circle,
+                        title: _invitationsFilter == 0
+                            ? AppLocalizations.of(context)!.m_no_pending
+                            : AppLocalizations.of(context)!.m_no_accepted,
+                        subtitle: AppLocalizations.of(context)!.m_requests_here,
+                      ),
+                    ],
+                  )
+                : ListView.builder(
+                    padding: const EdgeInsets.all(20),
+                    itemCount: filteredList.length,
+                    itemBuilder: (context, index) => _buildInvitationCard(
+                      filteredList[index],
+                      t,
+                      isAccepted: _invitationsFilter == 1,
                     ),
-                  ],
-                )
-              : ListView.builder(
-                  padding: const EdgeInsets.all(20),
-                  itemCount: filteredList.length,
-                  itemBuilder: (context, index) => _buildInvitationCard(
-                    filteredList[index],
-                    t,
-                    isAccepted: _invitationsFilter == 1,
                   ),
-                ),
           ),
         ),
       ],
@@ -558,7 +586,8 @@ class _MatchesScreenState extends State<MatchesScreen> with SingleTickerProvider
                     event.title,
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
-                    style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w700),
+                    style: const TextStyle(
+                        fontSize: 15, fontWeight: FontWeight.w700),
                   ),
                   const SizedBox(height: 3),
                   Text(
@@ -577,7 +606,9 @@ class _MatchesScreenState extends State<MatchesScreen> with SingleTickerProvider
                   height: 28,
                   padding: const EdgeInsets.symmetric(horizontal: 11),
                   decoration: BoxDecoration(
-                    color: isAccepted ? semantics.success : scheme.secondaryContainer,
+                    color: isAccepted
+                        ? semantics.success
+                        : scheme.secondaryContainer,
                     borderRadius: BorderRadius.circular(999),
                   ),
                   alignment: Alignment.center,
@@ -586,13 +617,16 @@ class _MatchesScreenState extends State<MatchesScreen> with SingleTickerProvider
                     style: TextStyle(
                       fontSize: 12,
                       fontWeight: FontWeight.w600,
-                      color: isAccepted ? semantics.onSuccess : scheme.onSecondaryContainer,
+                      color: isAccepted
+                          ? semantics.onSuccess
+                          : scheme.onSecondaryContainer,
                     ),
                   ),
                 ),
                 if (isAccepted) ...[
                   const SizedBox(height: 4),
-                  Text(t.m_chat_open, style: Ds.tiny(context).copyWith(fontSize: 10.5)),
+                  Text(t.m_chat_open,
+                      style: Ds.tiny(context).copyWith(fontSize: 10.5)),
                 ],
               ],
             ),
@@ -604,16 +638,20 @@ class _MatchesScreenState extends State<MatchesScreen> with SingleTickerProvider
 
   // --- Загальні віджети ---
 
-  Widget _buildEmptyState({required IconData icon, required String title, required String subtitle}) {
+  Widget _buildEmptyState(
+      {required IconData icon,
+      required String title,
+      required String subtitle}) {
     return DsEmptyState(icon: icon, title: title, body: subtitle);
   }
 
   // --- Дії та навігація ---
 
   // 🔥 МЕТОД ДЛЯ КНОПКИ "ПРИЙНЯТИ"
-  Future<void> _handleLike(UserProfile user, String? likeId, AppLocalizations t) async {
+  Future<void> _handleLike(
+      UserProfile user, String? likeId, AppLocalizations t) async {
     if (likeId == null) return;
-    
+
     try {
       // Використовуємо ПРОВАЙДЕР для прийняття лайка
       await context.read<AppStateProvider>().acceptLike(likeId);
@@ -621,8 +659,10 @@ class _MatchesScreenState extends State<MatchesScreen> with SingleTickerProvider
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text(AppLocalizations.of(context)!.match_chat_created(user.name)), 
-            backgroundColor: Theme.of(context).extension<AppSemantics>()!.success,
+            content: Text(
+                AppLocalizations.of(context)!.match_chat_created(user.name)),
+            backgroundColor:
+                Theme.of(context).extension<AppSemantics>()!.success,
             duration: const Duration(seconds: 4),
             action: SnackBarAction(
               label: AppLocalizations.of(context)!.ok,
@@ -635,9 +675,9 @@ class _MatchesScreenState extends State<MatchesScreen> with SingleTickerProvider
     } catch (e) {
       debugPrint("Помилка при прийнятті: $e");
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(AppLocalizations.of(context)!.chat_create_failed), backgroundColor: Theme.of(context).colorScheme.error)
-        );
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+            content: Text(AppLocalizations.of(context)!.chat_create_failed),
+            backgroundColor: Theme.of(context).colorScheme.error));
       }
     }
   }
@@ -647,29 +687,28 @@ class _MatchesScreenState extends State<MatchesScreen> with SingleTickerProvider
     if (likeId == null) return;
     try {
       await context.read<AppStateProvider>().rejectLike(likeId);
-      
+
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(t.user_rejected), backgroundColor: Colors.grey)
-        );
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+            content: Text(t.user_rejected), backgroundColor: Colors.grey));
       }
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(AppLocalizations.of(context)!.error), backgroundColor: Theme.of(context).colorScheme.error)
-      );
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          content: Text(AppLocalizations.of(context)!.error),
+          backgroundColor: Theme.of(context).colorScheme.error));
     }
   }
 
-
   void _navigateToCreateEvent() async {
-    final result = await Navigator.of(context).push(MaterialPageRoute(builder: (context) => const CreateEventScreen()));
+    final result = await Navigator.of(context).push(
+        MaterialPageRoute(builder: (context) => const CreateEventScreen()));
     if (result != null) {
       if (mounted) context.read<AppStateProvider>().loadAllData();
     }
   }
 
   void _handleViewRequests(Event event) {
-    Navigator.of(context).push(MaterialPageRoute(builder: (context) => EventRequestsScreen(event: event)));
+    Navigator.of(context).push(MaterialPageRoute(
+        builder: (context) => EventRequestsScreen(event: event)));
   }
-
 }

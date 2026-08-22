@@ -23,7 +23,8 @@ class AcceptedEventDetailScreen extends StatefulWidget {
   }) : super(key: key);
 
   @override
-  State<AcceptedEventDetailScreen> createState() => _AcceptedEventDetailScreenState();
+  State<AcceptedEventDetailScreen> createState() =>
+      _AcceptedEventDetailScreenState();
 }
 
 class _AcceptedEventDetailScreenState extends State<AcceptedEventDetailScreen>
@@ -82,14 +83,15 @@ class _AcceptedEventDetailScreenState extends State<AcceptedEventDetailScreen>
       duration: const Duration(milliseconds: 600),
       vsync: this,
     );
-    
+
     _fadeAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
       CurvedAnimation(parent: _fadeController, curve: Curves.easeInOut),
     );
     _slideAnimation = Tween<Offset>(
       begin: const Offset(0, 0.3),
       end: Offset.zero,
-    ).animate(CurvedAnimation(parent: _slideController, curve: Curves.easeOutBack));
+    ).animate(
+        CurvedAnimation(parent: _slideController, curve: Curves.easeOutBack));
 
     _fadeController.forward();
     _slideController.forward();
@@ -106,7 +108,7 @@ class _AcceptedEventDetailScreenState extends State<AcceptedEventDetailScreen>
   @override
   Widget build(BuildContext context) {
     final t = AppLocalizations.of(context)!;
-    
+
     return Scaffold(
       backgroundColor: Theme.of(context).colorScheme.surface,
       body: FadeTransition(
@@ -167,7 +169,8 @@ class _AcceptedEventDetailScreenState extends State<AcceptedEventDetailScreen>
           borderRadius: BorderRadius.circular(12),
         ),
         child: IconButton(
-          icon: const Icon(Icons.arrow_back_ios_new, color: Colors.white, size: 20),
+          icon: const Icon(Icons.arrow_back_ios_new,
+              color: Colors.white, size: 20),
           onPressed: () => Navigator.of(context).pop(),
         ),
       ),
@@ -263,7 +266,8 @@ class _AcceptedEventDetailScreenState extends State<AcceptedEventDetailScreen>
                   const SizedBox(height: 8),
                   Row(
                     children: [
-                      const Icon(Icons.location_on, color: Colors.white, size: 16),
+                      const Icon(Icons.location_on,
+                          color: Colors.white, size: 16),
                       const SizedBox(width: 4),
                       Expanded(
                         child: Text(
@@ -275,7 +279,9 @@ class _AcceptedEventDetailScreenState extends State<AcceptedEventDetailScreen>
                               Shadow(
                                 offset: Offset(0, 1),
                                 blurRadius: 2,
-                                color: Theme.of(context).colorScheme.onSurfaceVariant,
+                                color: Theme.of(context)
+                                    .colorScheme
+                                    .onSurfaceVariant,
                               ),
                             ],
                           ),
@@ -293,20 +299,27 @@ class _AcceptedEventDetailScreenState extends State<AcceptedEventDetailScreen>
   }
 
   Widget _buildAcceptedBanner(AppLocalizations t) {
-    final daysUntilEvent = widget.event.dateTime.difference(DateTime.now()).inDays;
-    
+    final daysUntilEvent =
+        widget.event.dateTime.difference(DateTime.now()).inDays;
+
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         gradient: LinearGradient(
-          colors: [Theme.of(context).extension<AppSemantics>()!.success, Theme.of(context).extension<AppSemantics>()!.success],
+          colors: [
+            Theme.of(context).extension<AppSemantics>()!.success,
+            Theme.of(context).extension<AppSemantics>()!.success
+          ],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
-            color: Theme.of(context).extension<AppSemantics>()!.success.withValues(alpha: 0.3),
+            color: Theme.of(context)
+                .extension<AppSemantics>()!
+                .success
+                .withValues(alpha: 0.3),
             blurRadius: 12,
             offset: const Offset(0, 4),
           ),
@@ -341,9 +354,10 @@ class _AcceptedEventDetailScreenState extends State<AcceptedEventDetailScreen>
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  daysUntilEvent > 0 
-                      ? AppLocalizations.of(context)!.ae_days_left(daysUntilEvent)
-                      : daysUntilEvent == 0 
+                  daysUntilEvent > 0
+                      ? AppLocalizations.of(context)!
+                          .ae_days_left(daysUntilEvent)
+                      : daysUntilEvent == 0
                           ? AppLocalizations.of(context)!.ae_today
                           : AppLocalizations.of(context)!.ae_event_over,
                   style: TextStyle(
@@ -354,7 +368,8 @@ class _AcceptedEventDetailScreenState extends State<AcceptedEventDetailScreen>
                 ),
                 const SizedBox(height: 8),
                 Text(
-                  AppLocalizations.of(context)!.ae_accepted_on(_formatDate(widget.acceptedAt)),
+                  AppLocalizations.of(context)!
+                      .ae_accepted_on(_formatDate(widget.acceptedAt)),
                   style: TextStyle(
                     color: Colors.white.withOpacity(0.9),
                     fontSize: 12,
@@ -391,10 +406,12 @@ class _AcceptedEventDetailScreenState extends State<AcceptedEventDetailScreen>
           ),
           child: Row(
             children: [
-              Icon(Icons.people, color: Theme.of(context).colorScheme.primary, size: 20),
+              Icon(Icons.people,
+                  color: Theme.of(context).colorScheme.primary, size: 20),
               const SizedBox(width: 12),
               Text(
-                AppLocalizations.of(context)!.ae_participants_of(_participants.length, widget.event.participantsCount),
+                AppLocalizations.of(context)!.ae_participants_of(
+                    _participants.length, widget.event.participantsCount),
                 style: TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.w600,
@@ -403,7 +420,8 @@ class _AcceptedEventDetailScreenState extends State<AcceptedEventDetailScreen>
               ),
               const Spacer(),
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                 decoration: BoxDecoration(
                   color: Theme.of(context).colorScheme.primary,
                   borderRadius: BorderRadius.circular(20),
@@ -437,14 +455,17 @@ class _AcceptedEventDetailScreenState extends State<AcceptedEventDetailScreen>
                 decoration: BoxDecoration(
                   color: Theme.of(context).colorScheme.primary,
                   borderRadius: BorderRadius.circular(16),
-                  border: Border.all(color: Theme.of(context).colorScheme.primary),
+                  border:
+                      Border.all(color: Theme.of(context).colorScheme.primary),
                 ),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Row(
                       children: [
-                        Icon(Icons.calendar_today, color: Theme.of(context).colorScheme.primary, size: 16),
+                        Icon(Icons.calendar_today,
+                            color: Theme.of(context).colorScheme.primary,
+                            size: 16),
                         const SizedBox(width: 8),
                         Text(
                           AppLocalizations.of(context)!.ev_date,
@@ -458,7 +479,8 @@ class _AcceptedEventDetailScreenState extends State<AcceptedEventDetailScreen>
                     ),
                     const SizedBox(height: 8),
                     Text(
-                      DateFormat('dd MMMM yyyy', 'uk').format(widget.event.dateTime),
+                      DateFormat('dd MMMM yyyy', 'uk')
+                          .format(widget.event.dateTime),
                       style: TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.bold,
@@ -483,20 +505,28 @@ class _AcceptedEventDetailScreenState extends State<AcceptedEventDetailScreen>
                 decoration: BoxDecoration(
                   color: Theme.of(context).extension<AppSemantics>()!.warning,
                   borderRadius: BorderRadius.circular(16),
-                  border: Border.all(color: Theme.of(context).extension<AppSemantics>()!.warning),
+                  border: Border.all(
+                      color:
+                          Theme.of(context).extension<AppSemantics>()!.warning),
                 ),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Row(
                       children: [
-                        Icon(Icons.access_time, color: Theme.of(context).extension<AppSemantics>()!.warning, size: 16),
+                        Icon(Icons.access_time,
+                            color: Theme.of(context)
+                                .extension<AppSemantics>()!
+                                .warning,
+                            size: 16),
                         const SizedBox(width: 8),
                         Text(
                           AppLocalizations.of(context)!.ev_time,
                           style: TextStyle(
                             fontSize: 12,
-                            color: Theme.of(context).extension<AppSemantics>()!.warning,
+                            color: Theme.of(context)
+                                .extension<AppSemantics>()!
+                                .warning,
                             fontWeight: FontWeight.w600,
                           ),
                         ),
@@ -540,7 +570,8 @@ class _AcceptedEventDetailScreenState extends State<AcceptedEventDetailScreen>
             decoration: BoxDecoration(
               color: Theme.of(context).colorScheme.surface,
               borderRadius: BorderRadius.circular(16),
-              border: Border.all(color: Theme.of(context).colorScheme.outlineVariant),
+              border: Border.all(
+                  color: Theme.of(context).colorScheme.outlineVariant),
               boxShadow: [
                 BoxShadow(
                   color: Colors.black.withOpacity(0.05),
@@ -559,6 +590,7 @@ class _AcceptedEventDetailScreenState extends State<AcceptedEventDetailScreen>
                     image: DecorationImage(
                       image: AssetImage(widget.organizer.photos.first),
                       fit: BoxFit.cover,
+                      onError: (e, s) => debugPrint('Фото не завантажилось'),
                     ),
                   ),
                 ),
@@ -588,13 +620,19 @@ class _AcceptedEventDetailScreenState extends State<AcceptedEventDetailScreen>
                       const SizedBox(height: 8),
                       Row(
                         children: [
-                          Icon(Icons.location_on, size: 14, color: Theme.of(context).colorScheme.onSurfaceVariant),
+                          Icon(Icons.location_on,
+                              size: 14,
+                              color: Theme.of(context)
+                                  .colorScheme
+                                  .onSurfaceVariant),
                           const SizedBox(width: 4),
                           Text(
                             widget.organizer.location,
                             style: TextStyle(
                               fontSize: 12,
-                              color: Theme.of(context).colorScheme.onSurfaceVariant,
+                              color: Theme.of(context)
+                                  .colorScheme
+                                  .onSurfaceVariant,
                             ),
                           ),
                         ],
@@ -685,7 +723,8 @@ class _AcceptedEventDetailScreenState extends State<AcceptedEventDetailScreen>
           ),
           child: Row(
             children: [
-              Icon(Icons.security, color: Theme.of(context).colorScheme.primary, size: 20),
+              Icon(Icons.security,
+                  color: Theme.of(context).colorScheme.primary, size: 20),
               const SizedBox(width: 12),
               Expanded(
                 child: Text(
@@ -776,7 +815,8 @@ class _AcceptedEventDetailScreenState extends State<AcceptedEventDetailScreen>
 
   Widget _buildParticipantsSection(AppLocalizations t) {
     return _buildSection(
-      title: AppLocalizations.of(context)!.ae_participants(_participants.length),
+      title:
+          AppLocalizations.of(context)!.ae_participants(_participants.length),
       icon: Icons.people_outline,
       children: [
         ListView.separated(
@@ -793,7 +833,8 @@ class _AcceptedEventDetailScreenState extends State<AcceptedEventDetailScreen>
                 decoration: BoxDecoration(
                   color: Theme.of(context).colorScheme.surface,
                   borderRadius: BorderRadius.circular(16),
-                  border: Border.all(color: Theme.of(context).colorScheme.outlineVariant),
+                  border: Border.all(
+                      color: Theme.of(context).colorScheme.outlineVariant),
                   boxShadow: [
                     BoxShadow(
                       color: Colors.black.withOpacity(0.05),
@@ -812,6 +853,8 @@ class _AcceptedEventDetailScreenState extends State<AcceptedEventDetailScreen>
                         image: DecorationImage(
                           image: AssetImage(participant.photos.first),
                           fit: BoxFit.cover,
+                          onError: (e, s) =>
+                              debugPrint('Фото не завантажилось'),
                         ),
                       ),
                     ),
@@ -833,7 +876,9 @@ class _AcceptedEventDetailScreenState extends State<AcceptedEventDetailScreen>
                             participant.description,
                             style: TextStyle(
                               fontSize: 14,
-                              color: Theme.of(context).colorScheme.onSurfaceVariant,
+                              color: Theme.of(context)
+                                  .colorScheme
+                                  .onSurfaceVariant,
                             ),
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
@@ -844,13 +889,17 @@ class _AcceptedEventDetailScreenState extends State<AcceptedEventDetailScreen>
                     Container(
                       padding: const EdgeInsets.all(8),
                       decoration: BoxDecoration(
-                        color: Theme.of(context).extension<AppSemantics>()!.success,
+                        color: Theme.of(context)
+                            .extension<AppSemantics>()!
+                            .success,
                         borderRadius: BorderRadius.circular(12),
                       ),
                       child: Icon(
                         Icons.check_circle,
                         size: 16,
-                        color: Theme.of(context).extension<AppSemantics>()!.success,
+                        color: Theme.of(context)
+                            .extension<AppSemantics>()!
+                            .success,
                       ),
                     ),
                   ],
@@ -876,12 +925,16 @@ class _AcceptedEventDetailScreenState extends State<AcceptedEventDetailScreen>
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
               decoration: BoxDecoration(
                 gradient: LinearGradient(
-                  colors: [Theme.of(context).colorScheme.primary, Theme.of(context).colorScheme.primary],
+                  colors: [
+                    Theme.of(context).colorScheme.primary,
+                    Theme.of(context).colorScheme.primary
+                  ],
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,
                 ),
                 borderRadius: BorderRadius.circular(20),
-                border: Border.all(color: Theme.of(context).colorScheme.primary),
+                border:
+                    Border.all(color: Theme.of(context).colorScheme.primary),
               ),
               child: Text(
                 tag,
@@ -899,9 +952,10 @@ class _AcceptedEventDetailScreenState extends State<AcceptedEventDetailScreen>
   }
 
   Widget _buildActionButtons(AppLocalizations t) {
-    final daysUntilEvent = widget.event.dateTime.difference(DateTime.now()).inDays;
+    final daysUntilEvent =
+        widget.event.dateTime.difference(DateTime.now()).inDays;
     final isEventActive = daysUntilEvent >= 0;
-    
+
     return Column(
       children: [
         Row(
@@ -1054,11 +1108,14 @@ class _AcceptedEventDetailScreenState extends State<AcceptedEventDetailScreen>
   String _getTimeUntilEvent() {
     final now = DateTime.now();
     final diff = widget.event.dateTime.difference(now);
-    
+
     if (diff.isNegative) return AppLocalizations.of(context)!.ae_finished;
-    if (diff.inDays > 0) return AppLocalizations.of(context)!.ae_in_days(diff.inDays);
-    if (diff.inHours > 0) return AppLocalizations.of(context)!.ae_in_hours(diff.inHours);
-    if (diff.inMinutes > 0) return AppLocalizations.of(context)!.ae_in_minutes(diff.inMinutes);
+    if (diff.inDays > 0)
+      return AppLocalizations.of(context)!.ae_in_days(diff.inDays);
+    if (diff.inHours > 0)
+      return AppLocalizations.of(context)!.ae_in_hours(diff.inHours);
+    if (diff.inMinutes > 0)
+      return AppLocalizations.of(context)!.ae_in_minutes(diff.inMinutes);
     return AppLocalizations.of(context)!.ae_now;
   }
 
@@ -1066,7 +1123,8 @@ class _AcceptedEventDetailScreenState extends State<AcceptedEventDetailScreen>
   void _shareEvent() {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text(AppLocalizations.of(context)!.ae_sharing(widget.event.title)),
+        content:
+            Text(AppLocalizations.of(context)!.ae_sharing(widget.event.title)),
         backgroundColor: Theme.of(context).colorScheme.primary,
         behavior: SnackBarBehavior.floating,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
@@ -1093,13 +1151,14 @@ class _AcceptedEventDetailScreenState extends State<AcceptedEventDetailScreen>
   void _openEventChat() {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text(AppLocalizations.of(context)!.ae_opening_chat(widget.event.title)),
+        content: Text(
+            AppLocalizations.of(context)!.ae_opening_chat(widget.event.title)),
         backgroundColor: Theme.of(context).colorScheme.primary,
         behavior: SnackBarBehavior.floating,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
       ),
     );
-    
+
     // TODO: Navigate to event-specific chat
     Navigator.of(context).push(
       MaterialPageRoute(
@@ -1111,7 +1170,8 @@ class _AcceptedEventDetailScreenState extends State<AcceptedEventDetailScreen>
   void _openDirections() {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text(AppLocalizations.of(context)!.ae_opening_route(widget.event.location)),
+        content: Text(AppLocalizations.of(context)!
+            .ae_opening_route(widget.event.location)),
         backgroundColor: Theme.of(context).extension<AppSemantics>()!.success,
         behavior: SnackBarBehavior.floating,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
@@ -1147,10 +1207,12 @@ class _AcceptedEventDetailScreenState extends State<AcceptedEventDetailScreen>
                 Navigator.of(context).pop();
                 ScaffoldMessenger.of(context).showSnackBar(
                   SnackBar(
-                    content: Text(AppLocalizations.of(context)!.ae_thanks_review),
+                    content:
+                        Text(AppLocalizations.of(context)!.ae_thanks_review),
                     backgroundColor: Theme.of(context).colorScheme.primary,
                     behavior: SnackBarBehavior.floating,
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10)),
                   ),
                 );
               },

@@ -21,10 +21,10 @@ class _ChatScreenState extends State<ChatScreen> {
   final ChatService _chatService = ChatService();
   final _supabase = Supabase.instance.client;
   final TextEditingController _searchController = TextEditingController();
-  
+
   String _searchQuery = '';
-  Set<String> _onlineUsers = {}; 
-  final Map<String, bool> _typingUsers = {}; 
+  Set<String> _onlineUsers = {};
+  final Map<String, bool> _typingUsers = {};
   Timer? _refreshTimer; // Додано таймер для автоматичного оновлення часу
 
   @override
@@ -56,20 +56,25 @@ class _ChatScreenState extends State<ChatScreen> {
     super.dispose();
   }
 
-  Future<void> _openChat(Map<String, dynamic> chat, {required bool isOnline}) async {
+  Future<void> _openChat(Map<String, dynamic> chat,
+      {required bool isOnline}) async {
     final roomId = chat['room_id'].toString();
     final isGroup = chat['type'] == 'group';
 
-    final name = isGroup ? chat['name'] : (chat['other_user_name'] ?? AppLocalizations.of(context)!.ch_user);
+    final name = isGroup
+        ? chat['name']
+        : (chat['other_user_name'] ?? AppLocalizations.of(context)!.ch_user);
 
     // 👇 РОЗУМНЕ ВИЗНАЧЕННЯ ФОТО (Універсальне для обох типів)
     String photoUrl;
     if (isGroup) {
       // Якщо група - беремо фото групи
-      photoUrl = chat['photo'] ?? 'https://ui-avatars.com/api/?name=Group&format=png&background=random';
+      photoUrl = chat['photo'] ??
+          'https://ui-avatars.com/api/?name=Group&format=png&background=random';
     } else {
       // Якщо приватний - беремо фото співрозмовника
-      photoUrl = chat['other_user_photo'] ?? 'https://ui-avatars.com/api/?name=User&format=png&background=random';
+      photoUrl = chat['other_user_photo'] ??
+          'https://ui-avatars.com/api/?name=User&format=png&background=random';
     }
     final navigator = Navigator.of(context);
 
@@ -109,13 +114,14 @@ class _ChatScreenState extends State<ChatScreen> {
                 children: [
                   _buildTopBar(),
                   _buildSearchBar(),
-                  
                   Expanded(
                     child: StreamBuilder<List<Map<String, dynamic>>>(
                       stream: _chatService.getMyChatsStream(),
                       builder: (context, snapshot) {
-                        if (snapshot.connectionState == ConnectionState.waiting) {
-                          return const Center(child: CircularProgressIndicator());
+                        if (snapshot.connectionState ==
+                            ConnectionState.waiting) {
+                          return const Center(
+                              child: CircularProgressIndicator());
                         }
                         if (snapshot.hasError) {
                           final failure =
@@ -127,12 +133,16 @@ class _ChatScreenState extends State<ChatScreen> {
                                 Text(
                                   failure.localized(context),
                                   textAlign: TextAlign.center,
-                                  style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant),
+                                  style: TextStyle(
+                                      color: Theme.of(context)
+                                          .colorScheme
+                                          .onSurfaceVariant),
                                 ),
                                 const SizedBox(height: 12),
                                 TextButton(
                                   onPressed: () => setState(() {}),
-                                  child: Text(AppLocalizations.of(context)!.try_again),
+                                  child: Text(
+                                      AppLocalizations.of(context)!.try_again),
                                 ),
                               ],
                             ),
@@ -141,12 +151,20 @@ class _ChatScreenState extends State<ChatScreen> {
 
                         final conversations = snapshot.data ?? [];
                         final filtered = conversations.where((chat) {
-                          final name = chat['type'] == 'group' ? chat['name'] : chat['other_user_name'] ?? AppLocalizations.of(context)!.ch_user;
-                          return name.toLowerCase().contains(_searchQuery.toLowerCase());
+                          final name = chat['type'] == 'group'
+                              ? chat['name']
+                              : chat['other_user_name'] ??
+                                  AppLocalizations.of(context)!.ch_user;
+                          return name
+                              .toLowerCase()
+                              .contains(_searchQuery.toLowerCase());
                         }).toList();
 
                         if (filtered.isEmpty) {
-                          return Center(child: Text(AppLocalizations.of(context)!.no_chats_yet ?? AppLocalizations.of(context)!.no_chats_yet));
+                          return Center(
+                              child: Text(AppLocalizations.of(context)!
+                                      .no_chats_yet ??
+                                  AppLocalizations.of(context)!.no_chats_yet));
                         }
 
                         return Column(
@@ -170,7 +188,8 @@ class _ChatScreenState extends State<ChatScreen> {
 
   Widget _buildActiveContacts(List<Map<String, dynamic>> chats) {
     final onlineFriends = chats.where((c) {
-      return c['type'] == 'private' && _onlineUsers.contains(c['other_user_id']);
+      return c['type'] == 'private' &&
+          _onlineUsers.contains(c['other_user_id']);
     }).toList();
 
     if (onlineFriends.isEmpty) return const SizedBox.shrink();
@@ -215,9 +234,12 @@ class _ChatScreenState extends State<ChatScreen> {
                               width: 13,
                               height: 13,
                               decoration: BoxDecoration(
-                                color: Theme.of(context).extension<AppSemantics>()!.online,
+                                color: Theme.of(context)
+                                    .extension<AppSemantics>()!
+                                    .online,
                                 shape: BoxShape.circle,
-                                border: Border.all(color: scheme.surface, width: 2.5),
+                                border: Border.all(
+                                    color: scheme.surface, width: 2.5),
                               ),
                             ),
                           ),
@@ -247,7 +269,8 @@ class _ChatScreenState extends State<ChatScreen> {
     return ListView.separated(
       padding: const EdgeInsets.fromLTRB(20, 4, 20, 12),
       itemCount: conversations.length,
-      separatorBuilder: (_, __) => Divider(height: 1, color: scheme.outlineVariant),
+      separatorBuilder: (_, __) =>
+          Divider(height: 1, color: scheme.outlineVariant),
       itemBuilder: (context, index) => _chatRow(conversations[index], scheme),
     );
   }
@@ -260,8 +283,11 @@ class _ChatScreenState extends State<ChatScreen> {
     final t = AppLocalizations.of(context)!;
     final isGroup = chat['type'] == 'group';
 
-    final name = isGroup ? (chat['name'] ?? t.ch_unknown) : (chat['other_user_name'] ?? t.ch_unknown);
-    final photo = (isGroup ? chat['photo'] : chat['other_user_photo']) as String?;
+    final name = isGroup
+        ? (chat['name'] ?? t.ch_unknown)
+        : (chat['other_user_name'] ?? t.ch_unknown);
+    final photo =
+        (isGroup ? chat['photo'] : chat['other_user_photo']) as String?;
 
     final lastMsg = chat['last_message'] ?? '';
     final unread = (chat['unread_count'] ?? 0) as int;
@@ -274,7 +300,8 @@ class _ChatScreenState extends State<ChatScreen> {
     DateTime? parsedTime;
     if (chat['last_message_time'] != null) {
       try {
-        parsedTime = DateTime.parse(chat['last_message_time'].toString().trim()).toLocal();
+        parsedTime = DateTime.parse(chat['last_message_time'].toString().trim())
+            .toLocal();
         final now = DateTime.now();
         if (parsedTime.isAfter(now.add(const Duration(minutes: 1)))) {
           parsedTime = parsedTime.subtract(now.timeZoneOffset);
@@ -304,10 +331,11 @@ class _ChatScreenState extends State<ChatScreen> {
                           ? Image.network(
                               photo,
                               fit: BoxFit.cover,
-                              errorBuilder: (_, __, ___) =>
-                                  DsPhotoBlock(initial: name, fontSize: 19, radius: 0),
+                              errorBuilder: (_, __, ___) => DsPhotoBlock(
+                                  initial: name, fontSize: 19, radius: 0),
                             )
-                          : DsPhotoBlock(initial: name, fontSize: 19, radius: 0),
+                          : DsPhotoBlock(
+                              initial: name, fontSize: 19, radius: 0),
                     ),
                   ),
                   if (isOnline)
@@ -318,7 +346,9 @@ class _ChatScreenState extends State<ChatScreen> {
                         width: 12,
                         height: 12,
                         decoration: BoxDecoration(
-                          color: Theme.of(context).extension<AppSemantics>()!.online,
+                          color: Theme.of(context)
+                              .extension<AppSemantics>()!
+                              .online,
                           shape: BoxShape.circle,
                           border: Border.all(color: scheme.surface, width: 2.5),
                         ),
@@ -344,9 +374,11 @@ class _ChatScreenState extends State<ChatScreen> {
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                     style: Ds.tiny(context).copyWith(
-                      color: isTyping ? scheme.primary : scheme.onSurfaceVariant,
+                      color:
+                          isTyping ? scheme.primary : scheme.onSurfaceVariant,
                       fontStyle: isTyping ? FontStyle.italic : FontStyle.normal,
-                      fontWeight: unread > 0 ? FontWeight.w600 : FontWeight.normal,
+                      fontWeight:
+                          unread > 0 ? FontWeight.w600 : FontWeight.normal,
                     ),
                   ),
                 ],
@@ -447,20 +479,26 @@ class _ChatScreenState extends State<ChatScreen> {
   String _formatTime(DateTime time) {
     final now = DateTime.now();
     final difference = now.difference(time);
-    
+
     // Якщо менше 60 сек
     if (difference.inSeconds.abs() < 60) {
-      return AppLocalizations.of(context)?.now ?? AppLocalizations.of(context)!.ch_now;
+      return AppLocalizations.of(context)?.now ??
+          AppLocalizations.of(context)!.ch_now;
     }
-    
+
     // Сьогодні
-    if ((now.year == time.year && now.month == time.month && now.day == time.day) || time.isAfter(now)) {
+    if ((now.year == time.year &&
+            now.month == time.month &&
+            now.day == time.day) ||
+        time.isAfter(now)) {
       return "${time.hour.toString().padLeft(2, '0')}:${time.minute.toString().padLeft(2, '0')}";
     }
-    
+
     // Вчора
     final yesterday = now.subtract(const Duration(days: 1));
-    if (time.year == yesterday.year && time.month == yesterday.month && time.day == yesterday.day) {
+    if (time.year == yesterday.year &&
+        time.month == yesterday.month &&
+        time.day == yesterday.day) {
       return AppLocalizations.of(context)!.ch_yesterday;
     }
 
@@ -473,15 +511,28 @@ class _ChatScreenState extends State<ChatScreen> {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: Text(AppLocalizations.of(context)!.create_group ?? 'Create Group'),
+          title: Text(
+              AppLocalizations.of(context)!.create_group ?? 'Create Group'),
           content: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              ListTile(leading: const Icon(Icons.group_add), title: Text(AppLocalizations.of(context)!.private_group ?? 'Private Group'), onTap: () => Navigator.of(context).pop()),
-              ListTile(leading: const Icon(Icons.public), title: Text(AppLocalizations.of(context)!.public_group ?? 'Public Group'), onTap: () => Navigator.of(context).pop()),
+              ListTile(
+                  leading: const Icon(Icons.group_add),
+                  title: Text(AppLocalizations.of(context)!.private_group ??
+                      'Private Group'),
+                  onTap: () => Navigator.of(context).pop()),
+              ListTile(
+                  leading: const Icon(Icons.public),
+                  title: Text(AppLocalizations.of(context)!.public_group ??
+                      'Public Group'),
+                  onTap: () => Navigator.of(context).pop()),
             ],
           ),
-          actions: [TextButton(onPressed: () => Navigator.of(context).pop(), child: Text(AppLocalizations.of(context)!.cancel ?? 'Cancel'))],
+          actions: [
+            TextButton(
+                onPressed: () => Navigator.of(context).pop(),
+                child: Text(AppLocalizations.of(context)!.cancel ?? 'Cancel'))
+          ],
         );
       },
     );

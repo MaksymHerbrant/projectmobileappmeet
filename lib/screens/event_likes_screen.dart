@@ -15,12 +15,12 @@ class EventLikesScreen extends StatefulWidget {
 class _EventLikesScreenState extends State<EventLikesScreen> {
   // 🟢 Сервіс
   final _matchesService = MatchesService();
-  
+
   bool _isLoading = true;
-  
+
   // Список моїх подій
   List<Event> _myEvents = [];
-  
+
   // Мапа: ID події -> Список людей, які її лайкнули
   Map<String, List<UserProfile>> _eventLikes = {};
 
@@ -36,10 +36,10 @@ class _EventLikesScreenState extends State<EventLikesScreen> {
     try {
       // 1. Отримуємо список лайків (структура: {eventId: [users...]})
       final likesMap = await _matchesService.getEventLikes();
-      
+
       // 2. Отримуємо список самих подій
       final events = await _matchesService.getMyEvents();
-      
+
       if (mounted) {
         setState(() {
           _myEvents = events;
@@ -56,19 +56,21 @@ class _EventLikesScreenState extends State<EventLikesScreen> {
   // 👇 Хелпер для фото (захист від помилок 404)
   ImageProvider _getImageProvider(List<String>? photos) {
     if (photos == null || photos.isEmpty) {
-      return const NetworkImage('https://ui-avatars.com/api/?name=User&format=png&background=random');
+      return const NetworkImage(
+          'https://ui-avatars.com/api/?name=User&format=png&background=random');
     }
-    
+
     final String path = photos.first;
-    
+
     // Якщо це лінк на інтернет
     if (path.startsWith('http')) {
       return NetworkImage(path);
     }
-    
+
     // Якщо це старий placeholder, який викликав помилку
     if (path.contains('placeholder')) {
-       return const NetworkImage('https://ui-avatars.com/api/?name=User&format=png&background=random');
+      return const NetworkImage(
+          'https://ui-avatars.com/api/?name=User&format=png&background=random');
     }
 
     // Локальний асет
@@ -80,7 +82,7 @@ class _EventLikesScreenState extends State<EventLikesScreen> {
     return Scaffold(
       body: Container(
         decoration: BoxDecoration(
-            gradient: LinearGradient(
+          gradient: LinearGradient(
             begin: Alignment.bottomCenter,
             end: Alignment.topCenter,
             colors: AppTheme.backgroundGradient(context),
@@ -91,7 +93,7 @@ class _EventLikesScreenState extends State<EventLikesScreen> {
             children: [
               _buildTopBar(),
               Expanded(
-                child: _isLoading 
+                child: _isLoading
                     ? const Center(child: CircularProgressIndicator())
                     : _myEvents.isEmpty
                         ? _buildEmptyState()
@@ -126,7 +128,8 @@ class _EventLikesScreenState extends State<EventLikesScreen> {
                 color: Theme.of(context).colorScheme.surface.withOpacity(0.8),
                 borderRadius: BorderRadius.circular(12),
               ),
-              child: Icon(Icons.arrow_back, color: Theme.of(context).colorScheme.onSurface),
+              child: Icon(Icons.arrow_back,
+                  color: Theme.of(context).colorScheme.onSurface),
             ),
           ),
           const SizedBox(width: 16),
@@ -149,7 +152,7 @@ class _EventLikesScreenState extends State<EventLikesScreen> {
   Widget _buildEventCard(Event event) {
     // Отримуємо список людей, які лайкнули ЦЮ конкретну подію
     final likes = _eventLikes[event.id] ?? [];
-    
+
     return Container(
       margin: const EdgeInsets.only(bottom: 20),
       decoration: BoxDecoration(
@@ -169,7 +172,8 @@ class _EventLikesScreenState extends State<EventLikesScreen> {
           Container(
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
-              borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
+              borderRadius:
+                  const BorderRadius.vertical(top: Radius.circular(20)),
               gradient: LinearGradient(
                 colors: [
                   Theme.of(context).colorScheme.primary,
@@ -196,12 +200,15 @@ class _EventLikesScreenState extends State<EventLikesScreen> {
                       const SizedBox(height: 4),
                       Row(
                         children: [
-                          Icon(Icons.location_on, color: Colors.white.withOpacity(0.8), size: 16),
+                          Icon(Icons.location_on,
+                              color: Colors.white.withOpacity(0.8), size: 16),
                           const SizedBox(width: 4),
                           Expanded(
                             child: Text(
                               event.location,
-                              style: TextStyle(color: Colors.white.withOpacity(0.8), fontSize: 14),
+                              style: TextStyle(
+                                  color: Colors.white.withOpacity(0.8),
+                                  fontSize: 14),
                               overflow: TextOverflow.ellipsis,
                             ),
                           ),
@@ -211,9 +218,11 @@ class _EventLikesScreenState extends State<EventLikesScreen> {
                   ),
                 ),
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                   decoration: BoxDecoration(
-                    color: Theme.of(context).colorScheme.surface.withOpacity(0.2),
+                    color:
+                        Theme.of(context).colorScheme.surface.withOpacity(0.2),
                     borderRadius: BorderRadius.circular(20),
                   ),
                   child: Text(
@@ -299,11 +308,12 @@ class _EventLikesScreenState extends State<EventLikesScreen> {
               image: DecorationImage(
                 image: _getImageProvider(user.photos),
                 fit: BoxFit.cover,
+                onError: (e, s) => debugPrint('Фото не завантажилось'),
               ),
             ),
           ),
           const SizedBox(width: 12),
-          
+
           // Інформація про користувача
           Expanded(
             child: Column(
@@ -328,7 +338,7 @@ class _EventLikesScreenState extends State<EventLikesScreen> {
               ],
             ),
           ),
-          
+
           // Кнопки дій (Прийняти / Відхилити)
           // Поки що вони просто візуальні або видаляють зі списку локально
           Column(
@@ -432,7 +442,8 @@ class _EventLikesScreenState extends State<EventLikesScreen> {
               },
               style: ElevatedButton.styleFrom(
                 backgroundColor: Theme.of(context).colorScheme.primary,
-                padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(12),
                 ),
@@ -453,7 +464,7 @@ class _EventLikesScreenState extends State<EventLikesScreen> {
   }
 
   // --- Дії (Тимчасова локальна логіка) ---
-  
+
   void _handleAccept(UserProfile user, String eventId) {
     setState(() {
       // Видаляємо користувача зі списку "нових лайків", ніби ми його обробили
@@ -461,7 +472,7 @@ class _EventLikesScreenState extends State<EventLikesScreen> {
       likes.remove(user);
       _eventLikes[eventId] = likes;
     });
-    
+
     // Тут можна додати логіку запису в базу (наприклад, зміна статусу на 'approved')
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
@@ -477,7 +488,7 @@ class _EventLikesScreenState extends State<EventLikesScreen> {
       likes.remove(user);
       _eventLikes[eventId] = likes;
     });
-    
+
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(AppLocalizations.of(context)!.user_declined(user.name)),

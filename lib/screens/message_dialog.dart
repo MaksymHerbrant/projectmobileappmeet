@@ -51,7 +51,8 @@ class _MessageDialogState extends State<MessageDialog> {
                 Container(
                   padding: const EdgeInsets.all(12),
                   decoration: BoxDecoration(
-                    color: Theme.of(context).colorScheme.primary.withOpacity(0.1),
+                    color:
+                        Theme.of(context).colorScheme.primary.withOpacity(0.1),
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: Icon(
@@ -66,7 +67,9 @@ class _MessageDialogState extends State<MessageDialog> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        widget.isEventLike ? AppLocalizations.of(context)!.md_like_event : AppLocalizations.of(context)!.md_like_user,
+                        widget.isEventLike
+                            ? AppLocalizations.of(context)!.md_like_event
+                            : AppLocalizations.of(context)!.md_like_user,
                         style: TextStyle(
                           fontSize: 18,
                           fontWeight: FontWeight.bold,
@@ -75,9 +78,10 @@ class _MessageDialogState extends State<MessageDialog> {
                       ),
                       const SizedBox(height: 4),
                       Text(
-                        widget.isEventLike 
+                        widget.isEventLike
                             ? AppLocalizations.of(context)!.md_liked_event
-                            : AppLocalizations.of(context)!.md_liked_user(widget.userName),
+                            : AppLocalizations.of(context)!
+                                .md_liked_user(widget.userName),
                         style: TextStyle(
                           fontSize: 14,
                           color: Colors.grey.withOpacity(0.7),
@@ -88,9 +92,9 @@ class _MessageDialogState extends State<MessageDialog> {
                 ),
               ],
             ),
-            
+
             const SizedBox(height: 24),
-            
+
             // Повідомлення
             Text(
               AppLocalizations.of(context)!.add_message_optional,
@@ -101,13 +105,13 @@ class _MessageDialogState extends State<MessageDialog> {
               ),
             ),
             const SizedBox(height: 12),
-            
+
             TextField(
               controller: _messageController,
               maxLines: 3,
               maxLength: 200,
               decoration: InputDecoration(
-                hintText: widget.isEventLike 
+                hintText: widget.isEventLike
                     ? AppLocalizations.of(context)!.md_join_hint
                     : AppLocalizations.of(context)!.md_nice_hint,
                 border: OutlineInputBorder(
@@ -116,15 +120,16 @@ class _MessageDialogState extends State<MessageDialog> {
                 ),
                 focusedBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(12),
-                  borderSide: BorderSide(color: Theme.of(context).colorScheme.primary),
+                  borderSide:
+                      BorderSide(color: Theme.of(context).colorScheme.primary),
                 ),
                 filled: true,
                 fillColor: Theme.of(context).colorScheme.surface,
               ),
             ),
-            
+
             const SizedBox(height: 24),
-            
+
             // Кнопки
             Row(
               children: [
@@ -138,7 +143,9 @@ class _MessageDialogState extends State<MessageDialog> {
                 const SizedBox(width: 12),
                 Expanded(
                   child: _buildButton(
-                    text: _isLoading ? AppLocalizations.of(context)!.md_sending : AppLocalizations.of(context)!.send,
+                    text: _isLoading
+                        ? AppLocalizations.of(context)!.md_sending
+                        : AppLocalizations.of(context)!.send,
                     color: Theme.of(context).colorScheme.primary,
                     onTap: _isLoading ? null : _handleSend,
                   ),
@@ -204,4 +211,4 @@ class _MessageDialogState extends State<MessageDialog> {
       'message': _messageController.text.trim(),
     });
   }
-} 
+}
