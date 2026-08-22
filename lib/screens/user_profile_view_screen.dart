@@ -1,12 +1,12 @@
 import '../l10n/interest_labels.dart';
 import '../theme/app_theme.dart';
 import 'package:flutter/material.dart';
+
+import '../theme/design_kit.dart';
 import 'package:provider/provider.dart';
 import '../providers/locale_provider.dart';
 import 'package:dating_app/l10n/gen/app_localizations.dart';
 import '../models/user_profile.dart'; // Імпорт моделі користувача
-import 'chat_screen.dart'; // Імпорт чат-екрана
-import 'profile_screen.dart'; // Імпорт профілю користувача
 
 class UserProfileViewScreen extends StatefulWidget {
   final UserProfile user;
@@ -193,48 +193,29 @@ class _UserProfileViewScreenState extends State<UserProfileViewScreen> {
               children: [
                 Row(
                   children: [
-                    Text(
-                      '${widget.user.name}, ${widget.user.age}',
-                      style: TextStyle(
-                        fontSize: 24,
-                        fontWeight: FontWeight.bold,
-                        color: Theme.of(context).colorScheme.onSurface,
+                    // Обидві частини мусять мати межу: імена бувають довгі,
+                    // а назви міст — ще довші, і без цього рядок вилазив за
+                    // екран на 213 пікселів.
+                    Expanded(
+                      child: Text(
+                        widget.user.age > 0
+                            ? '${widget.user.name}, ${widget.user.age}'
+                            : widget.user.name,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: Ds.h2(context).copyWith(fontSize: 22),
                       ),
                     ),
-                    const Spacer(),
-                    Container(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 12, vertical: 6),
-                      decoration: BoxDecoration(
-                        color: const Color.fromARGB(255, 76, 120, 175)
-                            .withOpacity(0.1),
-                        borderRadius: BorderRadius.circular(20),
-                        border: Border.all(
-                          color: const Color.fromARGB(255, 76, 120, 175)
-                              .withOpacity(0.3),
-                          width: 1,
+                    if (widget.user.location.isNotEmpty) ...[
+                      const SizedBox(width: 10),
+                      Flexible(
+                        child: DsChip(
+                          label: widget.user.location,
+                          small: true,
+                          icon: Icons.place_outlined,
                         ),
                       ),
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Icon(
-                            Icons.location_on,
-                            size: 16,
-                            color: const Color.fromARGB(255, 76, 120, 175),
-                          ),
-                          const SizedBox(width: 4),
-                          Text(
-                            widget.user.location,
-                            style: const TextStyle(
-                              fontSize: 14,
-                              color: Color.fromARGB(255, 76, 120, 175),
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
+                    ],
                   ],
                 ),
               ],

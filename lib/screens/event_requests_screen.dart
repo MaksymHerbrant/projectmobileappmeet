@@ -279,19 +279,31 @@ class _EventRequestsScreenState extends State<EventRequestsScreen> {
                       children: [
                         Row(
                           children: [
-                            Text('${user.name}, ${user.age}',
-                                style: TextStyle(
-                                    color:
-                                        Theme.of(context).colorScheme.onSurface,
+                            // Ім'я і місто мусять мати межу: обидва приходять
+                            // від користувача й бувають довільної довжини.
+                            Flexible(
+                              child: Text(
+                                '${user.name}, ${user.age}',
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                                style: const TextStyle(
+                                    color: Colors.white,
                                     fontSize: 18,
-                                    fontWeight: FontWeight.bold)),
+                                    fontWeight: FontWeight.bold),
+                              ),
+                            ),
                             const SizedBox(width: 8),
-                            Icon(Icons.location_on,
-                                color: Colors.white.withOpacity(0.8), size: 16),
-                            Text(user.location,
-                                style: TextStyle(
-                                    color: Colors.white.withOpacity(0.8),
-                                    fontSize: 14)),
+                            const Icon(Icons.location_on,
+                                color: Colors.white70, size: 16),
+                            Flexible(
+                              child: Text(
+                                user.location,
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                                style: const TextStyle(
+                                    color: Colors.white70, fontSize: 14),
+                              ),
+                            ),
                           ],
                         ),
                         if (user.description.isNotEmpty) ...[

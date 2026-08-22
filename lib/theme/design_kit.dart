@@ -600,12 +600,18 @@ class DsChip extends StatelessWidget {
                   Icon(icon, size: small ? 13 : 15, color: fg),
                   const SizedBox(width: 6),
                 ],
-                Text(
-                  label,
-                  style: TextStyle(
-                    fontSize: small ? 12 : 13,
-                    fontWeight: FontWeight.w600,
-                    color: fg,
+                // Flexible + обрізання: чип часто отримує назву міста або
+                // інтересу, і в вузькому рядку без цього він вилазить за екран.
+                Flexible(
+                  child: Text(
+                    label,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(
+                      fontSize: small ? 12 : 13,
+                      fontWeight: FontWeight.w600,
+                      color: fg,
+                    ),
                   ),
                 ),
               ],
@@ -1330,7 +1336,8 @@ class DsSection extends StatelessWidget {
                     // Лінія починається під текстом, а не під іконкою — так
                     // рядки читаються як список, а не як таблиця.
                     padding: const EdgeInsets.only(left: 32),
-                    child: Divider(height: 1, color: context.scheme.outlineVariant),
+                    child: Divider(
+                        height: 1, color: context.scheme.outlineVariant),
                   ),
                 rows[i],
               ],
@@ -1422,7 +1429,8 @@ class DsRow extends StatelessWidget {
             else if (selected)
               Icon(Icons.check_rounded, size: 20, color: scheme.primary)
             else if (onTap != null && chevron)
-              Icon(Icons.chevron_right_rounded, size: 20, color: scheme.onSurfaceVariant),
+              Icon(Icons.chevron_right_rounded,
+                  size: 20, color: scheme.onSurfaceVariant),
           ],
         ),
       ),
@@ -1480,14 +1488,17 @@ class DsEmptyState extends StatelessWidget {
                         shape: BoxShape.circle,
                         boxShadow: Ds.shadow(context),
                       ),
-                      child: Icon(icon, size: 30, color: scheme.onSurfaceVariant),
+                      child:
+                          Icon(icon, size: 30, color: scheme.onSurfaceVariant),
                     ),
                     const SizedBox(height: 24),
-                    Text(title, textAlign: TextAlign.center, style: Ds.h2(context)),
+                    Text(title,
+                        textAlign: TextAlign.center, style: Ds.h2(context)),
                     const SizedBox(height: 10),
                     ConstrainedBox(
                       constraints: const BoxConstraints(maxWidth: 260),
-                      child: Text(body, textAlign: TextAlign.center, style: Ds.sub(context)),
+                      child: Text(body,
+                          textAlign: TextAlign.center, style: Ds.sub(context)),
                     ),
                     if (actionLabel != null) ...[
                       const SizedBox(height: 18),

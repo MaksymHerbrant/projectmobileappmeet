@@ -191,6 +191,8 @@ class _EventLikesScreenState extends State<EventLikesScreen> {
                     children: [
                       Text(
                         event.title,
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
                         style: TextStyle(
                           color: Theme.of(context).colorScheme.onSurface,
                           fontSize: 18,
