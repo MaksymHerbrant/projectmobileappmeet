@@ -20,25 +20,40 @@ class MainNavigationScreen extends StatefulWidget {
 class _MainNavigationScreenState extends State<MainNavigationScreen> {
   late int _currentIndex = widget.initialIndex;
 
-  static const List<Widget> _screens = [
-    MainFeedScreen(),
-    ChatScreen(),
-    MatchesScreen(),
-    ProfileScreen(),
-  ];
+  /// Вкладки, які людина вже відкривала.
+  ///
+  /// IndexedStack будує всіх своїх дітей одразу, тож при вході стартували
+  /// разом: геолокація і стрічка, підписка на чати з опитуванням присутності,
+  /// завантаження заявок і профіль. Через це вхід і тягнувся. Тепер вкладка
+  /// створюється при першому відкритті — а далі IndexedStack тримає її
+  /// живою, тож стан між перемиканнями не втрачається.
+  late final Set<int> _visited = {widget.initialIndex};
+
+  Widget _tab(int index) {
+    if (!_visited.contains(index)) return const SizedBox.shrink();
+    return switch (index) {
+      0 => const MainFeedScreen(),
+      1 => const ChatScreen(),
+      2 => const MatchesScreen(),
+      _ => const ProfileScreen(),
+    };
+  }
 
   @override
   Widget build(BuildContext context) {
     final t = AppLocalizations.of(context)!;
 
     return Scaffold(
-      // IndexedStack сам тримає всі чотири екрани живими, тож перемальовувати
-      // його через AnimatedSwitcher означало б скидати стан при кожному
-      // перемиканні — саме те, чого IndexedStack і уникає.
-      body: IndexedStack(index: _currentIndex, children: _screens),
+      body: IndexedStack(
+        index: _currentIndex,
+        children: [for (var i = 0; i < 4; i++) _tab(i)],
+      ),
       bottomNavigationBar: DsNavBar(
         index: _currentIndex,
-        onChanged: (i) => setState(() => _currentIndex = i),
+        onChanged: (i) => setState(() {
+          _visited.add(i);
+          _currentIndex = i;
+        }),
         items: [
           DsNavItem(icon: Icons.style_outlined, label: t.nav_feed),
           DsNavItem(icon: Icons.mail_outline_rounded, label: t.nav_chats),

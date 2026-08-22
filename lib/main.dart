@@ -1,3 +1,6 @@
+import 'dart:io' show Platform;
+
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:provider/provider.dart';
@@ -120,6 +123,15 @@ class AuthGate extends StatefulWidget {
 }
 
 class _AuthGateState extends State<AuthGate> {
+  /// Потік створюється один раз.
+  ///
+  /// Раніше він брався прямо в build(), і кожна перебудова давала новий
+  /// об'єкт — StreamBuilder відписувався й підписувався знову, а Supabase
+  /// на кожну підписку перевіряв сесію. Звідси черга «Refresh session»
+  /// у журналі.
+  late final Stream<AuthState> _authChanges =
+      Supabase.instance.client.auth.onAuthStateChange;
+
   @override
   void initState() {
     super.initState();
@@ -183,12 +195,27 @@ class _AuthGateState extends State<AuthGate> {
   void _registerTokenOnce() {
     if (_tokenRequested) return;
     _tokenRequested = true;
+    _resolveToken();
+  }
 
-    FirebaseMessaging.instance.getToken().then((token) {
-      if (token != null) _saveTokenToSupabase(token);
-    }).catchError((Object e, StackTrace st) {
+  Future<void> _resolveToken() async {
+    try {
+      // На iOS токен FCM неможливо отримати, доки система не видала APNS-токен,
+      // а це стається за кілька секунд після запуску. Без очікування getToken()
+      // просто падає з apns-token-not-set, і пристрій лишається без пушів до
+      // наступного запуску.
+      if (!kIsWeb && Platform.isIOS) {
+        for (var attempt = 0; attempt < 10; attempt++) {
+          if (await FirebaseMessaging.instance.getAPNSToken() != null) break;
+          await Future.delayed(const Duration(seconds: 1));
+        }
+      }
+
+      final token = await FirebaseMessaging.instance.getToken();
+      if (token != null) await _saveTokenToSupabase(token);
+    } catch (e) {
       debugPrint('Пуші недоступні: $e');
-    });
+    }
   }
 
   Future<void> _setupNotificationsAndListen() async {
@@ -229,14 +256,22 @@ class _AuthGateState extends State<AuthGate> {
   @override
   Widget build(BuildContext context) {
     return StreamBuilder<AuthState>(
-      stream: Supabase.instance.client.auth.onAuthStateChange,
+      stream: _authChanges,
       builder: (context, snapshot) {
-        if (snapshot.connectionState == ConnectionState.waiting) {
+        // Джерело правди — поточна сесія клієнта, а не остання подія потоку:
+        // події бувають і без сесії (оновлення користувача, поновлення
+        // токена), і на них екран стрибав би на вітання.
+        final session = Supabase.instance.client.auth.currentSession;
+
+        // Спінер лише поки сесія справді невідома. Якщо вона вже є в
+        // пам'яті, чекати на першу подію потоку немає сенсу — саме це
+        // затримувало вхід.
+        if (session == null &&
+            snapshot.connectionState == ConnectionState.waiting) {
           return const Scaffold(
               body: Center(child: CircularProgressIndicator()));
         }
 
-        final session = snapshot.data?.session;
         if (session != null) {
           // Реєстрація токена — побічний ефект, і в build() їй не місце:
           // build викликається на кожну перебудову, тож токен запитувався
